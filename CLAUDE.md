@@ -40,12 +40,13 @@
 
 【フェーズ 5: Macro チェック & 自律行動】
 
-  11. plan/project.md の done_when を確認
-  12. current_phase.tasks から未完了タスクを特定
-  13. 宣言して作業開始:
-      「Macro: {project.md の summary}
-       残タスク: {未完了タスクのリスト}
-       → {next_task} を進めます。」
+  11. plan/project.md の存在を確認
+  12. Macro が存在する場合:
+      - done_when と current_phase.tasks を確認
+      - 「Macro: {summary} / 残タスク: {未完了} → {next} を進めます。」
+  13. Macro が存在しない場合（setup レイヤー）:
+      - 「Macro は Phase 8 で生成されます。setup を進めます。」
+      - playbook の Phase 0 から開始
   14. LOOP に入る（ユーザーが止めない限り進む）
 
   ⚠️ 禁止: 「よろしいですか？」と聞く
@@ -63,8 +64,8 @@ what: {focus.current}
 phase: {goal.phase}
 session: {focus.session}
 branch: {現在のブランチ名}
-macro_goal: {plan/project.md の summary}
-remaining_tasks: {project.md の current_phase.tasks で未完了のもの}
+macro_goal: {plan/project.md の summary | "Phase 8 で生成"}
+remaining_tasks: {project.md の残タスク | playbook の残 Phase}
 playbook: {active_playbooks.{focus.current}}
 done_criteria: {goal.done_criteria を列挙}
 git_status: {clean | modified | untracked}

@@ -50,11 +50,11 @@ return_to: null
 > **3層計画構造**: Macro → Medium → Micro
 
 ```yaml
-# Macro: リポジトリ全体の最終目標
+# Macro: リポジトリ全体の最終目標（Phase 8 で生成）
 macro:
   file: plan/project.md
-  exists: true
-  summary: フォークするだけで LLM 主導の TDD 開発環境が整うテンプレートを公開する
+  exists: false
+  summary: null  # setup 完了後、ユーザーの目標に基づいて生成
 
 # Archive: 公開時に新規ユーザーに不要なファイルを隔離
 archive:
@@ -91,8 +91,8 @@ upper_plans:
 > **Macro 計画の状態を管理。**
 
 ```yaml
-generated: true              # plan/project.md 生成済み
-project_plan: plan/project.md
+generated: false             # Phase 8 で生成
+project_plan: null           # setup 完了後に plan/project.md が生成される
 ```
 
 ---

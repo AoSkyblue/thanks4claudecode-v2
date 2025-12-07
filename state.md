@@ -10,8 +10,8 @@
 ## focus
 
 ```yaml
-current: setup               # plan-template | workspace | setup | product
-session: discussion          # task | discussion
+current: workspace           # plan-template | workspace | setup | product
+session: task                # task | discussion (playbook作成中は一時的にdiscussion)
 ```
 
 ---
@@ -28,7 +28,7 @@ mode: trusted                # strict | trusted | developer | admin
 
 ```yaml
 plan-template:    null
-workspace:        null
+workspace:        plan/active/playbook-3layer-plan.md
 setup:            setup/playbook-setup.md   # デフォルト playbook
 product:          null                       # setup 完了後、product 開発用に作成
 ```
@@ -47,30 +47,32 @@ return_to: null
 
 ## plan_hierarchy
 
-> **6 層レイヤー構造**: vision → meta-roadmap → CONTEXT.md → roadmap → playbook → task
+> **3層計画構造**: Macro → Medium → Micro
 
 ```yaml
-# 最上位レイヤー（WHY-ultimate）
-vision: plan/vision.md
+# Macro: リポジトリ全体の最終目標
+macro:
+  file: plan/project.md      # 存在する場合
+  exists: false              # project_context.generated と連動
+  summary: null              # 未定義
 
-# roadmap 改善レイヤー（HOW-to-improve）
-meta_roadmap: plan/meta-roadmap.md
+# Medium: 単機能実装の中期計画（1ブランチ = 1playbook）
+medium:
+  file: plan/active/playbook-3layer-plan.md
+  exists: true
+  goal: 3層計画管理システムの実装
 
-# 中長期計画レイヤー（WHAT）
-roadmap: plan/roadmap.md
-current_phase: setup
-current_milestone: null
+# Micro: セッション単位の作業（playbook の 1 Phase）
+micro:
+  phase: complete
+  name: 全 Phase 完了
+  status: done
 
-# セッションタスクレイヤー（HOW）
-playbook: setup/playbook-setup.md
-
-# 完了タスク
-completed_tasks: []
-
-# 次のタスク
-next_tasks:
-  - Phase 0: ルート選択
-  - Phase 1: プロジェクト設計
+# 上位計画参照（必要時のみ参照、通常は隔離）
+upper_plans:
+  vision: plan/vision.md           # WHY-ultimate
+  meta_roadmap: plan/meta-roadmap.md  # HOW-to-improve
+  roadmap: plan/roadmap.md         # WHAT（参照用）
 ```
 
 ---
@@ -99,9 +101,9 @@ playbook: null
 ## layer: workspace
 
 ```yaml
-state: done
-sub: v7.2-readme-structure-updated
-playbook: null
+state: state_update
+sub: v8-3layer-plan-guard-complete
+playbook: plan/active/playbook-3layer-plan.md
 ```
 
 ---
@@ -138,19 +140,24 @@ playbook: null
 ## goal
 
 ```yaml
-phase: setup
-milestone: Phase0
-task: ルート選択
+phase: workspace
+milestone: v8-3layer-plan-guard
+task: 3層計画管理システムの実装
 assignee: claude_code
 
 done_criteria:
-  - ユーザーが目的を選択した
+  - plan-guard SubAgent が存在し、CLAUDE.md DISPATCH に登録されている
+  - シナリオ S0-S5 が全て正しく動作する
+  - 3層計画構造（Macro/Medium/Micro）が state.md に反映されている
 ```
 
 ### 次のステップ
 ```
-Phase 0: ルート選択（チュートリアル or 本番開発）
-Phase 1: プロジェクト設計（何を作るか）
+p1: playbook 作成 (done)
+p2: plan-guard SubAgent 作成
+p3: CLAUDE.md DISPATCH 更新
+p4: state.md 3層構造への更新
+p5: シナリオテスト
 ```
 
 ---
@@ -158,8 +165,10 @@ Phase 1: プロジェクト設計（何を作るか）
 ## verification
 
 ```yaml
-self_complete: false
+self_complete: true
 user_verified: false
+critic_result: CONDITIONAL_PASS
+note: 動作検証は次回セッション開始時に実施
 ```
 
 ---
@@ -188,7 +197,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-07 23:32:55
+last_start: 2025-12-08 00:10:45
 last_end: null
 uncommitted_warning: false
 ```
@@ -207,4 +216,5 @@ uncommitted_warning: false
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | V8: 3層計画管理システム実装完了。plan-guard.md, DISPATCH 更新, plan_hierarchy 3層化 |
 | - | フォーク直後の初期状態 |

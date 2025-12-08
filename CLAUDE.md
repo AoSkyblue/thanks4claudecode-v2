@@ -1,10 +1,17 @@
 # CLAUDE.md
 
-> **敬語かつ批判的なプロフェッショナル。質問するな、実行せよ。間違いには NO。**
+```yaml
+# プロンプト受信時の必須行動
+1. 分類: TASK / CHAT / QUESTION / META（NLU で判断）
+2. 更新: state.md の session 行を書き換え
+3. 行動: session に応じて動く
 
-> **state.md → project.md → playbook の順に読め。質問する前に参照せよ。**
-
-@.claude/CLAUDE-ref.md
+# session 別の行動
+TASK: INIT → LOOP → critic（guard 発動）
+CHAT: 簡潔応答（guard スキップ）
+QUESTION: 調査可（guard スキップ）
+META: plan-guard 確認
+```
 
 ---
 
@@ -147,36 +154,37 @@ while true:
 
 ---
 
-## SESSION（自動プロンプト分類）
+## SESSION（プロンプト分類）
 
-> **prompt-validator.sh がプロンプト受信時にキーワード判定し、state.md の session を自動更新する。**
-> **後続の Hooks は session を参照して動作を変える。Claude の行動に依存しない。**
+> **Hook が発火し、Claude に分類を指示する。Claude が NLU で判断し state.md を更新。**
+> **後続の Guards は session を参照して動作を変える。**
 
 ```yaml
+分類の流れ:
+  1. prompt-validator.sh が発火（トリガーのみ）
+  2. Claude が自然言語理解で分類
+  3. Claude が state.md の session を更新
+  4. 後続 Guards が session を読んで強制
+
 session の値と動作:
   TASK:
-    意味: 作業指示（コード書いて、機能作って、バグ直して）
+    意味: 作業指示（実装、修正、テスト、進めて、やって等）
     動作: playbook 必須、全 guard 発動、LOOP に入る
 
   CHAT:
-    意味: 雑談・挨拶（こんにちは、ありがとう）
+    意味: 雑談・挨拶
     動作: guard スキップ、簡潔に応答
 
   QUESTION:
-    意味: 質問・確認（これは何？どうやるの？）
+    意味: 質問・確認
     動作: guard スキップ、必要なら Read/Grep で調査
 
   META:
-    意味: 計画変更・scope 変更（ついでに、別の）
+    意味: 計画変更・scope 変更
     動作: plan-guard 呼び出し、計画との整合性を確認
 
-キーワード判定:
-  - prompt-validator.sh（UserPromptSubmit Hook）が自動実行
-  - 日本語・英語のキーワードでマッチング
-  - デフォルト: QUESTION
-  - 詳細は state.md の session_definition を参照
-
 ⚠️ session=TASK なのに playbook=null は禁止（playbook-guard.sh がブロック）
+⚠️ session 更新を忘れると guard が古い値で判定する
 ```
 
 ---

@@ -11,60 +11,35 @@
 
 ```yaml
 current: product             # plan-template | workspace | setup | product
-session: QUESTION            # TASK | CHAT | QUESTION | META（Hook が自動更新）
+session: TASK            # TASK | CHAT | QUESTION | META（Claude が NLU で判断）
 ```
 
-> **session**: prompt-validator.sh がプロンプト受信時にキーワード判定し、自動更新する。
-> 後続の Hooks は session を参照して動作を変える。
+> **session**: Claude が NLU で判断し更新。後続 Guards が参照して動作を変える。
 
 ---
 
 ## session_definition
 
-> **session の値と動作の定義。prompt-validator.sh が判定に使用。**
+> **session の値と動作の定義。Claude が NLU で判断し更新する。**
 
 ```yaml
 TASK:
-  意味: 作業指示（コード作成、機能実装、バグ修正など）
-  キーワード:
-    ja: [作って, 実装, 追加, 修正, 直して, 書いて, 削除, 変更, 作成, リファクタ]
-    en: [create, implement, add, fix, write, delete, change, build, make]
-  動作:
-    - playbook 必須（なければ /playbook-init）
-    - 全 guard 発動
-    - LOOP に入る
+  意味: 作業指示（実装、修正、テスト、進めて、やって等）
+  動作: playbook 必須、全 guard 発動、LOOP
 
 CHAT:
-  意味: 雑談・挨拶（技術的な作業を伴わない）
-  キーワード:
-    ja: [こんにちは, ありがとう, お疲れ, おはよう, さようなら, よろしく]
-    en: [hello, hi, thanks, bye, good]
-  動作:
-    - guard スキップ
-    - playbook 不要
-    - 簡潔に応答
+  意味: 雑談・挨拶
+  動作: guard スキップ、簡潔応答
 
 QUESTION:
-  意味: 質問・確認（情報収集、理解確認）
-  キーワード:
-    ja: [？, 何, どう, ですか, って, どこ, いつ, なぜ, 教えて]
-    en: [?, what, how, where, when, why, which, can, does, is]
-  動作:
-    - guard スキップ
-    - playbook 不要
-    - 必要なら Read/Grep で調査
+  意味: 質問・確認
+  動作: guard スキップ、調査可
 
 META:
-  意味: 計画変更・scope 変更（既存計画への追加・変更要求）
-  キーワード:
-    ja: [ついでに, 別の, 計画, scope, 予定, 変更したい, あと, 追加で]
-    en: [also, another, plan, scope, schedule, change, btw, additionally]
-  動作:
-    - plan-guard SubAgent 呼び出し
-    - 計画との整合性を確認
-    - scope creep を検出
+  意味: 計画変更・scope 変更
+  動作: plan-guard 確認
 
-default: QUESTION  # キーワードに一致しない場合
+判定: Claude が自然言語理解で行う（キーワードマッチではない）
 ```
 
 ---

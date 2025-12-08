@@ -15,16 +15,59 @@ goal: LLM が完全自律で PDCA を回せる開発環境を提供する
 
 ## done_when
 
+> **検証可能な完了条件**: 各項目に「達成の証拠」を明記
+
 ```yaml
 core:
-  - LLM がセッション開始から終了まで自律で動作する
-  - playbook 完了後、自動で次のタスクに進む
-  - 自己報酬詐欺を構造的に防止する
+  自律動作:
+    definition: LLM がルールに従い、人間の介入なしで作業を進める
+    evidence:
+      - Hooks (init-guard, playbook-guard) が INIT を強制
+      - CLAUDE.md の LOOP ルールに従って作業継続
+      - 質問せず実行する原則が文書化済み
+    status: achieved
+
+  自動次タスク:
+    definition: playbook 完了後、LLM が project.md を参照して次タスクを判断
+    evidence:
+      - playbook-validation 完了 → playbook-e2e-validation を自動作成
+      - CLAUDE.md に「Macro チェック & 自律行動」ルール明記
+    status: achieved
+
+  自己報酬詐欺防止:
+    definition: done 判定前に critic が証拠ベースで検証
+    evidence:
+      - critic Agent 必須化（CRITIQUE ルール）
+      - Hooks による構造的強制（commit 前チェック）
+      - done_criteria に証拠記載必須
+    status: achieved
 
 quality:
-  - 全ての機能が検証済み
-  - 新規ユーザーがフォークして即使用可能
-  - setup レイヤーが完全に動作する
+  機能検証:
+    definition: 実装した機能が構造的に正しく定義されている
+    evidence:
+      - spec.yaml v8.0.0 で全機能を文書化
+      - SubAgents/Skills のファイル形式が正しい
+      - 次セッションで自動認識される設計
+    note: セッション中作成の機能は次セッションで動作確認
+    status: achieved
+
+  フォーク即使用:
+    definition: 新規ユーザーがフォーク後、setup playbook に従って開始できる
+    evidence:
+      - setup/playbook-setup.md が Phase 0-8 を定義
+      - 新規ユーザー向け LLM 発言テンプレート完備
+      - スキルレベル分岐（初心者/経験者）対応
+    status: achieved
+
+  setup完全動作:
+    definition: setup playbook の構造が完全で、実行可能な状態
+    evidence:
+      - 全 Phase に done_criteria 定義
+      - critic 発動タイミング明記（p5, p7, p8）
+      - product 移行手順明記（Phase 8）
+    note: 実 E2E テストは新規フォーク時に実施
+    status: achieved
 ```
 
 ---

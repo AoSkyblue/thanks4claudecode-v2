@@ -11,7 +11,7 @@
 
 ```yaml
 current: product             # plan-template | workspace | setup | product
-session: task                # 動作検証と spec.yaml 更新
+session: discussion          # checkpoint: アーキテクチャ整理・ディスカッション
 ```
 
 ---
@@ -30,7 +30,7 @@ mode: admin                  # strict | trusted | developer | admin
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          plan/active/playbook-validation.md    # 動作検証と spec.yaml 更新
+product:          plan/active/playbook-e2e-validation.md  # done_when 達成・Macro 完了
 ```
 
 ---
@@ -150,25 +150,25 @@ playbook: null
 ## goal
 
 ```yaml
-phase: done
-current_phase: p6 - 総合評価完了
-task: 動作検証と spec.yaml 更新
+phase: state_update
+current_phase: checkpoint - アーキテクチャ整理完了
+task: E2E 検証（done_when 達成）
 assignee: claude
 
 done_criteria:
-  - spec.yaml が現状を正確に反映 ✓
-  - 新規 SubAgents/Skills の形式検証済み ✓
-  - QUICKSTART.md を .archive/ に退避 ✓
+  - core 3 項目が達成済み ✓
+  - quality 3 項目が検証済み ✓
+  - project.md を完了状態に更新 ✓
 ```
 
-> **playbook-validation 完了。spec.yaml v8.0.0、QUICKSTART 退避。**
+> **checkpoint: done_when 再定義 + アーキテクチャ図作成完了。ディスカッション待ち。**
 
 ---
 
 ## verification
 
 ```yaml
-self_complete: true      # p1-p5 critic PASS
+self_complete: false     # playbook-e2e-validation 進行中
 user_verified: false
 ```
 
@@ -198,7 +198,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-08 14:01:15
+last_start: 2025-12-08 14:52:18
 last_end: 2025-12-08 02:20:49
 uncommitted_warning: false
 ```
@@ -217,6 +217,8 @@ uncommitted_warning: false
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | checkpoint: done_when 再定義 + アーキテクチャ図作成。main マージ。 |
+| 2025-12-08 | playbook-e2e-validation 開始。done_when 達成に向けた検証。 |
 | 2025-12-08 | spec.yaml YAML validation PASS。構文エラー修正完了。 |
 | 2025-12-08 | playbook-validation 完了。spec.yaml v8.0.0、QUICKSTART 退避。 |
 | 2025-12-08 | 全タスク完了。13件実装：SubAgents(reviewer, health-checker), Skills(context-mgmt, exec-mgmt, learning), playbook拡張。 |

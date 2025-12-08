@@ -193,6 +193,30 @@ done_when:
     - session=CHAT → Guard スキップ（exit 0）
     - session=TASK → Guard 発動（playbook チェック）
     - critic PASS
+
+- id: p8
+  name: 構造的強制（デフォルト TASK）
+  goal: Hook が session を TASK にリセットし、Claude が NLU で変更する設計に移行
+  executor: claudecode
+  depends_on: [p7]
+  done_criteria:
+    - prompt-validator.sh が発火時に session を TASK にリセットしている
+    - Claude が CHAT/QUESTION/META と判断した場合のみ、明示的に変更する
+    - Claude が忘れても TASK として Guards が発動する（安全側フォール）
+    - キーワード判定は一切使用していない（NLU のみ）
+  test_method: |
+    1. prompt-validator.sh を Read して TASK リセットを確認
+    2. session 未変更時に Guards が発動することを確認
+    3. NLU で CHAT 判定時のみ session が変更されることを確認
+  status: done
+  evidence:
+    - prompt-validator.sh 37-42行: sed で session を TASK にリセット（BSD/GNU 両対応）
+    - CLAUDE.md 9-19行: 「NLU: TASK 以外と判断したら state.md を Edit で変更」
+    - テスト: session=CHAT → Hook → TASK にリセット
+    - テスト: session=TASK AND playbook=null → playbook-guard EXIT: 2（ブロック）
+    - テスト: session=CHAT AND playbook=null → playbook-guard EXIT: 0（スキップ）
+    - grep -c "grep -qE" prompt-validator.sh → 0（キーワード判定なし）
+    - critic PASS
 ```
 
 ---

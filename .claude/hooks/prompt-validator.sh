@@ -22,8 +22,26 @@ if [ ! -f "state.md" ]; then
     exit 0
 fi
 
-# 現在の session を取得
-CURRENT_SESSION=$(grep -A 2 "^## focus" "state.md" 2>/dev/null | grep "session:" | head -1 | sed 's/.*session:[[:space:]]*//' | sed 's/#.*//' | tr -d ' ' || echo "QUESTION")
+# 現在の session を取得（リセット前の値を記録用に保持）
+OLD_SESSION=$(grep -A 2 "^## focus" "state.md" 2>/dev/null | grep "session:" | head -1 | sed 's/.*session:[[:space:]]*//' | sed 's/#.*//' | tr -d ' ' || echo "QUESTION")
+
+# ============================================================
+# 構造的強制: session を TASK にリセット
+# ============================================================
+# 設計思想:
+#   - デフォルト = TASK（最も厳しいモード、Guards 発動）
+#   - Claude が NLU で CHAT/QUESTION/META と判断したら明示的に変更
+#   - Claude が忘れても TASK として動作（安全側フォール）
+#   - キーワード判定は一切しない（NLU に任せる）
+
+# session を TASK にリセット（BSD/GNU 両対応）
+if [[ "$(uname)" == "Darwin" ]]; then
+    sed -i '' 's/^session: .*/session: TASK                # TASK | CHAT | QUESTION | META（Claude が NLU で判断）/' "state.md"
+else
+    sed -i 's/^session: .*/session: TASK                # TASK | CHAT | QUESTION | META（Claude が NLU で判断）/' "state.md"
+fi
+
+CURRENT_SESSION="TASK"
 
 # ============================================================
 # 出力: Claude への分類指示
@@ -31,19 +49,19 @@ CURRENT_SESSION=$(grep -A 2 "^## focus" "state.md" 2>/dev/null | grep "session:"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "  ${CYAN}[SESSION 分類]${NC}"
+echo -e "  ${CYAN}[SESSION: TASK にリセット済み]${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "  現在: $CURRENT_SESSION"
+echo "  前回: $OLD_SESSION → 現在: TASK"
 echo ""
-echo -e "  ${YELLOW}【必須】このプロンプトを分類し state.md を更新せよ${NC}"
+echo -e "  ${YELLOW}【NLU 判断】TASK 以外なら state.md を更新${NC}"
 echo ""
-echo "  TASK: 作業指示（実装、修正、テスト、デプロイ等）"
-echo "  CHAT: 雑談・挨拶"
-echo "  QUESTION: 質問・確認"
-echo "  META: 計画変更・scope 変更"
+echo "  TASK: そのまま（Guards 発動）"
+echo "  CHAT: Edit で session: CHAT に変更"
+echo "  QUESTION: Edit で session: QUESTION に変更"
+echo "  META: Edit で session: META に変更"
 echo ""
-echo "  → state.md の session: 行を更新"
+echo "  → 変更しなければ TASK として処理される"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

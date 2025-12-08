@@ -1,16 +1,22 @@
 # CLAUDE.md
 
+> **敬語かつ批判的なプロフェッショナル。質問するな、実行せよ。間違いには NO。**
+
+> **state.md → project.md → playbook の順に読め。質問する前に参照せよ。**
+
+@.claude/CLAUDE-ref.md
+
 ```yaml
-# プロンプト受信時の必須行動
-1. 分類: TASK / CHAT / QUESTION / META（NLU で判断）
-2. 更新: state.md の session 行を書き換え
-3. 行動: session に応じて動く
+# session 分類（構造的強制）
+Hook: 発火時に session を TASK にリセット（安全側フォール）
+NLU: TASK 以外と判断したら state.md を Edit で変更
+忘却: 変更しなければ TASK として Guards が発動
 
 # session 別の行動
 TASK: INIT → LOOP → critic（guard 発動）
-CHAT: 簡潔応答（guard スキップ）
-QUESTION: 調査可（guard スキップ）
-META: plan-guard 確認
+CHAT: 簡潔応答（guard スキップ）→ session を CHAT に変更
+QUESTION: 調査可（guard スキップ）→ session を QUESTION に変更
+META: plan-guard 確認 → session を META に変更
 ```
 
 ---
@@ -154,37 +160,33 @@ while true:
 
 ---
 
-## SESSION（プロンプト分類）
+## SESSION（プロンプト分類 - 構造的強制）
 
-> **Hook が発火し、Claude に分類を指示する。Claude が NLU で判断し state.md を更新。**
-> **後続の Guards は session を参照して動作を変える。**
+> **Hook が発火時に session を TASK にリセット。Claude が NLU で判断し、TASK 以外なら変更。**
+> **変更しなければ TASK として Guards が発動（安全側フォール）。**
 
 ```yaml
+設計思想:
+  - デフォルト = TASK（最も厳しいモード）
+  - Claude が忘れても安全（Guards が発動）
+  - キーワード判定なし（NLU の強みを活かす）
+  - Hook が書き込み（構造的強制、100% 動作）
+
 分類の流れ:
-  1. prompt-validator.sh が発火（トリガーのみ）
-  2. Claude が自然言語理解で分類
-  3. Claude が state.md の session を更新
-  4. 後続 Guards が session を読んで強制
+  1. prompt-validator.sh が発火
+  2. Hook が session を TASK にリセット（state.md を sed で更新）
+  3. Claude が NLU で分類
+  4. TASK 以外なら Claude が Edit で session を変更
+  5. 後続 Guards が session を読んで強制
 
 session の値と動作:
-  TASK:
-    意味: 作業指示（実装、修正、テスト、進めて、やって等）
-    動作: playbook 必須、全 guard 発動、LOOP に入る
-
-  CHAT:
-    意味: 雑談・挨拶
-    動作: guard スキップ、簡潔に応答
-
-  QUESTION:
-    意味: 質問・確認
-    動作: guard スキップ、必要なら Read/Grep で調査
-
-  META:
-    意味: 計画変更・scope 変更
-    動作: plan-guard 呼び出し、計画との整合性を確認
+  TASK: playbook 必須、全 guard 発動、LOOP に入る
+  CHAT: guard スキップ、簡潔に応答
+  QUESTION: guard スキップ、必要なら調査
+  META: plan-guard 確認、計画との整合性を検証
 
 ⚠️ session=TASK なのに playbook=null は禁止（playbook-guard.sh がブロック）
-⚠️ session 更新を忘れると guard が古い値で判定する
+⚠️ 忘れても TASK になる → 安全（無駄な guard 発動だけ）
 ```
 
 ---
@@ -270,6 +272,7 @@ MCP の使い分け:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | V4.1: 構造的強制。Hook が session を TASK にリセット → NLU で判断 → 安全側フォール。キーワード判定完全廃止。 |
 | 2025-12-08 | V4.0: session 自動判定システム。prompt-validator.sh がキーワード判定 → state.md 自動更新。Claude 依存を排除。 |
 | 2025-12-08 | V3.4: PROMPT_VALIDATION 追加。全プロンプトを project.md と照合。ROADMAP_CHECK を置換。 |
 | 2025-12-08 | V3.3: CONTEXT.md 廃止。state.md/project.md/playbook を真実源に。INIT 簡素化。 |

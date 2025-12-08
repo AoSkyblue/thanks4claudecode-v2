@@ -11,7 +11,7 @@
 
 ```yaml
 current: product             # plan-template | workspace | setup | product
-session: TASK            # TASK | CHAT | QUESTION | META（Claude が NLU で判断）
+session: TASK                # TASK | CHAT | QUESTION | META（Claude が NLU で判断）
 ```
 
 > **session**: Claude が NLU で判断し更新。後続 Guards が参照して動作を変える。
@@ -179,18 +179,18 @@ playbook: null
 
 ```yaml
 phase: done
-current_phase: p7 - NLU ベース移行完了
-task: session 分類システム（Hook + LLM）
+current_phase: p8 - 構造的強制完了
+task: session 分類システム（Hook + LLM + 構造的強制）
 assignee: claude
 
 done_criteria:
-  - Hook が発火して分類指示 ✓
-  - Claude が NLU で分類 ✓
-  - Guards が session で動作変更 ✓
-  - 全テスト PASS ✓
+  - Hook が発火して session を TASK にリセット ✓
+  - Claude が NLU で分類し、TASK 以外なら Edit で変更 ✓
+  - Claude が忘れても TASK として Guards が発動 ✓
+  - キーワード判定は一切使用していない ✓
 ```
 
-> **playbook-session-redesign: 全 Phase 完了（p0-p7 critic PASS）**
+> **playbook-session-redesign: 全 Phase 完了（p0-p8 critic PASS）**
 
 ---
 
@@ -227,7 +227,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-08 17:48:34
+last_start: 2025-12-08 18:26:34
 last_end: 2025-12-08 02:20:49
 uncommitted_warning: false
 ```
@@ -248,6 +248,7 @@ uncommitted_warning: false
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | p8 完了（構造的強制）: Hook が session を TASK にリセット → NLU 判断 → 安全側フォール。 |
 | 2025-12-08 | checkpoint: done_when 再定義 + アーキテクチャ図作成。main マージ。 |
 | 2025-12-08 | playbook-e2e-validation 開始。done_when 達成に向けた検証。 |
 | 2025-12-08 | spec.yaml YAML validation PASS。構文エラー修正完了。 |

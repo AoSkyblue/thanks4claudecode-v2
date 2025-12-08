@@ -11,7 +11,7 @@
 
 ```yaml
 current: product             # plan-template | workspace | setup | product
-session: task                # task | discussion
+session: discussion          # Issue #11 完了処理中
 ```
 
 ---
@@ -30,7 +30,7 @@ mode: admin                  # strict | trusted | developer | admin
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          plan/active/playbook-rollback.md    # Issue #11: ロールバック機能
+product:          null    # Issue #11 完了、次タスク開始準備
 ```
 
 ---
@@ -135,9 +135,9 @@ playbook: null  # テンプレートは pending のまま（正常）
 ## layer: product
 
 ```yaml
-state: done
-sub: rollback-complete
-playbook: plan/active/playbook-rollback.md
+state: pending
+sub: next-task-prep
+playbook: null
 ```
 
 ### 概要

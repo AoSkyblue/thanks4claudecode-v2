@@ -38,6 +38,7 @@ completed:
   - Issue #8: 自律性強化（PDCA自動回転・妥当性評価フレームワーク）
   - Issue #9: 回帰テスト機能（task-06）
   - Issue #10: 自動 /clear 判断（task-08）
+  - Issue #11: ロールバック機能（task-11）
 
 remaining_tasks:
   # 計画管理（3件）
@@ -92,13 +93,7 @@ remaining_tasks:
     description: セッション履歴の自動要約・保存
     priority: medium
 
-  # 回復・監視（3件）
-  - id: task-11
-    name: ロールバック機能
-    category: 回復・監視
-    description: 失敗時の状態復元機能
-    priority: high
-
+  # 回復・監視（2件）
   - id: task-12
     name: ヘルスチェック
     category: 回復・監視
@@ -117,9 +112,9 @@ remaining_tasks:
 ## priority_order
 
 ```yaml
-# 優先度順の実装順序
+# 優先度順の実装順序（task-11 完了）
 high:
-  - task-11: ロールバック機能
+  - (完了)
 
 medium:
   - task-01: タイムボックス

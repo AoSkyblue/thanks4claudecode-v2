@@ -150,17 +150,18 @@ playbook: plan/active/playbook-autonomy-enhancement.md
 ## goal
 
 ```yaml
-phase: complete
-current_phase: playbook 完了
-task: POST_LOOP 実行
+phase: planning
+current_phase: 残タスク実装開始
+task: Issue #9-#21 を順次実装
 assignee: claude
 
 done_criteria:
-  - 全 Phase done
-  - 残タスク確認
+  - plan/project.md 作成済み
+  - 13件の Issue 登録済み
+  - high 優先度から順次実装
 ```
 
-> **Issue #8: 全 Phase 完了（p1-p5 critic PASS）。POST_LOOP 実行中。**
+> **MECE 分析の残タスク 13件を Issue 登録。high 優先度から実装開始。**
 
 ---
 

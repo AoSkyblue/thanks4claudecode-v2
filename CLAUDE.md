@@ -147,47 +147,48 @@ while true:
 
 ---
 
-## PROMPT_VALIDATION（全プロンプト検証）【必須】
+## PROMPT_VALIDATION（全プロンプト検証）【絶対ルール】
 
-> **すべてのユーザープロンプトを project.md と playbook に照合する。**
-> **plan-guard ロジックに従って判定。乖離を検出したら報告。**
+> **すべてのユーザープロンプトを即時分類し、state.md に反映する。**
+> **Hooks は prompt_type を参照して可変動作する。**
 
 ```yaml
 実行タイミング: 全ユーザープロンプト受信時（例外なし）
 
-検証順序:
-  1. project.md の done_when を読む
-  2. playbook の goal.summary を読む
-  3. ユーザープロンプトを解析
-  4. 整合性を判定:
-     - PROJECT_ALIGNED: project.md の達成に寄与 → 続行
-     - PLAYBOOK_ALIGNED: playbook と整合（project は N/A）→ 続行
-     - EXTENSION: 関連するが scope 外 → 選択肢提示
-     - DRIFT: 矛盾または無関係 → 乖離報告
+【ステップ 1: 即時分類】
+プロンプトを以下のいずれかに分類:
+  TASK: 作業指示（コード書いて、機能作って、バグ直して、テストして）
+  CHAT: 雑談・挨拶（こんにちは、ありがとう、好きですか）
+  QUESTION: 質問・確認（これは何？どうやるの？〇〇できる？）
+  META: 計画変更・scope変更（これもやりたい、予定変更、新機能追加）
 
-PROJECT_ALIGNED の場合:
-  - 通常通り作業を進める
+【ステップ 2: state.md 更新】
+分類結果を state.md の prompt_type に書き込む:
+  Edit state.md: prompt_type: {TASK|CHAT|QUESTION|META}
 
-PLAYBOOK_ALIGNED の場合:
-  - playbook に沿って作業を進める
+【ステップ 3: 分類に応じた行動】
+  TASK:
+    - playbook 必須（なければ /playbook-init）
+    - 全 guard 発動
+    - LOOP に入る
 
-EXTENSION の場合:
-  1. 「project.md の scope を拡張する提案です」
-  2. 選択肢を提示:
-     a) project.md に新ゴールとして追加
-     b) 別プロジェクトとして切り離し
-  3. ユーザー選択後、計画を更新して続行
+  CHAT:
+    - 簡潔に応答
+    - guard 不要
+    - ツール使用不要
 
-DRIFT の場合:
-  1. 「project.md との乖離を検出しました」
-  2. 乖離の内容を説明
-  3. 選択肢を提示:
-     a) project.md を改訂
-     b) 現在の要求をスコープ外として拒否
-     c) 現在の project 完了後に対応
+  QUESTION:
+    - 質問に回答
+    - 必要なら Read/Grep で調査
+    - playbook 不要
 
-⚠️ 検証スキップ禁止: session=discussion でも project 乖離は報告する
-⚠️ 参照: .claude/agents/plan-guard.md
+  META:
+    - plan-guard SubAgent を呼び出す
+    - 計画変更を検討
+    - ユーザー確認後に実行
+
+⚠️ state.md 更新なしで作業開始は禁止（TASK の場合）
+⚠️ prompt_type=TASK なのに playbook=null は禁止
 ```
 
 ---
@@ -273,6 +274,7 @@ MCP の使い分け:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | V3.5: 動的プロンプト分類システム。prompt_type(TASK/CHAT/QUESTION/META)導入。Hooks が可変動作。 |
 | 2025-12-08 | V3.4: PROMPT_VALIDATION 追加。全プロンプトを project.md と照合。ROADMAP_CHECK を置換。 |
 | 2025-12-08 | V3.3: CONTEXT.md 廃止。state.md/project.md/playbook を真実源に。INIT 簡素化。 |
 | 2025-12-08 | V3.2: 報酬詐欺防止強化。LOOP に根拠確認、CRITIQUE に検証項目追加。 |

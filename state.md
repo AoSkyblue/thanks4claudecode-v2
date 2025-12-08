@@ -12,7 +12,11 @@
 ```yaml
 current: product             # plan-template | workspace | setup | product
 session: discussion          # checkpoint: アーキテクチャ整理・ディスカッション
+prompt_type: null            # TASK | CHAT | QUESTION | META（毎プロンプトで更新）
 ```
+
+> **prompt_type**: 各ユーザープロンプトを即時分類し、このフィールドを更新する。
+> Hooks は prompt_type を参照して可変動作する。
 
 ---
 

@@ -11,6 +11,11 @@
 
 set -e
 
+# デバッグログ（発火確認用）
+LOG_FILE=".claude/logs/prompt-validator.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Hook fired" >> "$LOG_FILE"
+
 # パス定義
 PROJECT_FILE="plan/project.md"
 STATE_FILE="state.md"

@@ -1,8 +1,13 @@
 #!/bin/bash
-# playbook-guard.sh - session=task AND playbook=null で作業をブロック
+# playbook-guard.sh - prompt_type=TASK AND playbook=null で作業をブロック
 #
 # 目的: playbook なしでの作業開始を構造的に防止
 # トリガー: PreToolUse(Edit), PreToolUse(Write)
+#
+# 動的分類対応:
+#   prompt_type=TASK: playbook 必須（ブロック）
+#   prompt_type=CHAT/QUESTION: スキップ（playbook 不要）
+#   prompt_type=META: スキップ（plan-guard で処理）
 #
 # 注意: このスクリプトは matcher: "Edit" と "Write" でのみ登録すること
 #       matcher: "*" で登録すると stdin を消費し、後続の Hook に影響する
@@ -30,7 +35,15 @@ if [[ "$FILE_PATH" == *"state.md" ]]; then
     exit 0
 fi
 
-# session を取得（yaml ブロック対応）
+# prompt_type を取得（動的分類）
+PROMPT_TYPE=$(grep -A6 "^## focus" "$STATE_FILE" | grep "^prompt_type:" | head -1 | sed 's/prompt_type: *//' | sed 's/ *#.*//' | tr -d ' ')
+
+# prompt_type が TASK 以外ならスキップ（CHAT/QUESTION/META は playbook 不要）
+if [[ "$PROMPT_TYPE" != "TASK" && "$PROMPT_TYPE" != "null" && -n "$PROMPT_TYPE" ]]; then
+    exit 0
+fi
+
+# session を取得（yaml ブロック対応）- 後方互換性のため残す
 SESSION=$(grep -A6 "^## focus" "$STATE_FILE" | grep "^session:" | head -1 | sed 's/session: *//' | sed 's/ *#.*//' | tr -d ' ')
 
 # session=discussion ならスキップ（空の場合も）

@@ -198,7 +198,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-08 13:14:29
+last_start: 2025-12-08 13:37:48
 last_end: 2025-12-08 02:20:49
 uncommitted_warning: false
 ```

@@ -150,17 +150,17 @@ playbook: null
 ## goal
 
 ```yaml
-phase: state_update
+phase: done
 current_phase: p5 - 最終確認・コミット
 task: 構造最適化（CONTEXT.md 整理 + 物語形式 + plan/setup）
 assignee: claude
 
 done_criteria:
-  - 全ファイルがコミット済み
-  - critic PASS
+  - 全ファイルがコミット済み ✓
+  - critic PASS ✓
 ```
 
-> **playbook-structure-optimization: p0-p4 完了 → p5 実行中**
+> **playbook-structure-optimization: 全 Phase 完了（p0-p5 critic PASS）**
 
 ---
 

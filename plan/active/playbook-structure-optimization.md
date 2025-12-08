@@ -111,10 +111,12 @@ evidence:
 ### p5: 最終確認・コミット
 
 ```yaml
-status: in_progress
+status: done
 goal: 全変更をコミットし、main にマージ
 done_criteria:
   - 全ファイルがコミット済み
   - critic PASS
-test_method: git status で clean を確認
+evidence:
+  - git status: clean（コミット 49b8279）
+  - critic: 全 Phase (p0-p5) PASS
 ```

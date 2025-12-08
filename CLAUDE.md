@@ -76,19 +76,76 @@ last_critic: {null | PASS | FAIL}
 
 ---
 
-## LOOP（テスト駆動作業ループ）
+## CORE（原則）
+
+```yaml
+pdca_autonomy:
+  rule: playbook 完了 → 自動で次タスク開始
+  禁止: ユーザープロンプトを待つ
+
+tdd_first:
+  rule: done_criteria = テスト仕様
+  条件: 根拠 = ユーザー発言引用 | 検証可能指標
+  禁止: 根拠なき done_criteria
+
+validation:
+  rule: critic は .claude/frameworks/ を参照
+  禁止: 都度生成の評価基準
+
+plan_based:
+  条件: session=task AND playbook=null → 作業禁止
+
+issue_context:
+  rule: playbook.meta.issue に Issue 番号記載
+
+git_branch_sync:
+  rule: 1 playbook = 1 branch
+```
+
+---
+
+## LOOP
 
 ```
+iteration = 0
+max = playbook.phase.max_iterations || 10
+
 while true:
-  1. playbook の done_criteria を「テスト」として読む
-  2. 各 done_criteria: 証拠がある→PASS、ない→EXEC()
-  3. 全て PASS → CRITIQUE() を実行
-     - CRITIQUE PASS → state.md 更新 → 次の Phase へ
-     - CRITIQUE FAIL → 問題を修正 → continue
-  4. 何をすべきかわからない → break
+  iteration++
+  if iteration > max: break  # デッドロック検出
+
+  0. 根拠なし → ユーザーに質問
+  1. done_criteria を読む
+  2. 証拠あり → PASS、なし → EXEC()
+  3. 全 PASS → CRITIQUE()
+     PASS → state.md 更新 → 次 Phase
+     FAIL → 修正 → continue
+  4. 不明 → break
 ```
 
-**証拠の例**: `ls` 出力、実行結果、該当箇所の引用
+---
+
+## POST_LOOP（playbook 完了後）
+
+```yaml
+トリガー: playbook の全 Phase が done
+
+行動:
+  1. 残タスク検出:
+     - plan/project.md の未完了タスクを確認
+     - Issue のラベル・マイルストーンを確認
+  2. 残タスクあり:
+     - 新ブランチ作成: git checkout -b feat/{next-task}
+     - 新 playbook 作成: plan/active/playbook-{next-task}.md
+     - state.md 更新: active_playbooks.product を更新
+     - 即座に LOOP に入る
+  3. 残タスクなし:
+     - 「全タスク完了。次の指示を待ちます。」
+
+禁止:
+  - 「報告して待つ」パターン（残タスクがあるのに止まる）
+  - ユーザーに「次は何をしますか？」と聞く
+```
 
 ---
 
@@ -118,15 +175,14 @@ while true:
 
 ---
 
-## CRITIQUE（自己批判ループ）【絶対ルール】
-
-> **Phase/layer を done にする前に、必ず critic エージェントを実行せよ。**
+## CRITIQUE
 
 ```yaml
-1. critic なしの done 更新は禁止
-2. critic 実行: Task(subagent_type="critic") または /crit
-3. critic PASS → done に更新してよい
-4. critic FAIL → 修正 → 再度 critic
+条件: done 更新前に critic 必須
+実行: Task(subagent_type="critic") | /crit
+参照: .claude/frameworks/done-criteria-validation.md
+PASS → done 更新可
+FAIL → 修正 → 再実行
 ```
 
 ---
@@ -159,6 +215,8 @@ BLOCK ファイルを編集したい場合:
 ❌ critic なしで Phase/layer を done にする（絶対禁止）
 ❌ forbidden 遷移を実行する
 ❌ focus.current と異なるレイヤーのファイルを無断で編集
+❌ ユーザーに聞かずに done_criteria を推測で定義する【報酬詐欺】
+❌ 「計画を立てる」こと自体を目的にする【計画のための計画】
 ```
 
 ---
@@ -198,6 +256,7 @@ MCP の使い分け:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | V3.2: 報酬詐欺防止強化。LOOP に根拠確認、CRITIQUE に検証項目追加。 |
 | 2025-12-02 | V3.1: 複数階層 plan 運用（roadmap）対応。 |
 | 2025-12-02 | V3.0: 二層構造化。core を 200 行以下に最小化。 |
 | 2025-12-02 | V2.1: CONTEXT セクション追加。 |

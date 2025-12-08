@@ -126,6 +126,20 @@ CRITIQUE 実行時、以下を自問してください：
 
 ## 参照ファイル
 
+- **.claude/frameworks/done-criteria-validation.md** - **必須**: 妥当性評価の固定フレームワーク
 - state.md - 現在の goal.done_criteria
 - playbook - phase の done_criteria
 - CONTEXT.md - CRITIQUE の定義（セクション 3）
+
+## 重要: 固定フレームワークの使用
+
+> **都度生成ではなく、`.claude/frameworks/done-criteria-validation.md` に従って評価すること。**
+
+評価開始時に必ず以下を確認:
+1. Read: .claude/frameworks/done-criteria-validation.md
+2. フレームワークの 5 項目をチェック:
+   - 根拠の有無
+   - 検証可能性
+   - 計画との整合性
+   - 報酬詐欺の検出
+   - 証拠の品質

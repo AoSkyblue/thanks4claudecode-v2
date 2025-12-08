@@ -83,6 +83,7 @@ done_when:
 | depends_on | 依存する Phase の id リスト |
 | prerequisites | 前提条件（環境、ツールなど） |
 | test_method | **推奨**: done_criteria を検証する具体的な手順 |
+| max_iterations | **推奨**: LOOP 回数上限（デフォルト: 10）。デッドロック防止 |
 | notes | 補足情報 |
 
 ---
@@ -317,6 +318,7 @@ enforcement:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-08 | V7: max_iterations フィールド追加。デッドロック防止。 |
 | 2025-12-02 | V6: ダブルチェック機能追加。自己報酬詐欺防止の構造的強制。 |
 | 2025-12-01 | V5: executor:user 完了確認ガイドを追加。 |
 | 2025-12-01 | V4: branch フィールド追加。playbook とブランチの 1:1 紐づけ。 |

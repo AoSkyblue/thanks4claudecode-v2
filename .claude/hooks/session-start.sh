@@ -134,6 +134,19 @@ $SEP
 EOF
 fi
 
+# === CORE ===
+cat <<EOF
+$SEP
+  🧠 CORE
+$SEP
+  pdca: playbook完了 → 自動次タスク
+  tdd: done_criteria = テスト仕様（根拠必須）
+  validation: critic → .claude/frameworks/
+  plan: session=task → playbook必須
+  git: 1 playbook = 1 branch
+
+EOF
+
 # === 必須 Read 指示（focus 別分岐）===
 cat <<EOF
 $SEP

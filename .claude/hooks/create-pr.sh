@@ -98,14 +98,19 @@ PLAYBOOK_FILE="$REPO_ROOT/$PLAYBOOK_PATH"
 # playbook 名を取得（ファイル名から）
 PLAYBOOK_NAME=$(basename "$PLAYBOOK_PATH" .md | sed 's/playbook-//')
 
-# goal.summary を取得
-GOAL_SUMMARY=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/summary: \|/,/^$/' | grep -v "summary:" | sed 's/^  //' | head -3 | tr '\n' ' ' || echo "")
+# goal.summary を取得（YAML コードブロック内）
+GOAL_SUMMARY=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/summary: \|/,/^done_when:/' | grep -v -E "^(summary:|done_when:)" | sed 's/^  //' | tr '\n' ' ' | sed 's/  */ /g' || echo "")
 
-# done_when を取得（リスト形式）
-DONE_WHEN=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/done_when:/,/^[^ -]/' | grep "^  -" | sed 's/^  - /- /' || echo "")
+# done_when を取得（リスト形式、YAML コードブロック内）
+DONE_WHEN=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/done_when:/,/^```/' | grep "^  - " | sed 's/^  - /- /' || echo "")
 
 # phases から完了済み Phase を取得
-COMPLETED_PHASES=$(awk '/^## phases/,/^## [^p]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/status: done/,/^-/' | grep "name:" | sed 's/.*name: */- /' || echo "")
+# status: done の前後から name を抽出
+COMPLETED_PHASES=$(awk '/^## phases/,/^## [^p]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '
+  /^- id:/ { id = $3 }
+  /name:/ { name = $0; sub(/.*name: */, "", name) }
+  /status: done/ { print "- " name }
+' || echo "")
 
 # ============================================================
 # リモートへ push

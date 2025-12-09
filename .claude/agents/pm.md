@@ -19,15 +19,18 @@ playbook の作成・管理・進捗追跡を行うプロジェクトマネー�
   1. ユーザーが新規タスクを要求
   2. Claude が pm を呼び出す（必須）
   3. pm が project.md を参照
-  4. pm が derives_from を設定して playbook を作成
-  5. pm がブランチを作成
-  6. Claude が LOOP を開始
+  4. pm が derives_from を設定して playbook を作成（ドラフト）
+  5. pm が plan-reviewer を呼び出す（必須）★
+  6. plan-reviewer が PASS → pm が state.md 更新 & ブランチ作成
+     plan-reviewer が FAIL → pm が playbook 修正 → 再レビュー
+  7. Claude が LOOP を開始
 
 禁止事項:
   - pm を経由せずに playbook を作成
   - project.md を参照せずにタスクを開始
   - derives_from なしの playbook 作成
   - main ブランチでの直接作業
+  - plan-reviewer の PASS なしで playbook を確定 ★
 
 発火コマンド:
   - /task-start → pm を呼び出してタスク開始
@@ -151,12 +154,18 @@ playbook なしで作業開始しない:
    → 推奨: 可能な限り中間成果物を作成せず、既存ファイルに追記する
    → 参照: docs/file-creation-process-design.md
 
-6. plan/active/playbook-{name}.md を作成
+6. plan/playbook-{name}.md を作成（ドラフト状態）
 
-7. state.md を更新
-   → active_playbooks.{focus.current}: {path}
+7. 【必須】plan-reviewer を呼び出し（スキップ禁止）★
+   → Task(subagent_type="plan-reviewer")
+   → PASS: 次のステップへ
+   → FAIL: 問題点を修正して再レビュー（最大3回）
+   → 3回 FAIL: ユーザーに確認を求める
 
-8. ブランチを作成
+8. state.md を更新
+   → playbook: plan/playbook-{name}.md
+
+9. ブランチを作成
    → git checkout -b {fix|feat}/{name}
 ```
 
@@ -222,11 +231,48 @@ playbook なしで作業開始しない:
 
 ---
 
+## plan-reviewer 連携（ダブルチェック）
+
+> **「作成者 ≠ 検証者」の原則。pm が作成、plan-reviewer が検証。**
+
+```yaml
+目的:
+  - セルフチェックでは見落とす問題を構造的に発見
+  - シミュレーション + 批判的検討による品質向上
+  - 計画の甘さを事前に検出
+
+フロー:
+  1. pm: playbook 作成（ドラフト）
+  2. pm: plan-reviewer 呼び出し
+  3. plan-reviewer: シミュレーション実行
+     - Phase フロー検証
+     - 依存関係チェック
+     - done_criteria の検証可能性
+  4. plan-reviewer: 批判的検討
+     - project.md との整合性
+     - 抜け漏れ検出
+     - リスク特定
+  5. 判定:
+     - PASS: playbook 確定 → state.md 更新 → ブランチ作成
+     - FAIL: 問題点と修正案を提示 → pm が修正 → 再レビュー
+
+最大リトライ: 3回
+  - 3回 FAIL したら人間に確認を求める
+
+禁止事項:
+  - plan-reviewer をスキップ
+  - FAIL を無視して playbook を確定
+  - 自分で作った計画を自分でレビュー（常に plan-reviewer 経由）
+```
+
+---
+
 ## 参照ファイル
 
 - plan/template/playbook-format.md - playbook テンプレート（V10: 中間成果物の処理を含む）
 - state.md - 現在の playbook、focus
 - CLAUDE.md - playbook ルール（POST_LOOP: アーカイブ実行を含む）
+- .claude/agents/plan-reviewer.md - 計画レビュー SubAgent ★
 - .claude/agents/git-ops.md - git 操作 参照ドキュメント（Claude が直接実行）
 - docs/file-creation-process-design.md - 中間成果物の処理設計
 - docs/archive-operation-rules.md - アーカイブ運用ルール

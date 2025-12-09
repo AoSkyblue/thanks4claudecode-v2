@@ -9,10 +9,9 @@
 ```
 plan/
 ├── README.md                # このファイル
-├── project.md               # 開発用: 現在のリポジトリの Macro 計画
-├── active/                  # 開発用: 進行中の playbook
-│   ├── .gitkeep
-│   └── playbook-*.md
+├── project.md               # 開発用: Macro 計画（最終目標）
+├── playbook-*.md            # 開発用: 進行中の playbook（直下に配置）
+├── design/                  # 設計ドキュメント（必要に応じて）
 └── template/                # 新規ユーザー用: テンプレート群
     ├── project-format.md    # project.md 生成テンプレート
     ├── playbook-format.md   # playbook 作成テンプレート
@@ -27,7 +26,7 @@ plan/
 ### 開発者向け（このリポジトリを完成させる）
 
 - `plan/project.md`: Macro 計画（最終目標と done_when）
-- `plan/active/`: 進行中の playbook
+- `plan/playbook-*.md`: 進行中の playbook（直下に配置）
 - 作業完了後は playbook を `.archive/plan/` に移動
 
 ### 新規ユーザー向け（フォーク後に 0 から開始）
@@ -46,14 +45,14 @@ plan/
 ```bash
 # 開発用ファイルを archive に移動
 mv plan/project.md .archive/plan/
-mv plan/active/playbook-*.md .archive/plan/active/
+mv plan/playbook-*.md .archive/plan/
 
 # state.md を初期状態にリセット
 cp plan/template/state-initial.md state.md
 
 # 確認
-ls plan/active/  # .gitkeep のみ
-ls plan/project.md  # 存在しない
+ls plan/playbook-*.md  # 存在しない
+ls plan/project.md     # 存在しない
 ```
 
 ---

@@ -42,7 +42,7 @@
 | カテゴリ | 実装数 | settings.json 登録 |
 |---------|--------|-------------------|
 | Hooks | 22 | 16 |
-| SubAgents | 9 | - |
+| SubAgents | 10 | - |
 | Skills | 9 | - |
 | Commands | 7 | - |
 
@@ -172,12 +172,13 @@ Edit と同一 Hook（consent-guard 〜 executor-guard）が登録
 
 ## 3. SubAgents 完全仕様
 
-### 3.1 SubAgent 一覧（9個）
+### 3.1 SubAgent 一覧（10個）
 
 | 名前 | ファイル | model | 自動委譲キーワード | 主な用途 |
 |------|---------|-------|------------------|---------|
 | critic | critic.md | haiku | MUST BE USED | done_criteria 検証 |
 | pm | pm.md | haiku | PROACTIVELY | playbook 管理 |
+| plan-reviewer | plan-reviewer.md | sonnet | MANDATORY | 計画品質検証 |
 | coherence | coherence.md | haiku | PROACTIVELY | 整合性チェック |
 | state-mgr | state-mgr.md | haiku | AUTOMATICALLY | state.md 操作 |
 | plan-guard | plan-guard.md | haiku | PROACTIVELY | 3層計画検証 |
@@ -203,6 +204,7 @@ model: haiku               # 任意: sonnet|opus|haiku|inherit
 |----------|-------------------|------------------------|---------|
 | critic | critic-guard.sh | CRITIQUE | /crit |
 | pm | playbook-guard.sh | POST_LOOP | /playbook-init |
+| plan-reviewer | - | pm 経由（必須） | - |
 | coherence | check-coherence.sh | - | /lint |
 | state-mgr | - | INIT, LOOP | /focus |
 

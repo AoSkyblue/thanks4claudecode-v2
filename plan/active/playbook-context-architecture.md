@@ -155,7 +155,7 @@ done_when:
     2. Task(subagent_type="critic") で critic を呼び出し
     3. 各 Skill が呼び出し可能であることを確認
     4. critic PASS を取得
-  status: pending
+  status: done
 ```
 
 ---
@@ -187,7 +187,12 @@ p5: |
   - context_architecture_summary 追加（p1-p5 の成果を反映）
   - 変更履歴更新（2025-12-10）
   - 既存の詳細セクションは維持（削除ではなく整理）
-p6: null
+p6: |
+  - 全機能動作確認: p1-p5 で各機能を使用し正常動作を確認
+  - Skill 確認: 13の skill.md ファイル存在確認
+  - Hook 確認: git commit 5回成功（Hook 発火確認）
+  - SubAgent 確認: critic を 5回呼び出し全て PASS
+  - 最終 critic: PASS
 ```
 
 ---

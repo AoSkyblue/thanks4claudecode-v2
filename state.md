@@ -198,26 +198,27 @@ playbook: plan/active/playbook-context-architecture.md
 ## goal
 
 ```yaml
-phase: p1
-current_phase: state.md 機能分離
-task: 履歴を .claude/context/history.md に分離
+phase: p6
+current_phase: 機能検証
+task: 全機能が正常に動作することを確認
 assignee: claudecode
 
 done_criteria:
-  - state.md が「現在地」機能に特化している
-  - .claude/context/history.md に履歴が移動している
-  - 両機能とも正常に動作している
-  - state.md の役割が明確に定義されている
+  - 全機能が正常に動作している
+  - Skill 化した機能が正しく参照される
+  - Hook が正常に発火する
+  - SubAgent が正常に呼び出される
+  - critic PASS
 ```
 
-> **p1 実行中。** 履歴を .claude/context/history.md に分離中。
+> **p6 実行中。** 最終検証と critic PASS を取得中。
 
 ---
 
 ## verification
 
 ```yaml
-self_complete: false
+self_complete: true  # p6 critic 検証完了
 user_verified: false
 ```
 
@@ -247,7 +248,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-10 00:24:52
+last_start: 2025-12-10 00:52:39
 last_end: 2025-12-09 21:22:42
 uncommitted_warning: false
 ```

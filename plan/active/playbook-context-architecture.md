@@ -122,7 +122,7 @@ done_when:
   test_method: |
     1. docs/CLAUDE.md を読み、フォルダの役割が説明されていることを確認
     2. ls docs/ で構造を確認
-  status: pending
+  status: done
 
 - id: p5
   name: project.md 再編集
@@ -177,7 +177,11 @@ p3: |
   - 5つの CLAUDE.md 作成: agents, skills, hooks, context, frameworks
   - 各ファイルがフォルダの役割を説明
   - Claude Code 公式仕様: 参照時に親ディレクトリの CLAUDE.md が自動読み込み
-p4: null
+p4: |
+  - docs/CLAUDE.md 作成（2573 bytes）
+  - 14ファイルを4カテゴリに分類: コア仕様、運用ルール、開発履歴、設計・分析
+  - 各ファイルの役割と参照タイミングを明記
+  - 削減ではなく構造化（全ファイル維持）
 p5: null
 p6: null
 ```

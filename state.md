@@ -194,18 +194,17 @@ playbook: plan/active/playbook-repository-refinement.md
 ## goal
 
 ```yaml
-phase: p2
-current_phase: p2
+phase: p3
+current_phase: p3
 task: playbook-repository-refinement
 assignee: claudecode
 
 done_criteria:
-  - init-guard.sh が security.mode を参照している
-  - playbook-guard.sh が security.mode を参照している
-  - admin モードで適切にバイパスされる
+  - required_playbook が存在しないファイルを参照してもデッドロックしない
+  - フォールバック機構が実装されている
 ```
 
-> **playbook-repository-refinement p2 進行中。** security.mode 参照の実装。
+> **playbook-repository-refinement p3 進行中。** init-guard.sh デッドロック対策。
 
 ---
 

@@ -19,6 +19,19 @@ TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input // {}')
 
 # --------------------------------------------------
+# security.mode チェック（admin モードはバイパス）
+# --------------------------------------------------
+SECURITY_MODE=""
+if [[ -f "state.md" ]]; then
+    SECURITY_MODE=$(grep -A5 "## security" state.md | grep "mode:" | head -1 | sed 's/.*: *//' | sed 's/ *#.*//' | tr -d ' ')
+fi
+
+# admin モードは全ての制限をバイパス
+if [[ "$SECURITY_MODE" == "admin" ]]; then
+    exit 0
+fi
+
+# --------------------------------------------------
 # 必須ファイルの定義（focus 別に分岐）
 # --------------------------------------------------
 # focus を state.md から取得

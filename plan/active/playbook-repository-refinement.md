@@ -89,7 +89,7 @@ done_when:
     1. security.mode: admin で Hook をテスト
     2. security.mode: strict で Hook をテスト
     3. 挙動の違いを確認
-  status: pending
+  status: done
 
 - id: p3
   name: init-guard.sh デッドロック対策
@@ -222,7 +222,31 @@ p1:
       → どちらも 0 件マッチ
       → admin モードでも通常モードでも同じ動作
 
-p2: {}
+p2:
+  implementation:
+    init_guard_sh:
+      added_lines: "21-32"
+      grep_result: "SECURITY_MODE が 3 箇所で参照されている（行24, 26, 30）"
+      behavior: "admin モードで exit 0（バイパス）"
+    playbook_guard_sh:
+      added_lines: "38-46"
+      grep_result: "SECURITY_MODE が 2 箇所で参照されている（行41, 44）"
+      behavior: "admin モードで exit 0（バイパス）"
+  test:
+    admin_mode:
+      security_mode_set: admin
+      init_guard_result: "バイパス (exit 0)"
+      playbook_guard_result: "バイパス (exit 0)"
+      evidence: "この playbook 自体の編集が成功していることが証拠"
+    strict_mode:
+      security_mode_set: strict
+      init_guard_result: "ブロック継続 (admin でないため)"
+      playbook_guard_result: "playbook チェック継続 (admin でないため)"
+      evidence: |
+        /tmp/test-security-mode.sh でシミュレーション実行:
+        - strict モードで SECURITY_MODE='strict' を取得
+        - admin チェックが false → ブロック継続のパスに入る
+        - admin モードに戻すと SECURITY_MODE='admin' → バイパス
 p3: {}
 p4: {}
 p5: {}

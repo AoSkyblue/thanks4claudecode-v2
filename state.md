@@ -74,7 +74,7 @@ expert:
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          plan/active/playbook-component-refinement.md
+product:          null  # playbook-component-refinement 完了・アーカイブ済み
 ```
 
 ---
@@ -179,41 +179,37 @@ playbook: null  # テンプレートは pending のまま（正常）
 ## layer: product
 
 ```yaml
-state: implementing
-sub: component-refinement
-playbook: plan/active/playbook-component-refinement.md
+state: idle
+sub: component-refinement-done
+playbook: null
 ```
 
 ### 概要
 > ユーザーが実際にプロダクトを開発するためのレイヤー。
 > setup 完了後、plan/project.md を参照して TDD で開発。
-> playbook-component-refinement 開始。コンポーネント構造改善。
+> playbook-component-refinement 完了・アーカイブ。次タスク待ち。
 
 ---
 
 ## goal
 
 ```yaml
-phase: p6
-current_phase: p6
-task: playbook-component-refinement
+phase: null
+current_phase: null
+task: null
 assignee: claudecode
 
-done_criteria:
-  - 削除された SubAgent が .claude/agents/ に存在しない ✅
-  - 新規作成された Skill/docs が正しく配置されている ✅
-  - 全 Hook が正常に動作している ✅
-  - critic PASS ✅
+done_criteria: []
 ```
 
-> **playbook-component-refinement 全 Phase 完了。** コンポーネント構造改善完了。
+> **次タスク待ち。** playbook-component-refinement 完了・アーカイブ済み。
 
 ---
 
 ## verification
 
 ```yaml
-self_complete: true
+self_complete: false
 user_verified: false
 ```
 

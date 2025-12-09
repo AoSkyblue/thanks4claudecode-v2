@@ -74,7 +74,7 @@ expert:
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          null  # playbook-artifact-health 完了・アーカイブ
+product:          plan/active/playbook-repository-refinement.md
 ```
 
 ---
@@ -180,29 +180,32 @@ playbook: null  # テンプレートは pending のまま（正常）
 
 ```yaml
 state: implementing
-sub: system-completion
-playbook: null  # playbook-system-completion 完了・アーカイブ済み
+sub: repository-refinement
+playbook: plan/active/playbook-repository-refinement.md
 ```
 
 ### 概要
 > ユーザーが実際にプロダクトを開発するためのレイヤー。
 > setup 完了後、plan/project.md を参照して TDD で開発。
-> **playbook-system-completion 進行中。** タスク標準化、git自動化、ファイル棚卸し、setup完成。
+> **playbook-repository-refinement 進行中。** 「設定はあるが機能していない」問題の構造的解決。
 
 ---
 
 ## goal
 
 ```yaml
-phase: idle
-current_phase: null
-task: null
-assignee: null
+phase: p2
+current_phase: p2
+task: playbook-repository-refinement
+assignee: claudecode
 
-done_criteria: []
+done_criteria:
+  - init-guard.sh が security.mode を参照している
+  - playbook-guard.sh が security.mode を参照している
+  - admin モードで適切にバイパスされる
 ```
 
-> **playbook-artifact-health 完了・アーカイブ。** 次タスク待ち。
+> **playbook-repository-refinement p2 進行中。** security.mode 参照の実装。
 
 ---
 
@@ -239,7 +242,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-09 21:49:22
+last_start: 2025-12-09 22:34:12
 last_end: 2025-12-09 21:22:42
 uncommitted_warning: false
 ```

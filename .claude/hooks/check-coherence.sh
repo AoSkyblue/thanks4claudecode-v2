@@ -31,8 +31,8 @@ echo ""
 # active_playbooks セクションから全て のplaybook を取得してチェック
 echo -e "  --- Active Playbooks Check ---"
 
-# active_playbooks セクションを抽出
-ACTIVE_PLAYBOOKS=$(awk '/## active_playbooks/,/^## [^a]/' state.md | tail -n +2 | head -n -1)
+# active_playbooks セクションを抽出（macOS 互換）
+ACTIVE_PLAYBOOKS=$(awk '/## active_playbooks/,/^## [^a]/' state.md | tail -n +2 | sed '$d')
 
 if [ -z "$ACTIVE_PLAYBOOKS" ]; then
     echo -e "    ${YELLOW}[SKIP]${NC} active_playbooks セクション not found"

@@ -41,29 +41,37 @@ playbook の全 Phase が done
    - 注意: アーカイブ前に git add/commit を完了すること
    - 参照: docs/archive-operation-rules.md
 
-1. 自動マージ:
+1. GitHub PR 作成（★自動化済み）:
+   - Hook: create-pr-hook.sh（PostToolUse:Edit で自動発火、settings.json 登録済み）
+   - 本体: create-pr.sh（実際の PR 作成処理）
+   - PR タイトル: feat({playbook}/{phase}): {goal summary}
+   - PR 本文: done_when + done_criteria + completed phases
+   - 既存 PR がある場合はスキップ
+
+2. 自動マージ（ローカル）:
    ```bash
    BRANCH=$(git branch --show-current)
    git checkout main && git merge $BRANCH --no-edit
    ```
    - コンフリクト発生 → 手動解決を促す
+   - 注意: GitHub PR マージは Phase 4 で実装予定
 
-2. project.done_when の更新:
+3. project.done_when の更新:
    - derives_from で紐づく done_when.status を achieved に
 
-3. 次タスクの導出（計画の連鎖）★pm 経由必須:
+4. 次タスクの導出（計画の連鎖）★pm 経由必須:
    - pm SubAgent を呼び出す
    - pm が project.md の not_achieved を確認
    - pm が depends_on を分析し、着手可能な done_when を特定
    - pm が decomposition を参照して新 playbook を作成
 
-4. 残タスクあり:
+5. 残タスクあり:
    - ブランチ作成: `git checkout -b feat/{next-task}`
    - pm が playbook 作成: plan/active/playbook-{next-task}.md
    - pm が state.md 更新: active_playbooks.product を更新
    - 即座に LOOP に入る
 
-5. 残タスクなし:
+6. 残タスクなし:
    - 「全タスク完了。次の指示を待ちます。」
 ```
 
@@ -73,8 +81,10 @@ playbook の全 Phase が done
 
 ```yaml
 Phase 完了: 自動コミット（critic PASS 後、LOOP 内で実行）
-playbook 完了: 自動マージ（POST_LOOP 行動 1 で実行）
-新タスク: 自動ブランチ（POST_LOOP 行動 4 で実行）
+playbook 完了:
+  - PR 自動作成（POST_LOOP 行動 1 で実行）
+  - ローカル自動マージ（POST_LOOP 行動 2 で実行）
+新タスク: 自動ブランチ（POST_LOOP 行動 5 で実行）
 ```
 
 ---

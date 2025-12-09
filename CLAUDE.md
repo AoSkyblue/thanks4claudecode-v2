@@ -206,7 +206,25 @@ Phase 完了時の自動コミット★直接実行（git-ops.md 参照）:
 
 > **詳細: @.claude/skills/post-loop/skill.md**
 
-playbook の全 Phase が done → 自動コミット → アーカイブ → 自動マージ → 次タスク導出。
+playbook の全 Phase が done → 自動コミット → アーカイブ → **PR 作成** → 自動マージ → 次タスク導出。
+
+```yaml
+フロー:
+  0. 自動コミット（最終 Phase 分）
+  0.5. playbook アーカイブ
+  1. PR 作成（★自動化済み）: .claude/hooks/create-pr-hook.sh（ラッパー → create-pr.sh）
+  2. 自動マージ（ローカル git merge）
+  3. project.done_when 更新
+  4. 次タスク導出（pm 経由）
+
+PR 作成:
+  Hook: .claude/hooks/create-pr-hook.sh（PostToolUse:Edit で自動発火）
+  本体: .claude/hooks/create-pr.sh（実際の PR 作成処理）
+  タイトル: feat({playbook}/{phase}): {goal summary}
+  本文: done_when + done_criteria + completed phases
+  スキップ: PR 既存の場合
+```
+
 禁止: 「報告して待つ」パターン、ユーザーに「次は何をしますか？」と聞く。
 
 ---

@@ -90,7 +90,7 @@ done_when:
     1. CLAUDE.md を読み、INIT/CORE/LOOP/POST_LOOP が残っていることを確認
     2. Skill 化された機能が .claude/skills/ に存在することを確認
     3. 各 Skill の frontmatter に適切な triggers があることを確認
-  status: pending
+  status: done
 
 - id: p3
   name: .claude/ フォルダ構造化
@@ -168,7 +168,11 @@ p1: |
   - .claude/context/history.md: 70行（履歴保存先として作成）
   - state.md ヘッダーに役割を明記（「現在地」機能）
   - 参照: `.claude/context/history.md` への参照を追加
-p2: null
+p2: |
+  - CLAUDE.md: 644行 → 434行（32%削減）、23.5KB → 15.1KB（34%削減）
+  - Skill 化: consent-process, post-loop, context-externalization
+  - 変更履歴: .claude/context/claude-md-history.md に移動
+  - @参照: 各セクションに Skill へのリンクを追加
 p3: null
 p4: null
 p5: null

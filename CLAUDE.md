@@ -143,131 +143,10 @@ git_branch_sync:
 
 ## CONSENT（合意プロセス）
 
-> **ユーザープロンプトの誤解釈防止。「入力→LLM処理→出力」ではなく「LLM処理→構造化出力→合意→出力」を強制。**
+> **詳細: @.claude/skills/consent-process/skill.md**
 
-```yaml
-# ========================================
-# 問題
-# ========================================
-
-problem: |
-  Claude がユーザープロンプトを「良かれと思って省略」し、
-  意図しない大規模変更や方向性のずれが発生する。
-
-# ========================================
-# 解決: [理解確認] ブロック
-# ========================================
-
-solution: |
-  Edit/Write 前に処理結果を構造化出力し、ユーザー合意を取得。
-  Hook（consent-guard.sh）で合意ファイルの有無をチェック。
-
-# ========================================
-# [理解確認] フォーマット
-# ========================================
-
-format: |
-  [理解確認]
-  what: 「〇〇をすること」と理解しました
-  why: 目的は「△△」と推測します
-  how: 以下の手順で進めます
-    1. ...
-    2. ...
-    3. ...
-  scope: 変更対象ファイル
-    - file1.ts
-    - file2.ts
-  exclusions: 以下は変更しません
-    - config.json
-    - CLAUDE.md
-
-# ========================================
-# ユーザー応答フロー
-# ========================================
-
-user_response:
-  OK: |
-    「了解」または「OK」→ Claude がファイルを削除（.claude/.session-init/consent）→ 処理開始
-  修正: |
-    「〇〇ではなく△△です」→ Claude が [理解確認] を再出力 → 再合意
-  却下: |
-    「やめて」または「キャンセル」→ 処理中止
-
-# ========================================
-# Hook 統合
-# ========================================
-
-hook_integration:
-  hook_name: consent-guard.sh
-  trigger: PreToolUse:Edit/Write
-  location: .claude/hooks/consent-guard.sh
-
-  workflow: |
-    1. session-start.sh:
-       → .claude/.session-init/pending 作成
-       → .claude/.session-init/consent 作成
-
-    2. init-guard.sh:
-       → pending 存在 → Read 強制
-       → Read 完了 → pending 削除
-
-    3. [理解確認]:
-       → Claude が処理結果を構造化出力
-       → ユーザー応答待機
-
-    4. consent-guard.sh:
-       → consent ファイル存在?
-       → YES（ユーザー OK) → ファイル削除 → 通過 → Edit/Write 実行
-       → NO（未承認） → exit 2 ブロック → [理解確認] 再表示
-
-    5. playbook-guard.sh:
-       → playbook チェック → 通過
-
-    6. LOOP:
-       → done_criteria 検証 → 実行
-
-file_locations:
-  pending: .claude/.session-init/pending
-  consent: .claude/.session-init/consent
-
-# ========================================
-# 実装状態
-# ========================================
-
-status: implemented
-
-components:
-  consent_guard_sh:
-    file: .claude/hooks/consent-guard.sh
-    status: created
-    functionality: consent ファイルの有無を確認、exit 2 でブロック
-
-  settings_json:
-    file: .claude/settings.json
-    status: REGISTERED
-    hook: PreToolUse:Edit/Write
-    script: consent-guard.sh
-
-  session_start_sh:
-    file: .claude/hooks/session-start.sh
-    status: INTEGRATED
-    new_functionality: consent ファイル作成機能追加
-
-  claude_md:
-    file: CLAUDE.md
-    section: CONSENT
-    status: DOCUMENTED
-    purpose: workflow および Hook 統合を記載
-
-# ========================================
-# 禁止パターン
-# ========================================
-
-forbidden:
-  - [理解確認] なしで Edit/Write 実行
-  - ユーザー応答なしで consent ファイル削除
-  - consent ファイル作成後、[理解確認] を出力しない
-```
+playbook=null で新規タスク開始時、[理解確認] を出力してユーザー合意を取得。
+Hook（consent-guard.sh）で合意ファイルの有無をチェック。
 
 ---
 
@@ -325,54 +204,10 @@ Phase 完了時の自動コミット★直接実行（git-ops.md 参照）:
 
 ## POST_LOOP（playbook 完了後）
 
-```yaml
-トリガー: playbook の全 Phase が done
+> **詳細: @.claude/skills/post-loop/skill.md**
 
-行動:
-  0. 自動コミット（最終 Phase 分）★直接実行:
-     - `git status --porcelain` で未コミット変更を確認
-     - 変更あり → `git add -A && git commit -m "feat: {playbook 名} 完了"`
-     - 変更なし → スキップ
-  0.5. 完了 playbook のアーカイブ★直接実行:
-     - archive-playbook.sh の提案が出力されている場合
-     - 以下を実行:
-       ```bash
-       mkdir -p .archive/plan
-       mv plan/active/playbook-{name}.md .archive/plan/
-       ```
-     - state.md の active_playbooks.{layer} を null に更新
-     - 注意: アーカイブ前に git add/commit を完了すること
-     - 参照: docs/archive-operation-rules.md
-  1. 自動マージ★直接実行:
-     ```bash
-     BRANCH=$(git branch --show-current)
-     git checkout main && git merge $BRANCH --no-edit
-     ```
-     - コンフリクト発生 → 手動解決を促す
-  2. project.done_when の更新:
-     - derives_from で紐づく done_when.status を achieved に
-  3. 次タスクの導出（計画の連鎖）★pm 経由必須:
-     - pm SubAgent を呼び出す
-     - pm が project.md の not_achieved を確認
-     - pm が depends_on を分析し、着手可能な done_when を特定
-     - pm が decomposition を参照して新 playbook を作成
-  4. 残タスクあり:
-     - ブランチ作成: `git checkout -b feat/{next-task}`
-     - pm が playbook 作成: plan/active/playbook-{next-task}.md
-     - pm が state.md 更新: active_playbooks.product を更新
-     - 即座に LOOP に入る
-  5. 残タスクなし:
-     - 「全タスク完了。次の指示を待ちます。」
-
-git 自動操作（Claude が直接実行）:
-  - Phase 完了 → 自動コミット（critic PASS 後、LOOP 内で実行）
-  - playbook 完了 → 自動マージ（POST_LOOP 行動 1 で実行）
-  - 新タスク → 自動ブランチ（POST_LOOP 行動 4 で実行）
-
-禁止:
-  - 「報告して待つ」パターン（残タスクがあるのに止まる）
-  - ユーザーに「次は何をしますか？」と聞く
-```
+playbook の全 Phase が done → 自動コミット → アーカイブ → 自動マージ → 次タスク導出。
+禁止: 「報告して待つ」パターン、ユーザーに「次は何をしますか？」と聞く。
 
 ---
 
@@ -519,40 +354,9 @@ direct_call:
 
 ## CONTEXT_EXTERNALIZATION（コンテキスト外部化）
 
-> **チャット履歴に依存しない状態管理。コード変更 + 意図・理由をセットで外部化。**
+> **詳細: @.claude/skills/context-externalization/skill.md**
 
-```yaml
-目的: |
-  Claude の長時間作業でコンテキストが膨大になっても、
-  ユーザーが「何をやっているか」を追跡可能にする。
-
-記録先: .claude/logs/context-log.md
-
-記録タイミング:
-  - Phase 完了時（必須）
-  - ユーザーから新しい指示を受けたとき
-  - 重要な技術的発見時
-  - セッション終了前
-
-記録フォーマット:
-  ### [HH:MM] Entry: {タスク名}
-  - **User Prompt**: ユーザーの指示（原文または要約）
-  - **Intent**: Claude が解釈した意図
-  - **Actions**: 実行した処理
-  - **Result**: 結果・成果物
-  - **Technical Notes**: 技術的発見・制約（あれば）
-  - **Files Changed**: 変更したファイル
-  - **Playbook Phase**: 該当する Phase（あれば）
-
-current-implementation.md 連携:
-  条件: context-log の Entry が 5 件以上、または構造的変更時
-  行動: current-implementation.md への反映を実行
-  目的: Single Source of Truth の維持
-
-禁止:
-  - Entry なしで Phase を done にする
-  - 「記録した」と言って実際に書かない
-```
+Phase 完了時に .claude/logs/context-log.md へ記録。チャット履歴に依存しない状態管理。
 
 ---
 
@@ -623,21 +427,8 @@ MCP の使い分け:
 
 ## 変更履歴
 
+> 詳細な履歴: `.claude/context/claude-md-history.md`
+
 | 日時 | 内容 |
 |------|------|
-| 2025-12-09 | V5.5: SKILLS_CHAIN 追加。SubAgents → Skills の呼び出し連鎖を明記。全ファイルへのアクセス経路マップ。 |
-| 2025-12-09 | V5.4: CONTEXT_EXTERNALIZATION 追加。context-log.md でプロンプト→意図→処理→結果を記録。コンテキストの外部化。 |
-| 2025-12-09 | V5.3: LOOP に静的解析ステップ追加。lint-check.sh で ESLint/ShellCheck/Ruff を自動実行。 |
-| 2025-12-09 | V5.2: 合意プロセス（CONSENT）。INIT に フェーズ 4.5 追加。playbook=null 時に [理解確認] を強制。ユーザー応答待ちを例外許可。 |
-| 2025-12-08 | V5.1: 計画の連鎖（Plan Derivation）。project.done_when → playbook の自動導出。INIT/POST_LOOP 更新。 |
-| 2025-12-08 | V5.0: アクションベース Guards。session 分類廃止。Edit/Write 時のみ playbook チェック。意図推測不要に。 |
-| 2025-12-08 | V4.1: 構造的強制。Hook が session を TASK にリセット → NLU で判断 → 安全側フォール。キーワード判定完全廃止。 |
-| 2025-12-08 | V4.0: session 自動判定システム。prompt-validator.sh がキーワード判定 → state.md 自動更新。Claude 依存を排除。 |
-| 2025-12-08 | V3.4: PROMPT_VALIDATION 追加。全プロンプトを project.md と照合。ROADMAP_CHECK を置換。 |
-| 2025-12-08 | V3.3: CONTEXT.md 廃止。state.md/project.md/playbook を真実源に。INIT 簡素化。 |
-| 2025-12-08 | V3.2: 報酬詐欺防止強化。LOOP に根拠確認、CRITIQUE に検証項目追加。 |
-| 2025-12-02 | V3.1: 複数階層 plan 運用（roadmap）対応。 |
-| 2025-12-02 | V3.0: 二層構造化。core を 200 行以下に最小化。 |
-| 2025-12-02 | V2.1: CONTEXT セクション追加。 |
-| 2025-12-02 | V2.0: メタ認知強化版。 |
-| 2025-12-01 | V1.0: 初版。 |
+| 2025-12-10 | V6.0: コンテキスト・アーキテクチャ再設計。CONSENT/POST_LOOP/CONTEXT_EXTERNALIZATION を Skill 化。 |

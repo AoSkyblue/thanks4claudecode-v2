@@ -17,8 +17,8 @@ current: product
 ## playbook
 
 ```yaml
-active: plan/active/playbook-system-foundation-redesign.md
-branch: feat/system-foundation-redesign
+active: null
+branch: main
 ```
 
 ---
@@ -26,16 +26,12 @@ branch: feat/system-foundation-redesign
 ## goal
 
 ```yaml
-phase: p4
-name: 最終検証
-task: 全変更が正常に機能することを確認
-assignee: claudecode
+phase: null
+name: null
+task: null
+assignee: null
 
-done_criteria:
-  - project.md 200行以下
-  - state.md 100行以下
-  - エコシステム正常動作
-  - critic PASS
+done_criteria: []
 ```
 
 ---

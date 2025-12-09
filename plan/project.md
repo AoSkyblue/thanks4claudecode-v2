@@ -43,16 +43,7 @@ workflow:
 
 ```yaml
 # 現在進行中のタスク
-- id: t_foundation_redesign
-  name: システム基盤再設計
-  playbook: plan/active/playbook-system-foundation-redesign.md
-  branch: feat/system-foundation-redesign
-  tasks:
-    - [x] コンテキストエコシステム検証 (cc)
-    - [x] project.md 書き直し (cc) - 880→144行
-    - [x] state.md 再設計 (cc) - 271→78行
-    - [x] current-implementation.md 更新 (cc) - ドキュメント依存追記
-    - [x] 最終検証・critic PASS (cc)
+- none
 ```
 
 ### backlog
@@ -83,6 +74,15 @@ workflow:
 > **完了済みタスク（サマリーのみ）**
 
 ```yaml
+playbook-system-foundation-redesign:
+  date: 2025-12-10
+  summary: システム基盤再設計
+  result:
+    - project.md 880→144行（84%削減）
+    - state.md 271→79行（71%削減）
+    - current-implementation.md ドキュメント依存追記
+    - チェックボックス式タスク管理導入
+
 playbook-context-architecture:
   date: 2025-12-10
   summary: コンテキストを機能として管理
@@ -139,6 +139,6 @@ old_roadmap: .archive/plan/roadmap.md
 
 | 日時 | 内容 |
 |------|------|
-| 2025-12-10 | 全面書き換え。チェックボックス式・200行以下に圧縮。 |
+| 2025-12-10 | playbook-system-foundation-redesign 完了。project.md/state.md 大幅削減。 |
 | 2025-12-10 | playbook-context-architecture 完了。 |
 | 2025-12-09 | system_completion/engineering_ecosystem 完了。 |

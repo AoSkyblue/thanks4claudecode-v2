@@ -206,23 +206,42 @@ Phase 完了時の自動コミット★直接実行（git-ops.md 参照）:
 
 > **詳細: @.claude/skills/post-loop/skill.md**
 
-playbook の全 Phase が done → 自動コミット → アーカイブ → **PR 作成** → 自動マージ → 次タスク導出。
+playbook の全 Phase が done → 自動コミット → アーカイブ → **PR 作成** → **PR マージ** → 次タスク導出。
 
 ```yaml
 フロー:
   0. 自動コミット（最終 Phase 分）
   0.5. playbook アーカイブ
-  1. PR 作成（★自動化済み）: .claude/hooks/create-pr-hook.sh（ラッパー → create-pr.sh）
-  2. 自動マージ（ローカル git merge）
+  1. PR 作成（★自動化済み）
+  2. PR マージ（★自動化済み）
   3. project.done_when 更新
   4. 次タスク導出（pm 経由）
 
 PR 作成:
   Hook: .claude/hooks/create-pr-hook.sh（PostToolUse:Edit で自動発火）
-  本体: .claude/hooks/create-pr.sh（実際の PR 作成処理）
+  本体: .claude/hooks/create-pr.sh
   タイトル: feat({playbook}/{phase}): {goal summary}
   本文: done_when + done_criteria + completed phases
-  スキップ: PR 既存の場合
+  条件分岐:
+    成功: → PR マージへ進む
+    PR 既存: スキップ
+    失敗: エラーログ出力、手動対応を促す
+
+PR マージ:
+  スクリプト: .claude/hooks/merge-pr.sh
+  コマンド: gh pr merge --merge --auto --delete-branch
+  条件分岐:
+    成功: ブランチ削除 → main 同期 → 次タスク導出へ
+    Draft: エラー（gh pr ready で解除を促す）
+    コンフリクト: エラー（手動解決を促す）
+    必須チェック未完了: --auto で待機
+    失敗: エラーログ出力、手動対応を促す
+
+整合性チェック:
+  check-coherence.sh:
+    - state.md と playbook の連動確認
+    - branch と playbook の一致確認
+    - focus.current との整合性確認
 ```
 
 禁止: 「報告して待つ」パターン、ユーザーに「次は何をしますか？」と聞く。

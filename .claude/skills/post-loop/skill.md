@@ -46,15 +46,20 @@ playbook の全 Phase が done
    - 本体: create-pr.sh（実際の PR 作成処理）
    - PR タイトル: feat({playbook}/{phase}): {goal summary}
    - PR 本文: done_when + done_criteria + completed phases
-   - 既存 PR がある場合はスキップ
+   - 条件分岐:
+     - 成功: → PR マージへ進む
+     - PR 既存: スキップ
+     - 失敗: エラーログ出力、手動対応を促す
 
-2. 自動マージ（ローカル）:
-   ```bash
-   BRANCH=$(git branch --show-current)
-   git checkout main && git merge $BRANCH --no-edit
-   ```
-   - コンフリクト発生 → 手動解決を促す
-   - 注意: GitHub PR マージは Phase 4 で実装予定
+2. GitHub PR マージ（★自動化済み）:
+   - スクリプト: .claude/hooks/merge-pr.sh
+   - コマンド: gh pr merge --merge --auto --delete-branch
+   - 条件分岐:
+     - 成功: ブランチ削除 → main 同期 → 次タスク導出へ
+     - Draft: エラー（gh pr ready で解除を促す）
+     - コンフリクト: エラー（手動解決を促す）
+     - 必須チェック未完了: --auto で待機
+     - 失敗: エラーログ出力、手動対応を促す
 
 3. project.done_when の更新:
    - derives_from で紐づく done_when.status を achieved に
@@ -82,9 +87,21 @@ playbook の全 Phase が done
 ```yaml
 Phase 完了: 自動コミット（critic PASS 後、LOOP 内で実行）
 playbook 完了:
-  - PR 自動作成（POST_LOOP 行動 1 で実行）
-  - ローカル自動マージ（POST_LOOP 行動 2 で実行）
+  - PR 自動作成（POST_LOOP 行動 1: create-pr-hook.sh → create-pr.sh）
+  - PR 自動マージ（POST_LOOP 行動 2: merge-pr.sh）
 新タスク: 自動ブランチ（POST_LOOP 行動 5 で実行）
+```
+
+---
+
+## 整合性チェック
+
+```yaml
+check-coherence.sh:
+  - state.md と playbook の連動確認
+  - branch と playbook の一致確認
+  - focus.current との整合性確認
+  - YAML コードブロックを正しくパース
 ```
 
 ---

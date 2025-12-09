@@ -36,17 +36,19 @@ branch: feat/pr-automation
 ## goal
 
 ```yaml
-phase: p5
-name: playbook-pr-automation / POST_LOOP 統合と CLAUDE.md 更新
-task: PR 作成・マージフローの POST_LOOP 統合
+phase: p6
+name: playbook-pr-automation / 統合テストと動作確認
+task: PR 作成・マージフロー全体の動作確認
 assignee: claudecode
 
 done_criteria:
-  - CLAUDE.md の POST_LOOP セクションに PR 作成・マージフローを記載
-  - 実行順序が明記されている（PR 作成 → PR マージ → 次タスク導出）
-  - 各ステップの条件分岐を明記している（成功時・失敗時）
-  - state.md と playbook との整合性を確認する処理を追加
-  - CLAUDE.md の syntax が正しい（YAML/Markdown）
+  - test ブランチで playbook を完了させた
+  - test ブランチから PR が自動作成された
+  - PR が GitHub に表示されている
+  - PR の説明文に done_criteria が含まれている
+  - PR が自動的にマージされた
+  - git log に自動マージコミットが記録されている
+  - 次の playbook が自動導出されている
   - check-coherence.sh が PASS する
   - 実際に動作確認済み（test_method 実行）
 ```

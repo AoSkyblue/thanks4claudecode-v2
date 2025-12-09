@@ -60,7 +60,7 @@ done_when:
     3. GitHub API と gh CLI の比較を実施
     4. 決定内容をテキストで出力
     5. 実装 Phase の列挙を確認
-  status: pending
+  status: done
 
 # Phase 2: PR 作成スクリプト実装
 - id: p2
@@ -88,7 +88,7 @@ done_when:
     - gh CLI がインストール済み（brew install gh）
     - gh auth でログイン済み
     - main ブランチが push 済み
-  status: pending
+  status: done
 
 # Phase 3: PR 自動作成フック統合
 - id: p3
@@ -163,7 +163,7 @@ done_when:
     3. フロー図を描いて実行順序を確認
     4. test 環境で playbook をシミュレート実行
     5. 全 Phase の状態遷移を確認
-  status: pending
+  status: done
 
 # Phase 6: 統合テストと動作確認
 - id: p6

@@ -107,7 +107,7 @@ done_when:
   test_method: |
     1. ls .claude/*/CLAUDE.md で各フォルダに CLAUDE.md があることを確認
     2. 各 CLAUDE.md の内容がフォルダの役割を説明していることを確認
-  status: pending
+  status: done
 
 - id: p4
   name: docs/ 構造化
@@ -173,7 +173,10 @@ p2: |
   - Skill 化: consent-process, post-loop, context-externalization
   - 変更履歴: .claude/context/claude-md-history.md に移動
   - @参照: 各セクションに Skill へのリンクを追加
-p3: null
+p3: |
+  - 5つの CLAUDE.md 作成: agents, skills, hooks, context, frameworks
+  - 各ファイルがフォルダの役割を説明
+  - Claude Code 公式仕様: 参照時に親ディレクトリの CLAUDE.md が自動読み込み
 p4: null
 p5: null
 p6: null

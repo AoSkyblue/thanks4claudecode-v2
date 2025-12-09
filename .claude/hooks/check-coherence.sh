@@ -31,14 +31,14 @@ echo ""
 # active_playbooks セクションから全て のplaybook を取得してチェック
 echo -e "  --- Active Playbooks Check ---"
 
-# active_playbooks セクションを抽出（macOS 互換）
-ACTIVE_PLAYBOOKS=$(awk '/## active_playbooks/,/^## [^a]/' state.md | tail -n +2 | sed '$d')
+# active_playbooks セクションを抽出（macOS 互換、YAML コードブロック除外）
+ACTIVE_PLAYBOOKS=$(awk '/## active_playbooks/,/^## [^a]/' state.md | tail -n +2 | sed '$d' | grep -v '^\`\`\`' | grep -v '^---$' | grep -v '^$')
 
 if [ -z "$ACTIVE_PLAYBOOKS" ]; then
     echo -e "    ${YELLOW}[SKIP]${NC} active_playbooks セクション not found"
 else
-    # active_playbooks 内の各行を処理
-    while IFS='=' read -r KEY VALUE; do
+    # active_playbooks 内の各行を処理（key: value 形式）
+    while IFS=':' read -r KEY VALUE; do
         KEY=$(echo "$KEY" | tr -d ' ')
         VALUE=$(echo "$VALUE" | sed 's/^ *//' | sed 's/ *#.*//')
 

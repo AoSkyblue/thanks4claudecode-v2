@@ -25,6 +25,7 @@ Frameworks は SubAgents（特に critic）が参照する評価基準を定義�
 | Framework | 役割 | 主な参照元 |
 |-----------|------|------------|
 | done-criteria-validation.md | done_criteria の検証基準 | critic SubAgent |
+| playbook-review-criteria.md | playbook の品質評価基準 | reviewer SubAgent |
 
 ---
 

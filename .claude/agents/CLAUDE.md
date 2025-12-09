@@ -27,10 +27,11 @@ Task(subagent_type="agent-name")
 |----------|------|----------|
 | critic | done_criteria の検証 | Phase 完了前の必須検証 |
 | pm | playbook 管理 | タスク開始、playbook 作成 |
-| plan-reviewer | 計画の品質検証 | playbook 作成後の必須レビュー |
-| reviewer | コード/設計レビュー | PR レビュー、設計評価 |
+| reviewer | コード/設計/playbook レビュー | playbook 検証、PR レビュー、設計評価 |
 | health-checker | システム状態監視 | state.md/playbook 整合性確認 |
 | Explore | コードベース探索 | ファイル検索、構造理解 |
+
+> **playbook レビュー**: `Task(subagent_type='reviewer', prompt='playbook をレビュー。.claude/frameworks/playbook-review-criteria.md を参照')`
 
 ---
 

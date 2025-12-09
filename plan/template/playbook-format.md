@@ -15,6 +15,7 @@ branch: {type}/{description}  # feat/xxx, fix/xxx, refactor/xxx, docs/xxx
 created: {作成日}
 issue: {Issue 番号 or null}
 derives_from: {project.done_when の id}  # 例: DW-001
+reviewed: false  # reviewer SubAgent による検証済みフラグ
 ```
 
 > **branch フィールド**: playbook とブランチは 1:1 で紐づく。

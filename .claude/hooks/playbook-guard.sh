@@ -36,9 +36,9 @@ if [[ "$FILE_PATH" == *"state.md" ]]; then
 fi
 
 # --------------------------------------------------
-# security.mode チェック（admin モードはバイパス）
+# security チェック（admin モードはバイパス）
 # --------------------------------------------------
-SECURITY_MODE=$(grep -A5 "^## security" "$STATE_FILE" | grep "^mode:" | head -1 | sed 's/mode: *//' | sed 's/ *#.*//' | tr -d ' ')
+SECURITY_MODE=$(grep -A10 "^## config" "$STATE_FILE" | grep "^security:" | head -1 | sed 's/security: *//' | sed 's/ *#.*//' | tr -d ' ')
 
 # admin モードは playbook チェックをバイパス
 if [[ "$SECURITY_MODE" == "admin" ]]; then
@@ -48,8 +48,8 @@ fi
 # focus.current を取得
 FOCUS=$(grep -A6 "^## focus" "$STATE_FILE" | grep "^current:" | head -1 | sed 's/current: *//' | sed 's/ *#.*//' | tr -d ' ')
 
-# active_playbooks から現在の focus の playbook を取得
-PLAYBOOK=$(grep -A8 "^## active_playbooks" "$STATE_FILE" | grep "^${FOCUS}:" | head -1 | sed "s/${FOCUS}: *//" | sed 's/ *#.*//' | tr -d ' ')
+# playbook セクションから active を取得
+PLAYBOOK=$(grep -A6 "^## playbook" "$STATE_FILE" | grep "^active:" | head -1 | sed 's/active: *//' | sed 's/ *#.*//' | tr -d ' ')
 
 # playbook が null または空なら ブロック
 if [[ -z "$PLAYBOOK" || "$PLAYBOOK" == "null" ]]; then
@@ -77,5 +77,32 @@ EOF
     exit 2
 fi
 
-# playbook があればパス
+# --------------------------------------------------
+# playbook の reviewed チェック
+# --------------------------------------------------
+# playbook 自体の編集は許可（reviewed を更新するため）
+if [[ "$FILE_PATH" == *"playbook-"* ]]; then
+    exit 0
+fi
+
+# playbook ファイルが存在するか確認
+if [[ ! -f "$PLAYBOOK" ]]; then
+    exit 0
+fi
+
+# reviewed フラグを取得
+REVIEWED=$(grep -E "^reviewed:" "$PLAYBOOK" 2>/dev/null | head -1 | sed 's/reviewed: *//' | sed 's/ *#.*//' | tr -d ' ')
+
+# reviewed: false の場合は警告（ブロックではない）
+if [[ "$REVIEWED" == "false" ]]; then
+    cat << 'EOF'
+{
+  "decision": "allow",
+  "systemMessage": "[playbook-guard] ⚠️ playbook 未レビュー\n\n実装開始前に reviewer による検証を推奨します:\n  Task(subagent_type='reviewer', prompt='playbook をレビュー')\n\nレビュー完了後、playbook の reviewed: true に更新してください。"
+}
+EOF
+    exit 0
+fi
+
+# playbook があり、reviewed: true（または未設定）ならパス
 exit 0

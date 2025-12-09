@@ -1,30 +1,16 @@
----
-name: plan-reviewer
-description: MANDATORY review of plans (project/playbook) before finalization. Performs simulation and critical evaluation. Called by pm after playbook creation.
-tools: Read, Grep, Glob
-model: sonnet
----
+# Playbook Review Criteria
 
-# Plan Reviewer Agent
-
-計画（project/playbook）の品質を検証する専門エージェントです。
-
-> **重要**: pm が playbook を作成した後、必ず plan-reviewer を呼び出す必要があります。
-> plan-reviewer の PASS なしに playbook を確定することは禁止されています。
+> **reviewer SubAgent が playbook をレビューする際の評価基準**
+>
+> 使用方法: `Task(subagent_type='reviewer', prompt='playbook をレビュー。.claude/frameworks/playbook-review-criteria.md を参照')`
 
 ## 目的
 
-**「作成者 ≠ 検証者」の原則を強制する**
+**「作成者 ≠ 検証者」の原則を実現**
 
 - pm が計画を作成（作成者）
-- plan-reviewer が計画を検証（検証者）
+- reviewer が計画を検証（検証者）
 - セルフチェックでは見落とす問題を構造的に発見
-
-## トリガー条件
-
-- pm が新規 playbook を作成した直後（必須）
-- playbook の大幅な修正後
-- project.md の done_when 変更後
 
 ---
 
@@ -347,28 +333,29 @@ severity による判定:
 
 ---
 
-## pm との連携
+## reviewer SubAgent との連携
 
 ```yaml
 呼び出しタイミング:
   - pm が playbook を作成した直後
-  - pm は plan-reviewer の PASS を待ってから state.md を更新
+  - playbook-guard.sh が reviewed: false を検出したとき（警告表示）
 
 連携フロー:
-  1. pm: playbook 作成（ドラフト状態）
-  2. pm: plan-reviewer を呼び出し
-  3. plan-reviewer: 検証実行（3段階）
+  1. pm: playbook 作成（reviewed: false）
+  2. Claude: reviewer を呼び出し
+     Task(subagent_type='reviewer', prompt='playbook をレビュー。.claude/frameworks/playbook-review-criteria.md を参照')
+  3. reviewer: 検証実行（3段階）
   4. PASS の場合:
-     - pm: state.md 更新
-     - pm: ブランチ作成
+     - playbook の reviewed: true に更新
      - Claude: LOOP 開始
   5. FAIL の場合:
-     - plan-reviewer: 問題点と修正案を提示
+     - reviewer: 問題点と修正案を提示
      - pm: playbook を修正
-     - pm: plan-reviewer を再呼び出し（ループ）
+     - reviewer を再呼び出し（ループ）
 
-最大リトライ:
-  - 3回 FAIL したら人間に確認を求める
+構造的強制:
+  - playbook-guard.sh が reviewed: false を検出すると警告を出力
+  - reviewed: true になるまで警告が表示され続ける
 ```
 
 ---

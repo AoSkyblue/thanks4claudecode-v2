@@ -98,14 +98,32 @@ PLAYBOOK_FILE="$REPO_ROOT/$PLAYBOOK_PATH"
 # playbook 名を取得（ファイル名から）
 PLAYBOOK_NAME=$(basename "$PLAYBOOK_PATH" .md | sed 's/playbook-//')
 
+# 現在の phase を state.md から取得
+CURRENT_PHASE=$(grep -A5 "## goal" "$STATE_FILE" 2>/dev/null | grep "phase:" | head -1 | sed 's/.*: *//' | sed 's/ *#.*//' || echo "")
+
 # goal.summary を取得（YAML コードブロック内）
 GOAL_SUMMARY=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/summary: \|/,/^done_when:/' | grep -v -E "^(summary:|done_when:)" | sed 's/^  //' | tr '\n' ' ' | sed 's/  */ /g' || echo "")
 
-# done_when を取得（リスト形式、YAML コードブロック内）
+# done_when を取得（playbook の goal セクション）
 DONE_WHEN=$(awk '/^## goal/,/^## [^g]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '/done_when:/,/^```/' | grep "^  - " | sed 's/^  - /- /' || echo "")
 
+# 現在の phase の done_criteria を取得（playbook の phases セクション）
+# Phase ID（p1, p2, etc.）で該当ブロックを抽出
+# インデント: "- id: p2" 後は 2 スペース、done_criteria 項目は 4 スペース
+if [ -n "$CURRENT_PHASE" ]; then
+    PHASE_DONE_CRITERIA=$(awk -v phase="$CURRENT_PHASE" '
+        /^- id: / && $3 == phase { found=1; next }
+        /^- id: / && found { exit }
+        /^# Phase / && found { exit }
+        found && /  done_criteria:$/ { start=1; next }
+        start && /^    - / { gsub(/^    - /, "- "); print }
+        start && /^  [a-z_]+:/ { start=0 }
+    ' "$PLAYBOOK_FILE" 2>/dev/null || echo "")
+else
+    PHASE_DONE_CRITERIA=""
+fi
+
 # phases から完了済み Phase を取得
-# status: done の前後から name を抽出
 COMPLETED_PHASES=$(awk '/^## phases/,/^## [^p]/' "$PLAYBOOK_FILE" 2>/dev/null | awk '
   /^- id:/ { id = $3 }
   /name:/ { name = $0; sub(/.*name: */, "", name) }
@@ -154,7 +172,12 @@ fi
 # PR 本文を生成
 # ============================================================
 
-PR_TITLE="feat($PLAYBOOK_NAME): $GOAL_SUMMARY"
+# PR タイトルに playbook 名と phase 名を含める
+if [ -n "$CURRENT_PHASE" ]; then
+    PR_TITLE="feat($PLAYBOOK_NAME/$CURRENT_PHASE): $GOAL_SUMMARY"
+else
+    PR_TITLE="feat($PLAYBOOK_NAME): $GOAL_SUMMARY"
+fi
 # タイトルは 72 文字以内に制限
 PR_TITLE=$(echo "$PR_TITLE" | cut -c1-72)
 
@@ -166,12 +189,17 @@ $GOAL_SUMMARY
 ## Playbook
 
 - **Name**: $PLAYBOOK_NAME
+- **Phase**: $CURRENT_PHASE
 - **Path**: $PLAYBOOK_PATH
 - **Focus**: $FOCUS
 
-## Done When
+## Done When (Playbook Goal)
 
 $DONE_WHEN
+
+## Done Criteria (Current Phase: $CURRENT_PHASE)
+
+$PHASE_DONE_CRITERIA
 
 ## Completed Phases
 

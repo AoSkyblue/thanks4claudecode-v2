@@ -17,7 +17,7 @@ current: product
 ## active_playbooks
 
 ```yaml
-product: null  # archived: .archive/plan/playbook-full-autonomy.md
+product: plan/active/playbook-plan-optimization.md
 setup: null
 workspace: null
 ```
@@ -27,7 +27,7 @@ workspace: null
 ## playbook
 
 ```yaml
-active: null  # archived: .archive/plan/playbook-full-autonomy.md
+active: plan/active/playbook-plan-optimization.md
 branch: feat/full-autonomy-implementation
 ```
 
@@ -37,14 +37,13 @@ branch: feat/full-autonomy-implementation
 
 ```yaml
 phase: done
-name: playbook-full-autonomy 完了
+name: playbook-plan-optimization 完了
 task: null
 assignee: null
 
 done_criteria: []
 # 完了: 2025-12-10
 # critic: PASS
-# commit: 5fdfa75
 ```
 
 ---

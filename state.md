@@ -17,7 +17,7 @@ current: product
 ## active_playbooks
 
 ```yaml
-product: plan/active/playbook-pr-automation.md
+product: null
 setup: null
 workspace: null
 ```
@@ -27,7 +27,7 @@ workspace: null
 ## playbook
 
 ```yaml
-active: plan/active/playbook-pr-automation.md
+active: null
 branch: main
 ```
 

@@ -525,8 +525,11 @@ completed:
 
 in_progress: []
 
+completed_recently:
+  - engineering_ecosystem（playbook-engineering-ecosystem.md）全 6 Phase 完了
+
 next:
-  - (オプション) CLAUDE.md CONSENT セクション追加（ユーザー承認後）
+  - (オプション) CLAUDE.md CONSENT/LOOP セクション追加（ユーザー承認後）
   - 新規ユーザー向けテンプレート検証
 ```
 
@@ -599,6 +602,116 @@ implementation_plan:
     name: CodeRabbit 統合
     description: PR 作成時に自動レビュー依頼
     status: future
+```
+
+---
+
+## engineering_ecosystem
+
+> **エンジニアリングエコシステムの拡張**
+
+```yaml
+# ========================================
+# 設計思想
+# ========================================
+
+philosophy: |
+  「使うことでエンジニアの作法が自然と学べる」
+  業界標準のツールを導入し、エンジニア以外でも
+  プロの開発作法を体験できる環境を構築する。
+
+# ========================================
+# done_when
+# ========================================
+
+done_when:
+  dw_1_coderabbit:
+    name: CodeRabbit 可用性評価
+    status: achieved
+    description: |
+      CodeRabbit CLI/GitHub App の可用性を評価。
+      TDD LOOP への統合可否を判断。
+    depends_on: []
+    decomposition:
+      - CLI インストール確認
+      - 実行テスト
+      - 既存 critic/reviewer との重複分析
+      - 統合可否判断
+
+  dw_2_linter_formatter:
+    name: Linter/Formatter setup 統合
+    status: achieved
+    description: |
+      言語別デファクトスタンダードを setup に統合。
+      ESLint, Ruff, ShellCheck, gofmt, rustfmt 等。
+    depends_on: []
+    decomposition:
+      - 言語別デファクト調査
+      - setup/playbook-setup.md 更新
+      - 設定ファイルテンプレート作成
+      - pre-commit 統合設計
+
+  dw_3_tdd_static_analysis:
+    name: TDD LOOP への静的解析統合
+    status: achieved
+    description: |
+      LOOP に静的解析ステップを追加。
+      CLAUDE.md 更新が必要（BLOCK）。
+    depends_on:
+      - dw_2_linter_formatter
+    decomposition:
+      - 挿入位置決定
+      - lint-check.sh 作成
+      - CLAUDE.md LOOP 更新（ユーザー許可後）
+
+  dw_4_learning_mode:
+    name: 学習モード実装
+    status: achieved
+    description: |
+      2軸の学習モード（operator × expertise）を実装。
+      beginner-advisor SubAgent との連携。
+    depends_on: []
+    decomposition:
+      - state.md に learning_mode セクション追加
+      - モード別出力調整ロジック設計
+      - beginner-advisor 連携確認
+      - ドキュメント化
+
+  dw_5_shellcheck:
+    name: ShellCheck 導入
+    status: achieved
+    description: |
+      ShellCheck を導入し Hook スクリプト品質を保証。
+    depends_on:
+      - dw_2_linter_formatter
+    decomposition:
+      - ShellCheck インストール
+      - 全 Hook スクリプトチェック
+      - 警告修正
+      - 継続的チェック設計
+
+  dw_6_documentation:
+    name: current-implementation.md 更新
+    status: achieved
+    description: |
+      dw_1-5 の成果を反映。入力→処理→出力フローを更新。
+    depends_on:
+      - dw_1_coderabbit
+      - dw_2_linter_formatter
+      - dw_3_tdd_static_analysis
+      - dw_4_learning_mode
+      - dw_5_shellcheck
+    decomposition:
+      - 各成果をセクションに追記
+      - フロー図更新
+      - markdownlint チェック
+
+# ========================================
+# playbook
+# ========================================
+
+playbook: plan/active/playbook-engineering-ecosystem.md
+branch: feat/engineering-ecosystem
 ```
 
 ---

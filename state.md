@@ -23,13 +23,58 @@ mode: admin                  # strict | trusted | developer | admin
 
 ---
 
+## learning_mode
+
+> **2軸の学習モード設定**
+
+```yaml
+operator: hybrid             # human | hybrid | llm
+expertise: intermediate      # beginner | intermediate | expert
+```
+
+### 設定値の意味
+
+```yaml
+operator:
+  human: 人間が主に操作（Claude は補助）
+  hybrid: 人間と LLM が協働（デフォルト）
+  llm: LLM が主に操作（人間は監視）
+
+expertise:
+  beginner: 初学者向け（専門用語を比喩で説明、beginner-advisor 自動発火）
+  intermediate: 中級者向け（標準出力、必要時のみ補足）
+  expert: 上級者向け（簡潔な出力、説明は省略）
+```
+
+### モード別出力調整
+
+```yaml
+beginner:
+  - 専門用語は必ず比喩で説明
+  - コマンド実行前に「何をするか」を説明
+  - エラー時は原因と対処法を詳しく説明
+  - beginner-advisor SubAgent を自動発火
+
+intermediate:
+  - 専門用語は必要に応じて説明
+  - コマンドは実行後に結果を説明
+  - エラー時は対処法を簡潔に説明
+
+expert:
+  - 専門用語の説明は省略
+  - コマンドは結果のみ表示
+  - エラー時は最小限の情報
+```
+
+---
+
 ## active_playbooks
 
 ```yaml
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          null                       # playbook-current-implementation-redesign 完了
+product:          plan/active/playbook-ecosystem-improvements.md
 ```
 
 ---
@@ -134,9 +179,9 @@ playbook: null  # テンプレートは pending のまま（正常）
 ## layer: product
 
 ```yaml
-state: idle
-sub: current-implementation-redesign-done
-playbook: null
+state: implementing
+sub: ecosystem-improvements
+playbook: plan/active/playbook-ecosystem-improvements.md
 ```
 
 ### 概要
@@ -149,17 +194,20 @@ playbook: null
 ## goal
 
 ```yaml
-phase: idle
-current_phase: null
-task: null
-assignee: null
+phase: implementing
+current_phase: 5
+task: セッションサマリーアーカイブ機能
+assignee: claude_code
 
-done_criteria: []
+done_criteria:
+  - session-end.sh でサマリーを生成する仕組みがある
+  - .claude/logs/sessions/ にセッションログが保存される
+  - ログには git 状態、変更ファイル、Phase 進捗が含まれる
+  - 人間が読みやすいフォーマット（Markdown）
 ```
 
-> **playbook-current-implementation-redesign 全 8 Phase 完了。**
-> docs/current-implementation.md を「復旧可能な仕様書」として再設計完了。
-> critic PASS 取得済み。次タスク待ち。
+> **playbook-ecosystem-improvements 完了。**
+> 全 5 Phase critic PASS。次タスク待ち。
 
 ---
 
@@ -196,9 +244,9 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-09 14:27:34
-last_end: 2025-12-09 02:00:00
-uncommitted_warning: false
+last_start: 2025-12-09 16:32:17
+last_end: 2025-12-09 16:13:11
+uncommitted_warning: true
 ```
 
 ---
@@ -218,6 +266,8 @@ uncommitted_warning: false
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-09 | **playbook-ecosystem-improvements 完了**: 全5Phase完了。setup CodeRabbit/Codex選択、Linter/Formatter実装、CLAUDE.md更新、学習モード動作確認、セッションサマリーアーカイブ機能。 |
+| 2025-12-09 | **playbook-engineering-ecosystem 完了**: 全6Phase完了。CodeRabbit評価、Linter/Formatter統合、TDD LOOP静的解析、学習モード、ShellCheck導入、ドキュメント更新。 |
 | 2025-12-09 | **playbook-current-implementation-redesign 完了**: 全8Phase完了。docs/current-implementation.md を「復旧可能な仕様書」として再設計。critic PASS。 |
 | 2025-12-09 | **playbook-system-improvements 完了・アーカイブ**: 全10Phase完了。.archive/plan/ に退避。次タスク待ち。 |
 | 2025-12-09 | **playbook 完了**: playbook-trinity-validation 全 12 Phase 完了。三位一体アーキテクチャ検証完了。 |

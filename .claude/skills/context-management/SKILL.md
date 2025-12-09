@@ -114,8 +114,78 @@ monitoring:
   - 90% 超過で「/clear を推奨します。state.md が真実源です」
 ```
 
+## コンテキスト外部化（context-log）
+
+> **チャット履歴に依存しない状態管理。プロンプト→意図→処理→結果を外部ファイルに記録。**
+
+### 記録先
+
+```yaml
+file: .claude/logs/context-log.md
+purpose: |
+  Claude の長時間作業でコンテキストが膨大になっても、
+  ユーザーが「何をやっているか」を追跡可能にする。
+```
+
+### 記録フォーマット
+
+```markdown
+### [HH:MM] Entry: {タスク名}
+- **User Prompt**: ユーザーの指示（原文または要約）
+- **Intent**: Claude が解釈した意図
+- **Actions**: 実行した処理
+- **Result**: 結果・成果物
+- **Technical Notes**: 技術的発見・制約（あれば）
+- **Files Changed**: 変更したファイル
+- **Playbook Phase**: 該当する Phase（あれば）
+```
+
+### 記録タイミング
+
+```yaml
+required:
+  - Phase 完了時（critic PASS 後）
+  - セッション終了前
+
+recommended:
+  - ユーザーから新しい指示を受けたとき
+  - 重要な技術的発見時
+  - 5 回以上の Edit/Write 実行後
+```
+
+### current-implementation.md 連携
+
+```yaml
+trigger:
+  - context-log の Entry が 5 件以上溜まった
+  - 構造的な変更（新 Hook、新 SubAgent、アーキテクチャ変更）
+
+action: |
+  current-implementation.md に該当セクションを更新
+  → Single Source of Truth の維持
+
+check_command: |
+  Entry 数を確認:
+  grep -c "^### \[" .claude/logs/context-log.md
+```
+
+### 運用ルール
+
+```yaml
+禁止:
+  - Entry なしで Phase を done にする
+  - 「記録した」と言って実際に書かない
+  - context-log を編集せずに次のタスクに移る
+
+推奨:
+  - Entry は簡潔に（各項目 1-2 行）
+  - Technical Notes は発見時のみ記載
+  - Files Changed は主要ファイルのみ（5 件以下）
+```
+
 ## 変更履歴
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-09 | context-log 機能追加。プロンプト→意図→処理→結果の外部化。current-implementation.md 連携。 |
 | 2025-12-08 | 初版作成。task-09, task-10 対応。 |

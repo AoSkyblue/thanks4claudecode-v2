@@ -70,6 +70,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
     if [[ "$line" =~ ^HARD_BLOCK:(.+)$ ]]; then
         PROTECTED_PATH="${BASH_REMATCH[1]}"
+        # shellcheck disable=SC2053  # Intentional glob matching for wildcard patterns
         if [[ "$RELATIVE_PATH" == "$PROTECTED_PATH" ]] || [[ "$RELATIVE_PATH" == $PROTECTED_PATH ]]; then
             IS_HARD_BLOCK=true
             break
@@ -158,6 +159,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     fi
 
     # パスが一致するかチェック
+    # shellcheck disable=SC2053  # Intentional glob matching for wildcard patterns
     if [[ "$RELATIVE_PATH" == "$PROTECTED_PATH" ]] || [[ "$RELATIVE_PATH" == $PROTECTED_PATH ]]; then
         
         # HARD_BLOCK: 常にブロック

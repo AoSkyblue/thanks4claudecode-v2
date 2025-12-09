@@ -282,6 +282,15 @@ while true:
      PASS → state.md 更新 → 次 Phase
      FAIL → 修正 → continue
   4. 不明 → break
+
+静的解析（git commit/add 時に自動発火）:
+  Hook: lint-check.sh (PreToolUse:Bash)
+  対象:
+    - ESLint: package.json 存在時
+    - ShellCheck: .claude/hooks/ 配下
+    - Ruff: pyproject.toml 存在時
+  結果: 警告表示（ブロックはしない）
+  修正: pnpm lint --fix / ruff check --fix で自動修正可能
 ```
 
 ---
@@ -349,6 +358,45 @@ while true:
 参照: .claude/frameworks/done-criteria-validation.md
 PASS → done 更新可
 FAIL → 修正 → 再実行
+```
+
+---
+
+## CONTEXT_EXTERNALIZATION（コンテキスト外部化）
+
+> **チャット履歴に依存しない状態管理。コード変更 + 意図・理由をセットで外部化。**
+
+```yaml
+目的: |
+  Claude の長時間作業でコンテキストが膨大になっても、
+  ユーザーが「何をやっているか」を追跡可能にする。
+
+記録先: .claude/logs/context-log.md
+
+記録タイミング:
+  - Phase 完了時（必須）
+  - ユーザーから新しい指示を受けたとき
+  - 重要な技術的発見時
+  - セッション終了前
+
+記録フォーマット:
+  ### [HH:MM] Entry: {タスク名}
+  - **User Prompt**: ユーザーの指示（原文または要約）
+  - **Intent**: Claude が解釈した意図
+  - **Actions**: 実行した処理
+  - **Result**: 結果・成果物
+  - **Technical Notes**: 技術的発見・制約（あれば）
+  - **Files Changed**: 変更したファイル
+  - **Playbook Phase**: 該当する Phase（あれば）
+
+current-implementation.md 連携:
+  条件: context-log の Entry が 5 件以上、または構造的変更時
+  行動: current-implementation.md への反映を実行
+  目的: Single Source of Truth の維持
+
+禁止:
+  - Entry なしで Phase を done にする
+  - 「記録した」と言って実際に書かない
 ```
 
 ---
@@ -422,6 +470,8 @@ MCP の使い分け:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-09 | V5.4: CONTEXT_EXTERNALIZATION 追加。context-log.md でプロンプト→意図→処理→結果を記録。コンテキストの外部化。 |
+| 2025-12-09 | V5.3: LOOP に静的解析ステップ追加。lint-check.sh で ESLint/ShellCheck/Ruff を自動実行。 |
 | 2025-12-09 | V5.2: 合意プロセス（CONSENT）。INIT に フェーズ 4.5 追加。playbook=null 時に [理解確認] を強制。ユーザー応答待ちを例外許可。 |
 | 2025-12-08 | V5.1: 計画の連鎖（Plan Derivation）。project.done_when → playbook の自動導出。INIT/POST_LOOP 更新。 |
 | 2025-12-08 | V5.0: アクションベース Guards。session 分類廃止。Edit/Write 時のみ playbook チェック。意図推測不要に。 |

@@ -1,6 +1,6 @@
 ---
 name: beginner-advisor
-description: AUTOMATICALLY explains technical terms with metaphors when beginner-level questions are detected. Proactively simplifies complex concepts.
+description: AUTOMATICALLY explains technical terms with metaphors when beginner-level questions are detected. Proactively simplifies complex concepts. Triggers when state.md learning_mode.expertise = beginner.
 tools: Read
 model: haiku
 ---
@@ -9,7 +9,19 @@ model: haiku
 
 初学者向けの質問や状況を検出し、専門用語を比喩で説明するエージェントです。
 
-## トリガー条件
+## 発火条件（learning_mode 連携）
+
+```yaml
+自動発火:
+  - state.md の learning_mode.expertise が beginner の場合
+  - 専門用語を含む説明の後
+
+手動発火:
+  - ユーザーが「説明して」「わからない」と言った場合
+  - Task(subagent_type="beginner-advisor") で呼び出された場合
+```
+
+## トリガー条件（従来）
 
 - 初学者向けの質問が検出された
 - 専門用語を使った説明の後

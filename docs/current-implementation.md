@@ -21,7 +21,9 @@
 7. [依存関係図](#7-依存関係図)
 8. [復旧手順](#8-復旧手順)
 9. [削除可能ファイルリスト](#9-削除可能ファイルリスト)
-10. [変更履歴](#10-変更履歴)
+10. [エンジニアリングエコシステム](#10-エンジニアリングエコシステム)
+11. [コンテキスト外部化システム](#11-コンテキスト外部化システム)
+12. [変更履歴](#12-変更履歴)
 
 ---
 
@@ -39,7 +41,7 @@
 
 | カテゴリ | 実装数 | settings.json 登録 |
 |---------|--------|-------------------|
-| Hooks | 21 | 15 |
+| Hooks | 22 | 16 |
 | SubAgents | 9 | - |
 | Skills | 9 | - |
 | Commands | 7 | - |
@@ -58,7 +60,7 @@
 
 ## 2. Hooks 完全仕様
 
-### 2.1 登録済み Hook 一覧（15個）
+### 2.1 登録済み Hook 一覧（16個）
 
 #### SessionStart(*)
 
@@ -111,6 +113,9 @@ Edit と同一 Hook（consent-guard 〜 executor-guard）が登録
 |------|---------|---------|---------|
 | pre-bash-check | pre-bash-check.sh | 1.1 PreToolUse | 10000ms |
 | check-coherence | check-coherence.sh | 1.1 PreToolUse | 5000ms |
+| lint-check | lint-check.sh | 1.1 PreToolUse | 10000ms |
+
+**lint-check**: git commit/add 前に静的解析を実行（ESLint, ShellCheck, Ruff）
 
 #### PostToolUse(Task)
 
@@ -142,7 +147,7 @@ Edit と同一 Hook（consent-guard 〜 executor-guard）が登録
 |------|---------|---------|---------|
 | session-end | session-end.sh | 1.1 SessionEnd | 5000ms |
 
-**処理**: last_end 更新、未 push 警告、.session-init クリア
+**処理**: last_end 更新、未 push 警告、.session-init クリア、セッションサマリー自動生成（`.claude/logs/sessions/YYYY-MM-DD_session-NNN.md`）
 
 ### 2.2 未登録 Hook（6個）
 
@@ -494,10 +499,172 @@ mv plan/active/playbook-trinity-validation.md .archive/plan/
 
 ---
 
-## 10. 変更履歴
+## 10. エンジニアリングエコシステム
+
+> **設計思想**: 使うことでエンジニアの作法が自然と学べる環境を構築する。
+
+### 10.1 Linter/Formatter 統合
+
+言語別デファクトスタンダードを setup に統合。
+
+| 言語 | Linter | Formatter | 設定ファイル |
+|------|--------|-----------|-------------|
+| JavaScript/TypeScript | ESLint | Prettier | .eslintrc.js, .prettierrc |
+| Python | Ruff | Ruff | pyproject.toml |
+| Shell | ShellCheck | shfmt | .shellcheckrc |
+| Go | golangci-lint | gofmt | .golangci.yml |
+| Rust | clippy | rustfmt | rustfmt.toml |
+| Markdown | markdownlint | - | .markdownlint.yaml |
+
+設定テンプレート: `.claude/templates/linter-formatter-config.md`
+
+### 10.2 TDD LOOP 静的解析統合
+
+```
+TDD LOOP に静的解析ステップを追加:
+
+  LOOP iteration
+      │
+      ▼
+  [PreToolUse:Bash]
+      │
+      ├── lint-check.sh (git commit/add 前)
+      │     ├── ESLint（package.json 存在時）
+      │     ├── ShellCheck（.claude/hooks/ 配下）
+      │     └── Ruff（pyproject.toml 存在時）
+      │
+      ▼
+  ツール実行
+```
+
+Hook 登録: `.claude/settings.json` PreToolUse:Bash に lint-check.sh 追加
+
+### 10.3 ShellCheck 導入
+
+Hook スクリプト品質保証のため ShellCheck を導入。
+
+```bash
+# インストール
+brew install shellcheck  # v0.11.0
+
+# 実行
+shellcheck .claude/hooks/*.sh
+```
+
+SC コード別対応方針（`.shellcheckrc`）:
+
+| SC コード | 対応 | 理由 |
+|----------|------|------|
+| SC2053 | 修正必須 | バグの原因（glob 問題） |
+| SC2086 | 修正必須 | セキュリティ（変数展開） |
+| SC2155 | 許容 | 可読性優先 |
+| SC2254 | 許容 | 意図的 glob 使用 |
+| SC2034 | 無視 | false positive（出力用変数） |
+| SC2011 | 無視 | 短スクリプトでは許容 |
+
+### 10.4 学習モード
+
+2軸の学習モード（`state.md` で設定）:
+
+```yaml
+learning_mode:
+  operator: hybrid     # human | hybrid | llm
+  expertise: intermediate  # beginner | intermediate | expert
+```
+
+| expertise | 出力調整 | SubAgent |
+|-----------|---------|---------|
+| beginner | 専門用語を比喩で説明、コマンド実行前に何をするか説明 | beginner-advisor 自動発火 |
+| intermediate | 標準出力、必要時のみ補足 | - |
+| expert | 簡潔な出力、説明省略 | - |
+
+beginner-advisor 連携: `expertise = beginner` で自動発火
+
+### 10.5 CodeRabbit 評価結果
+
+| 項目 | 評価結果 |
+|------|---------|
+| CLI インストール | ✅ v0.3.4 |
+| 認証 | ✅ github/M2AI-jp |
+| レビュー精度 | ✅ playbook の誤りを検出（false positive なし） |
+| TDD LOOP 統合 | ❌ 見送り（レートリミット問題） |
+| 推奨利用 | 手動コマンド `/coderabbit`、GitHub App（PR レビュー） |
+
+詳細評価レポート: `docs/coderabbit-evaluation.md`
+
+**TDD LOOP 統合見送りの理由**:
+- Free tier は 1 時間 1 レビューのレートリミット
+- LOOP 内の頻繁な呼び出しに不向き
+- 代替: 既存の critic SubAgent で十分
+
+---
+
+## 11. コンテキスト外部化システム
+
+> **設計思想**: チャット履歴に依存しない状態管理。Claude の長時間作業でもユーザーが追跡可能。
+
+### 11.1 context-log.md
+
+Claude が「何を指示されて、何をしたか」を記録する外部ログ。
+
+**ファイル**: `.claude/logs/context-log.md`
+
+**記録フォーマット**:
+
+```markdown
+### [HH:MM] Entry: {タスク名}
+- **User Prompt**: ユーザーの指示（原文または要約）
+- **Intent**: Claude が解釈した意図
+- **Actions**: 実行した処理
+- **Result**: 結果・成果物
+- **Technical Notes**: 技術的発見・制約（あれば）
+- **Files Changed**: 変更したファイル
+- **Playbook Phase**: 該当する Phase（あれば）
+```
+
+**記録タイミング**:
+
+| タイミング | 必須/推奨 |
+|-----------|----------|
+| Phase 完了時（critic PASS 後） | 必須 |
+| セッション終了前 | 必須 |
+| ユーザーから新しい指示を受けたとき | 推奨 |
+| 重要な技術的発見時 | 推奨 |
+| 5回以上の Edit/Write 実行後 | 推奨 |
+
+### 11.2 セッションサマリー自動生成
+
+session-end.sh がセッション終了時に自動生成。
+
+**格納先**: `.claude/logs/sessions/YYYY-MM-DD_session-NNN.md`
+
+**Layer 構造**:
+
+| Layer | 生成主体 | 内容 |
+|-------|---------|------|
+| Layer 1 | session-end.sh（自動） | git 状態、ブランチ、Phase 進捗、コミット履歴、変更ファイル |
+| Layer 2 | Claude（手動追記推奨） | ユーザープロンプト、意図、処理結果 |
+
+**技術的制約**: Shell Hook は Claude Code の会話履歴にアクセス不可。プロンプトの自動取得は不可能。
+
+### 11.3 current-implementation.md 連携
+
+context-log の蓄積に応じて current-implementation.md を更新。
+
+**トリガー条件**:
+- context-log の Entry が 5 件以上溜まった
+- 構造的な変更（新 Hook、新 SubAgent、アーキテクチャ変更）
+
+**関連 Skill**: context-management（`.claude/skills/context-management/SKILL.md`）
+
+---
+
+## 12. 変更履歴
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-09 | コンテキスト外部化システム追加。context-log.md、セッションサマリー自動生成（sessions/）、current-implementation.md 連携を追加。Hook 登録数を 16 に修正。 |
+| 2025-12-09 | エンジニアリングエコシステム追加。Linter/Formatter、静的解析、学習モード、ShellCheck、CodeRabbit 評価を統合。 |
 | 2025-12-09 | 全面改訂。playbook-current-implementation-redesign Phase 1-8 の成果物を統合。復旧可能な仕様書として再設計。 |
 | 2025-12-09 | 旧版: ユーザー確認事項ベースのドキュメントを廃止。 |
 

@@ -31,6 +31,102 @@ done_when:
 
 ---
 
+## 最低要件
+
+```yaml
+必須サブスクリプション:
+  - Claude Pro: $20/月
+    用途: Claude Code の利用
+    URL: https://claude.ai/
+
+  - ChatGPT Plus: $20/月
+    用途: Codex（大規模コード生成）
+    URL: https://chat.openai.com/
+
+推奨オプション:
+  - CodeRabbit: Free / Lite ($12/月) / Pro ($24/月)
+    用途: PR レビュー自動化
+    URL: https://coderabbit.ai/
+
+合計最低費用: $40/月（Claude Pro + ChatGPT Plus）
+```
+
+---
+
+## レビューツール選択
+
+```yaml
+# Phase 4 でツールインストール後、ユーザーに選択させる
+
+選択肢:
+  coderabbit:
+    説明: AI コードレビュー専用ツール
+    プラン:
+      - Free: 無料（1時間1レビュー制限）
+      - Lite: $12/月（制限緩和）
+      - Pro: $24/月（無制限）
+    利点:
+      - PR 作成時に自動レビュー（GitHub App）
+      - 詳細なコード品質分析
+      - セキュリティ脆弱性検出
+    欠点:
+      - 外部サービス依存
+      - Free tier はレートリミットあり
+
+  codex:
+    説明: OpenAI のコード生成・分析ツール
+    利用条件: ChatGPT Plus 契約必須
+    利点:
+      - プロンプトベースで柔軟なレビュー
+      - 大規模コード生成も可能
+      - MCP 経由で Claude Code から呼び出せる
+    欠点:
+      - 専用レビュー機能ではない
+      - プロンプト作成が必要
+
+  both:
+    説明: 両方を使い分け
+    推奨ケース:
+      - CodeRabbit: PR 作成時の自動レビュー
+      - Codex: 大規模コード生成、詳細分析
+
+LLM の発言テンプレート（Phase 4 完了後）:
+  ```
+  開発ツールのインストールが完了しました。
+
+  【レビューツールの選択】
+  コードレビューをどのツールで行いますか？
+
+  A: CodeRabbit（推奨）
+     → PR 作成時に自動レビュー
+     → Free: 無料（1時間1回制限）/ Lite: $12/月
+
+  B: Codex
+     → ChatGPT Plus 契約が必要
+     → プロンプトベースで柔軟にレビュー
+
+  C: 両方
+     → CodeRabbit で自動レビュー + Codex で詳細分析
+
+  D: なし（後で設定）
+
+  どれにしますか？（A/B/C/D）
+  ```
+
+設定方法（A を選んだ場合）:
+  1. https://coderabbit.ai/ でアカウント作成
+  2. GitHub 連携を設定
+  3. 対象リポジトリで GitHub App をインストール
+  4. PR 作成時に自動でレビューが走る
+
+設定方法（B を選んだ場合）:
+  1. ChatGPT Plus に加入していることを確認
+  2. Claude Code から mcp__codex__codex で呼び出し可能
+  3. 「このコードをレビューして」とプロンプトで依頼
+```
+
+---
+
 ## 設計思想
 
 ```yaml
@@ -589,6 +685,8 @@ done_criteria:
   - Git がインストール済み（git --version で確認）
   - GitHub CLI が認証済み（gh auth status で確認）
   - dotenvx がインストール済み（dotenvx --version で確認）
+  - ShellCheck がインストール済み（shellcheck --version で確認）
+  - pre-commit がインストール済み（pre-commit --version で確認）
 status: pending
 ```
 
@@ -597,6 +695,7 @@ status: pending
 1. まず確認:
    ```bash
    brew --version && git --version && node --version && pnpm --version && dotenvx --version
+   shellcheck --version && pre-commit --version
    ```
 
 2. 不足があればインストール:
@@ -615,6 +714,10 @@ status: pending
 
    # dotenvx（暗号化された環境変数管理）
    brew install dotenvx/brew/dotenvx
+
+   # Linter/Formatter ツール（言語共通）
+   brew install shellcheck shfmt  # Shell
+   pip install pre-commit ruff    # pre-commit フック、Python Linter
    ```
 
 3. dotenvx の説明（初心者向け）:
@@ -625,7 +728,16 @@ status: pending
    - 詳細: https://dotenvx.com/
    ```
 
-3. 参照: CATALOG.md セクション 1（トラブルシューティング）
+4. Linter/Formatter の説明（初心者向け）:
+   ```
+   Linter はコードの問題を自動検出するツールです。
+   Formatter はコードスタイルを統一するツールです。
+   - ShellCheck: シェルスクリプトの問題検出
+   - pre-commit: コミット前に自動チェック
+   - 詳細: .claude/templates/linter-formatter-config.md
+   ```
+
+5. 参照: CATALOG.md セクション 1（トラブルシューティング）
 
 ---
 
@@ -685,6 +797,118 @@ pnpm add hono
 ⚠️ 初心者がこれを選んだ場合:
   - 「画面がないプロジェクトになりますが大丈夫ですか？」と確認
   - 迷っている場合は Next.js（フロントあり）を推奨
+```
+
+---
+
+### Phase 5-A: Linter/Formatter 設定
+
+```yaml
+id: p5a
+name: Linter/Formatter 設定
+goal: プロジェクトに言語別 Linter/Formatter を設定
+executor: llm
+depends_on: [p5]
+done_criteria:
+  - 言語に応じた Linter 設定ファイルが存在する
+  - 言語に応じた Formatter 設定ファイルが存在する
+  - .pre-commit-config.yaml が設定されている
+  - pre-commit install が実行済み
+  - pnpm lint（または同等コマンド）が成功する
+status: pending
+```
+
+**LLM の行動:**
+
+1. プロジェクトの言語を判定:
+   ```yaml
+   判定基準:
+     - package.json 存在 → JavaScript/TypeScript
+     - pyproject.toml 存在 → Python
+     - go.mod 存在 → Go
+     - Cargo.toml 存在 → Rust
+     - .sh ファイル存在 → Shell
+   ```
+
+2. 言語別設定ファイルを作成:
+   ```bash
+   # テンプレート参照
+   cat .claude/templates/linter-formatter-config.md
+   ```
+
+3. JavaScript/TypeScript の場合:
+   ```bash
+   cd projects/{name}
+
+   # Prettier 追加（ESLint は create-next-app で含まれる）
+   pnpm add -D prettier eslint-config-prettier
+
+   # .prettierrc 作成
+   cat > .prettierrc << 'EOF'
+   {
+     "semi": true,
+     "singleQuote": true,
+     "tabWidth": 2,
+     "trailingComma": "es5",
+     "printWidth": 100
+   }
+   EOF
+
+   # package.json に lint スクリプト追加
+   # "lint": "eslint . --fix",
+   # "format": "prettier --write ."
+   ```
+
+4. pre-commit 設定:
+   ```bash
+   cd projects/{name}
+
+   # .pre-commit-config.yaml 作成
+   cat > .pre-commit-config.yaml << 'EOF'
+   repos:
+     - repo: local
+       hooks:
+         - id: eslint
+           name: ESLint
+           entry: pnpm eslint --fix
+           language: system
+           files: \.(js|jsx|ts|tsx)$
+           pass_filenames: false
+
+         - id: prettier
+           name: Prettier
+           entry: pnpm prettier --write
+           language: system
+           files: \.(js|jsx|ts|tsx|json|md|css)$
+   EOF
+
+   # pre-commit インストール
+   pre-commit install
+   ```
+
+5. 動作確認:
+   ```bash
+   pnpm lint
+   pre-commit run --all-files
+   ```
+
+**初心者向け説明:**
+```
+Linter と Formatter を設定しました。
+
+【Linter（ESLint）】
+- コードの問題（バグの可能性、未使用変数）を検出
+- pnpm lint で実行
+
+【Formatter（Prettier）】
+- コードスタイルを自動整形
+- 保存時に自動実行（VSCode 設定済みなら）
+
+【pre-commit】
+- コミット前に自動チェック
+- 問題があるとコミットが止まる（安全装置）
+
+これで「きれいなコード」を書く習慣が身につきます。
 ```
 
 ---

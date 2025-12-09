@@ -29,7 +29,7 @@ mode: admin                  # strict | trusted | developer | admin
 plan-template:    null
 workspace:        null                       # 完了した playbook は .archive/plan/ に退避
 setup:            null                       # テンプレートは常に pending（正常）
-product:          plan/active/playbook-consent-integration.md
+product:          null                       # playbook-current-implementation-redesign 完了
 ```
 
 ---
@@ -135,14 +135,14 @@ playbook: null  # テンプレートは pending のまま（正常）
 
 ```yaml
 state: idle
-sub: consent-integration-complete
+sub: current-implementation-redesign-done
 playbook: null
 ```
 
 ### 概要
 > ユーザーが実際にプロダクトを開発するためのレイヤー。
 > setup 完了後、plan/project.md を参照して TDD で開発。
-> **playbook-consent-integration 全 Phase 完了。次タスク待ち。**
+> **playbook-current-implementation-redesign 全 8 Phase 完了。** docs/current-implementation.md を「復旧可能な仕様書」として再設計完了。
 
 ---
 
@@ -154,17 +154,19 @@ current_phase: null
 task: null
 assignee: null
 
-done_criteria: []  # 次タスク待ち
+done_criteria: []
 ```
 
-> **playbook-consent-integration 全 Phase 完了・アーカイブ待ち。次のユーザー指示を待機中。**
+> **playbook-current-implementation-redesign 全 8 Phase 完了。**
+> docs/current-implementation.md を「復旧可能な仕様書」として再設計完了。
+> critic PASS 取得済み。次タスク待ち。
 
 ---
 
 ## verification
 
 ```yaml
-self_complete: false      # p4 開始
+self_complete: true       # playbook-current-implementation-redesign 完了
 user_verified: false
 ```
 
@@ -194,7 +196,7 @@ forbidden: [pending→implementing], [pending→done], [*→done without state_u
 > **Hooks による自動更新。LLM の行動に依存しない。**
 
 ```yaml
-last_start: 2025-12-09 12:53:59
+last_start: 2025-12-09 14:27:34
 last_end: 2025-12-09 02:00:00
 uncommitted_warning: false
 ```
@@ -216,6 +218,7 @@ uncommitted_warning: false
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-09 | **playbook-current-implementation-redesign 完了**: 全8Phase完了。docs/current-implementation.md を「復旧可能な仕様書」として再設計。critic PASS。 |
 | 2025-12-09 | **playbook-system-improvements 完了・アーカイブ**: 全10Phase完了。.archive/plan/ に退避。次タスク待ち。 |
 | 2025-12-09 | **playbook 完了**: playbook-trinity-validation 全 12 Phase 完了。三位一体アーキテクチャ検証完了。 |
 | 2025-12-09 | **p12 完了**: 合意プロセス設計 PASS (critic 1回目)。consent-guard.sh 作成。設計フェーズ完了。 |

@@ -60,7 +60,7 @@ test_method: |
   3. 現在の state.md, project.md の内容を手動で確認
   4. 設計ドキュメント（draft-injection-design.md）を作成
   5. grep で systemMessage のパターンを確認
-status: pending
+status: done
 ```
 
 ### p1: systemMessage 注入ロジック実装
@@ -90,7 +90,7 @@ test_method: |
   4. 動作テスト: test-injection.sh を作成して複数回実行
   5. systemMessage が正しく出力されることを確認
   6. git diff で変更内容を確認
-status: pending
+status: in_progress
 ```
 
 ### p2: /clear 後の発火テストと条件分岐

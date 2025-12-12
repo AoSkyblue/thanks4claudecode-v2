@@ -28,12 +28,13 @@ branch: feat/state-injection
 
 ```yaml
 milestone: M005  # 確実な初期化システム（StateInjection）
-phase: p0        # 現状分析と systemMessage 設計
+phase: p1        # systemMessage 注入ロジック実装
 done_criteria:
-  - "prompt-guard.sh が systemMessage を JSON で返す仕組みを理解している"
-  - "state.md, project.md, playbook から注入すべき情報をリスト化している"
-  - "systemMessage の構造（focus, goal, phase, remaining）を設計している"
-  - "実際に prompt-guard.sh の実行結果を確認した"
+  - "prompt-guard.sh に state.md 読み込みロジックが追加されている"
+  - "project.md と playbook を読み込んで focus/goal/phase を抽出できる"
+  - "systemMessage に以下が含まれている: focus.current, goal.milestone, goal.phase, remaining"
+  - "JSON の escaping が正しく行われている（バックスラッシュ、改行）"
+  - "複数回のプロンプト送信で毎回 systemMessage が注入される"
   - "実際に動作確認済み（test_method 実行）"
 ```
 

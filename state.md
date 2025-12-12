@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/active/playbook-state-injection.md
-branch: feat/state-injection
+active: null
+branch: null
 ```
 
 ---
@@ -27,14 +27,9 @@ branch: feat/state-injection
 ## goal
 
 ```yaml
-milestone: M005  # 確実な初期化システム（StateInjection）
-phase: p4        # ドキュメント更新とクリーンアップ
-done_criteria:
-  - "ls docs/state-injection-guide.md でファイルが存在する"
-  - "grep '注入フロー' docs/state-injection-guide.md が成功する"
-  - "ls .claude/draft-injection-design.md が失敗する（削除済み）"
-  - "ls .claude/hooks/test-injection.sh が失敗する（削除済み）"
-  - "grep 'phase: p4' state.md が成功する"
+milestone: M005  # 確実な初期化システム（StateInjection）- 完了
+phase: null
+done_criteria: []
 ```
 
 ---

@@ -76,6 +76,22 @@ success_criteria:
     - [x] playbook 完了時に project.milestone が自動更新される
     - [x] playbook 完了時に /clear 推奨がアナウンスされる
     - [x] 次 milestone から playbook が自動作成される
+
+- id: M005
+  name: "確実な初期化システム（StateInjection）"
+  description: |
+    UserPromptSubmit Hook を拡張し、state/project/playbook の状態を
+    systemMessage として強制注入する。LLM が Read しなくても情報が届く。
+  status: achieved
+  achieved_at: 2025-12-13 01:20:00
+  depends_on: [M004]
+  playbooks:
+    - playbook-state-injection.md
+  done_when:
+    - [x] systemMessage に focus/milestone/phase/playbook が含まれる
+    - [x] systemMessage に project_summary/last_critic が含まれる
+    - [x] /clear 後も最初のプロンプトで情報が注入される
+    - [x] playbook=null の場合も正しく動作する
 ```
 
 ---
@@ -111,7 +127,8 @@ project (永続)
 │   ├── M001: achieved
 │   ├── M002: achieved
 │   ├── M003: achieved
-│   └── M004: in_progress ← 現在地
+│   ├── M004: achieved
+│   └── M005: achieved ← 最新完了
 └── constraints: 制約条件
 
 playbook (一時的)
@@ -164,5 +181,6 @@ project_complete:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-13 | M005（StateInjection）達成。systemMessage で状態を自動注入。 |
 | 2025-12-13 | 3層構造の自動運用システム設計。用語統一。milestone に ID 追加。 |
 | 2025-12-10 | 初版作成。 |

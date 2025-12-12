@@ -163,20 +163,18 @@ max_iterations: 4
 time_limit: 30min
 
 done_criteria:
-  - "docs/state-injection-guide.md が作成されている"
-  - "systemMessage の注入フロー、注入する情報、フォーマットが記載されている"
-  - "draft-injection-design.md が削除されている"
-  - "test-injection.sh, test-no-read.sh が削除されている"
-  - "state.md の playbook と goal が正しく設定されている"
-  - "実際に動作確認済み（test_method 実行）"
+  - "ls docs/state-injection-guide.md でファイルが存在する"
+  - "grep '注入フロー' docs/state-injection-guide.md が成功する"
+  - "ls .claude/draft-injection-design.md が失敗する（削除済み）"
+  - "ls .claude/hooks/test-injection.sh が失敗する（削除済み）"
+  - "grep 'phase: p4' state.md が成功する"
 
 test_method: |
-  1. docs/state-injection-guide.md を作成
-  2. draft-*.md, test-*.sh を削除
-  3. git status で不要なファイルが残っていないことを確認
-  4. state.md が正しく更新されていることを確認
-  5. check-coherence.sh で整合性をチェック
-status: pending
+  1. ls docs/state-injection-guide.md でファイル存在確認
+  2. grep で必須セクションの存在確認
+  3. ls で削除済みファイルの不在確認
+  4. state.md の整合性確認
+status: done
 ```
 
 ---

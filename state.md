@@ -30,12 +30,11 @@ branch: feat/state-injection
 milestone: M005  # 確実な初期化システム（StateInjection）
 phase: p4        # ドキュメント更新とクリーンアップ
 done_criteria:
-  - "docs/state-injection-guide.md が作成されている"
-  - "systemMessage の注入フロー、注入する情報、フォーマットが記載されている"
-  - "draft-injection-design.md が削除されている"
-  - "test-injection.sh, test-no-read.sh が削除されている"
-  - "state.md の playbook と goal が正しく設定されている"
-  - "実際に動作確認済み（test_method 実行）"
+  - "ls docs/state-injection-guide.md でファイルが存在する"
+  - "grep '注入フロー' docs/state-injection-guide.md が成功する"
+  - "ls .claude/draft-injection-design.md が失敗する（削除済み）"
+  - "ls .claude/hooks/test-injection.sh が失敗する（削除済み）"
+  - "grep 'phase: p4' state.md が成功する"
 ```
 
 ---

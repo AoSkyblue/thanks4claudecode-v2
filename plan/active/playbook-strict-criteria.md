@@ -191,7 +191,7 @@ subtasks:
     executor: user
     test_command: "手動確認: pm を呼び出してテスト playbook を生成し、subtasks 構造を確認"
 
-status: pending
+status: done
 max_iterations: 5
 ```
 

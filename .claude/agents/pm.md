@@ -114,15 +114,15 @@ playbook なしで作業開始しない:
    → 単純な場合: 自動で作成
 ```
 
-## playbook 作成フロー（従来）
+## playbook 作成フロー（V11: subtasks 構造対応）
 
 > **ユーザーの要望から playbook を作成する手順**
 
 ```
 0. 【必須】テンプレート参照（スキップ禁止）
-   → Read: plan/template/playbook-format.md
-   → Read: plan/template/planning-rules.md（必要に応じて）
-   → 目的: 最新のフォーマットと記述ルールを確認
+   → Read: plan/template/playbook-format.md（V11: subtasks 構造）
+   → Read: docs/criterion-validation-rules.md（禁止パターン）
+   → 目的: 最新のフォーマットと criterion 検証ルールを確認
 
 1. ユーザーの要望を確認
    → 「何を作りたいですか？」（1回だけ）
@@ -131,42 +131,121 @@ playbook なしで作業開始しない:
    → not_achieved に該当するものがあれば derives_from を設定
    → なければ新規 done_when として追加を検討
 
-3. 技術的な done_criteria を書く前に検証
+3. 技術的な criterion を書く前に検証
    → context7 でライブラリの推奨パターンを確認
    → 公式ドキュメントの最新安定版を確認
-   → setup/CATALOG.md のバージョンが古くないか確認
 
-4. ゴールと done_criteria を定義
-   → 自分で考えて提案
-   → 公式ドキュメントに基づくパターンを採用
-   → playbook-format.md の done_criteria 記述ガイドに従う
-
-5. Phase を分割
+4. Phase を分割し subtasks を定義 ★新規
    → 2-5 Phase が理想
-   → playbook-format.md の Phase 記述ルールに従う
+   → 各 Phase に subtasks を定義（criterion + executor + test_command）
+   → docs/criterion-validation-rules.md の禁止パターンをチェック
 
-5.5. 【必須】中間成果物の確認
-   → Phase で作成するファイルをリストアップ
-   → 中間成果物（統合後に不要になるファイル）があるか確認
+4.5. 【必須】criterion 検証可能性チェック ★新規
+   → 各 criterion に対して:
+     - [ ] 状態形式か？（「〜である」「〜が存在する」）
+     - [ ] test_command が書けるか？
+     - [ ] 禁止パターンに該当しないか？
+   → 1つでも該当 → criterion を修正
+
+5. executor を選択（subtask 単位）★新規
+   → 参照: plan/template/playbook-format.md の「executor 選択ガイドライン」
+   → claudecode: ファイル作成、設計、軽量スクリプト
+   → codex: 本格的なコード実装
+   → coderabbit: コードレビュー
+   → user: 手動確認、外部操作
+
+6. test_command を定義（subtask 単位）★新規
+   → 参照: plan/template/playbook-format.md の「test_command パターン集」
+   → ファイル存在: test -f {path} && echo PASS
+   → 内容確認: grep -q '{pattern}' {file} && echo PASS
+   → コマンド実行: {cmd} && echo PASS || echo FAIL
+   → 手動確認: "手動確認: {具体的な手順}"
+
+7. 【必須】中間成果物の確認
    → 中間成果物がある場合:
-      - 最終 Phase に「クリーンアップ」を追加
-      - done_criteria に「中間成果物が削除/アーカイブされている」を含める
-   → 推奨: 可能な限り中間成果物を作成せず、既存ファイルに追記する
+      - 最終 Phase に「クリーンアップ」の subtask を追加
    → 参照: docs/file-creation-process-design.md
 
-6. plan/playbook-{name}.md を作成（ドラフト状態）
+8. plan/playbook-{name}.md を作成（ドラフト状態）
 
-7. 【必須】plan-reviewer を呼び出し（スキップ禁止）★
+9. 【必須】plan-reviewer を呼び出し（スキップ禁止）★
    → Task(subagent_type="plan-reviewer")
    → PASS: 次のステップへ
    → FAIL: 問題点を修正して再レビュー（最大3回）
-   → 3回 FAIL: ユーザーに確認を求める
 
-8. state.md を更新
-   → playbook: plan/playbook-{name}.md
+10. state.md を更新 & ブランチ作成
+```
 
-9. ブランチを作成
-   → git checkout -b {fix|feat}/{name}
+---
+
+## subtasks 生成ガイドライン（V11 新規）
+
+> **criterion + executor + test_command を1セットで定義する**
+
+### 構造
+
+```yaml
+subtasks:
+  - id: p{N}.{M}
+    criterion: "検証可能な完了条件"
+    executor: claudecode | codex | coderabbit | user
+    test_command: "PASS/FAIL を返すコマンド"
+```
+
+### executor 選択ロジック
+
+```yaml
+claudecode:
+  キーワード: ファイル作成、設定、ドキュメント、軽量な修正
+  例: "〇〇.md が存在する"、"設定ファイルに〇〇が含まれる"
+
+codex:
+  キーワード: 実装、コーディング、ロジック、リファクタリング
+  例: "npm test が通る"、"API が動作する"
+
+coderabbit:
+  キーワード: レビュー、品質チェック、セキュリティ
+  例: "コードレビューが完了している"
+
+user:
+  キーワード: 手動、外部サービス、API キー、目視確認
+  例: "Vercel にデプロイされている"、"API キーが設定されている"
+```
+
+### test_command 生成パターン
+
+```yaml
+ファイル存在:
+  criterion: "〇〇.md が存在する"
+  test_command: "test -f {path} && echo PASS"
+
+内容確認:
+  criterion: "〇〇が15個以上列挙されている"
+  test_command: "grep -c '{pattern}' {file} | awk '{if($1>=15) print \"PASS\"}'"
+
+コマンド実行:
+  criterion: "npm test が exit 0 で終了する"
+  test_command: "npm test && echo PASS || echo FAIL"
+
+手動確認:
+  criterion: "ユーザーが〇〇を完了している"
+  test_command: "手動確認: {具体的な手順}"
+```
+
+### 禁止パターンチェック
+
+```yaml
+参照: docs/criterion-validation-rules.md
+
+禁止:
+  - 動詞で終わる（「〜する」「〜した」）
+  - 曖昧な形容詞（「適切」「正しく」「良い」）
+  - 検証方法が不明（test_command が書けない）
+
+検出時の対応:
+  1. criterion を修正（状態形式に変換）
+  2. 具体的な条件を追加
+  3. test_command を定義
 ```
 
 ### テンプレート必須参照の理由
@@ -269,11 +348,10 @@ playbook なしで作業開始しない:
 
 ## 参照ファイル
 
-- plan/template/playbook-format.md - playbook テンプレート（V10: 中間成果物の処理を含む）
+- plan/template/playbook-format.md - playbook テンプレート（V11: subtasks 構造）
+- docs/criterion-validation-rules.md - criterion 検証ルール（禁止パターン）★新規
 - state.md - 現在の playbook、focus
 - CLAUDE.md - playbook ルール（POST_LOOP: アーカイブ実行を含む）
-- .claude/agents/plan-reviewer.md - 計画レビュー SubAgent ★
+- .claude/agents/plan-reviewer.md - 計画レビュー SubAgent
 - .claude/agents/git-ops.md - git 操作 参照ドキュメント（Claude が直接実行）
 - docs/file-creation-process-design.md - 中間成果物の処理設計
-- docs/archive-operation-rules.md - アーカイブ運用ルール
-- docs/artifact-management-rules.md - アーティファクト管理ルール（再発防止チェックリスト含む）

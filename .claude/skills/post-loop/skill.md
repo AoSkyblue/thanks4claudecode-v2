@@ -61,22 +61,47 @@ playbook の全 Phase が done
      - 必須チェック未完了: --auto で待機
      - 失敗: エラーログ出力、手動対応を促す
 
-3. project.done_when の更新:
-   - derives_from で紐づく done_when.status を achieved に
+3. project.milestone の自動更新（★新機能 M004）:
+   - playbook の meta.derives_from から milestone ID を読み込み
+   - project.md の該当 milestone を検索
+   - status: in_progress → status: achieved に更新
+   - achieved_at: {現在日時} を追加
+   - playbooks[] に playbook 名を追記
+   - 実装方法：
+     ```bash
+     # 1. playbook から derives_from を抽出
+     DERIVES_FROM=$(grep "^derives_from:" {playbook} | sed 's/derives_from: *//')
 
-4. 次タスクの導出（計画の連鎖）★pm 経由必須:
+     # 2. project.md の該当 milestone を更新
+     # YAML セクション更新（要 yq または sed）
+     # - status: in_progress → status: achieved
+     # - achieved_at: 日時を追加
+     # - playbooks[] に playbook 名を追記
+     ```
+
+4. /clear アナウンス（★新機能 M004）:
+   - playbook 完了時にユーザーに以下を案内:
+     ```
+     [playbook 完了]
+     playbook-{name} が全 Phase 完了しました。
+
+     コンテキスト使用率を確認し、必要に応じて /clear を実行してください。
+     /context で確認 → /clear で リセット可能です。
+     ```
+
+5. 次タスクの導出（計画の連鎖）★pm 経由必須:
    - pm SubAgent を呼び出す
    - pm が project.md の not_achieved を確認
    - pm が depends_on を分析し、着手可能な done_when を特定
    - pm が decomposition を参照して新 playbook を作成
 
-5. 残タスクあり:
+6. 残タスクあり:
    - ブランチ作成: `git checkout -b feat/{next-task}`
    - pm が playbook 作成: plan/active/playbook-{next-task}.md
-   - pm が state.md 更新: active_playbooks.product を更新
+   - pm が state.md 更新: active_playbooks を更新
    - 即座に LOOP に入る
 
-6. 残タスクなし:
+7. 残タスクなし:
    - 「全タスク完了。次の指示を待ちます。」
 ```
 

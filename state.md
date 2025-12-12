@@ -9,17 +9,8 @@
 ## focus
 
 ```yaml
-current: product
-```
-
----
-
-## active_playbooks
-
-```yaml
-product: null
-setup: null
-workspace: null
+current: thanks4claudecode  # 現在作業中のプロジェクト名
+project: plan/project.md
 ```
 
 ---
@@ -27,8 +18,8 @@ workspace: null
 ## playbook
 
 ```yaml
-active: null
-branch: main
+active: plan/active/playbook-three-layer-system.md
+branch: refactor/three-layer-system
 ```
 
 ---
@@ -36,25 +27,10 @@ branch: main
 ## goal
 
 ```yaml
-phase: complete
-name: playbook-pr-automation 完了
-task: POST_LOOP 実行（アーカイブ → 次タスク導出）
-assignee: claudecode
-
-done_criteria:
-  - playbook の全 Phase が done
-  - playbook がアーカイブされている
-  - project.md の milestone が更新されている
-  - 次タスクが導出されている
-```
-
----
-
-## verification
-
-```yaml
-self_complete: true
-user_verified: false
+milestone: M004  # 現在作業中の milestone ID
+phase: null      # 全 Phase 完了
+done_criteria: []
+self_complete: true  # playbook 完了フラグ
 ```
 
 ---
@@ -62,8 +38,8 @@ user_verified: false
 ## session
 
 ```yaml
-last_start: 2025-12-10 04:56:25
-last_end: 2025-12-09 21:22:42
+last_start: 2025-12-12 23:57:49
+last_clear: 2025-12-13 00:30:00
 ```
 
 ---
@@ -71,10 +47,10 @@ last_end: 2025-12-09 21:22:42
 ## config
 
 ```yaml
-security: admin          # strict | trusted | developer | admin
+security: admin
 learning:
-  operator: hybrid       # human | hybrid | llm
-  expertise: intermediate  # beginner | intermediate | expert
+  operator: hybrid
+  expertise: intermediate
 ```
 
 ---
@@ -84,6 +60,5 @@ learning:
 | ファイル | 役割 |
 |----------|------|
 | CLAUDE.md | LLM の振る舞いルール |
-| plan/project.md | Macro 計画 |
-| docs/current-implementation.md | 実装仕様書 |
-| .claude/context/history.md | 詳細履歴 |
+| plan/project.md | プロジェクト計画 |
+| docs/feature-map.md | 機能マップ |

@@ -66,14 +66,16 @@ success_criteria:
     project → playbook → phase の3層構造を確立し、
     Claude が主導で自動運用できるようにする。
     人間は意思決定とプロンプト提供のみ。
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-13 00:06:00
   depends_on: [M001, M002, M003]
-  playbooks: []
+  playbooks:
+    - playbook-three-layer-system.md
   done_when:
-    - 用語が統一されている（Macro→project, layer廃止）
-    - playbook 完了時に project.milestone が自動更新される
-    - playbook 完了時に /clear 推奨がアナウンスされる
-    - 次 milestone から playbook が自動作成される
+    - [x] 用語が統一されている（Macro→project, layer廃止）
+    - [x] playbook 完了時に project.milestone が自動更新される
+    - [x] playbook 完了時に /clear 推奨がアナウンスされる
+    - [x] 次 milestone から playbook が自動作成される
 ```
 
 ---

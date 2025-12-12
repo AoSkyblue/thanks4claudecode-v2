@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/active/playbook-three-layer-system.md
-branch: refactor/three-layer-system
+active: null
+branch: main
 ```
 
 ---

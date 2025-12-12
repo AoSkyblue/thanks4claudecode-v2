@@ -28,13 +28,12 @@ branch: feat/state-injection
 
 ```yaml
 milestone: M005  # 確実な初期化システム（StateInjection）
-phase: p2        # /clear 後の発火テストと条件分岐
+phase: p3        # LLM Read 省略時の情報到達確認
 done_criteria:
-  - "state.md の playbook=null の場合のログが有る"
-  - "/clear 後に test-injection.sh を実行して動作確認した"
-  - "systemMessage が state=null, goal=null でも正しく出力される"
-  - "playbook がない場合と、ある場合の両方で動作確認済み"
-  - "/clear コマンドの前後で state.md の内容が変わることを確認"
+  - "systemMessage に含まれる情報がフォーマットされている（readable）"
+  - "複数プロンプト送信時に毎回同じ形式で systemMessage が出力される"
+  - "systemMessage の構造が CLAUDE.md の INIT と一致している"
+  - "test-no-read.sh で LLM が Read せずに応答できることをシミュレート"
   - "実際に動作確認済み（test_method 実行）"
 ```
 
@@ -43,7 +42,7 @@ done_criteria:
 ## session
 
 ```yaml
-last_start: 2025-12-12 23:57:49
+last_start: 2025-12-13 00:52:06
 last_clear: 2025-12-13 00:30:00
 ```
 

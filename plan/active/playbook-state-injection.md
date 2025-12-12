@@ -106,21 +106,21 @@ max_iterations: 6
 time_limit: 45min
 
 done_criteria:
-  - "state.md の playbook=null の場合のログが有る"
-  - "/clear 後に test-injection.sh を実行して動作確認した"
-  - "systemMessage が state=null, goal=null でも正しく出力される"
-  - "playbook がない場合と、ある場合の両方で動作確認済み"
-  - "/clear コマンドの前後で state.md の内容が変わることを確認"
-  - "実際に動作確認済み（test_method 実行）"
+  - ".claude/logs/test-playbook-null-*.log が存在し、playbook: null が含まれる"
+  - ".claude/logs/state-before-clear-*.md が存在する（/clear 前のバックアップ）"
+  - "playbook=null 時の systemMessage に milestone: null, phase: null が含まれる（ログで確認）"
+  - "test-injection.sh が [JSON VALID] を出力（playbook あり/なし 両方）"
+  - "session.last_start が /clear 後に更新されている（grep で確認）"
+  - ".claude/logs/p2-test-results.md に全テスト結果が集約されている"
 
 test_method: |
-  1. /clear 実行前の state.md をコピー（backup-state-before-clear.md）
-  2. ユーザーに /clear の実行を依頼
-  3. /clear 実行後、state.md が初期化されたことを grep で確認
-  4. test-injection.sh を実行して systemMessage が注入されることを確認
-  5. state.md の playbook=null, goal=null の場合の出力を記録
-  6. 修正が必要な場合は prompt-guard.sh を調整
-status: in_progress
+  1. state.md を .claude/logs/state-before-clear-{timestamp}.md にコピー
+  2. /clear 実行（ユーザー操作）
+  3. /clear 後に test-injection.sh を実行し、結果を記録
+  4. state.md を playbook=null 状態に変更してテスト
+  5. 結果を .claude/logs/p2-test-results.md に集約
+  6. state.md を元に戻す
+status: done
 ```
 
 ### p3: LLM Read 省略時の情報到達確認

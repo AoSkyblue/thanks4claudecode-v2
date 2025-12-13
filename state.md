@@ -43,7 +43,7 @@ done_criteria:
 ## session
 
 ```yaml
-last_start: 2025-12-13 17:14:53
+last_start: 2025-12-13 17:38:12
 last_clear: 2025-12-13 00:30:00
 ```
 
@@ -66,5 +66,5 @@ learning:
 |----------|------|
 | CLAUDE.md | LLM の振る舞いルール |
 | plan/project.md | プロジェクト計画 |
-| docs/feature-map.md | 機能マップ |
+| docs/repository-map.yaml | 全ファイルマッピング（自動生成） |
 | docs/folder-management.md | フォルダ管理ルール |

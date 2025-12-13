@@ -37,6 +37,7 @@ EXCLUDE_PATTERNS=(
     ".git"
     "node_modules"
     ".archive"
+    "tmp"
     "*.log"
     "*.tmp"
     ".DS_Store"

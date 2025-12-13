@@ -51,7 +51,7 @@ phase:
   1. Read: state.md（現在地・goal・milestone）
   2. Read: plan/project.md（プロジェクト計画）
   3. Read: playbook（playbook.active から特定、なければ null）
-  4. Read: docs/feature-map.md（機能マップ）
+  4. Read: docs/repository-map.yaml（全ファイルマッピング）
 
   ⚠️ Hook 出力を「見た」だけでは不十分。Read ツールで実際に読め。
   ⚠️ Read 未完了でユーザーに応答するな。

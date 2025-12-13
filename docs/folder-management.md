@@ -67,13 +67,35 @@
 | ファイル | 区分 | 役割 |
 |----------|------|------|
 | `CLAUDE.md` | 永続 | フォルダ役割説明 |
+| `manifest.yaml` | 永続 | ファイル一元管理マニフェスト（★必須更新） |
 | `current-implementation.md` | 永続 | 現在実装の棚卸し |
 | `extension-system.md` | 永続 | Claude Code 公式リファレンス |
+| `feature-map.md` | 永続 | Hooks/SubAgents/Skills 一覧 |
 | `criterion-validation-rules.md` | 永続 | done_criteria 検証ルール |
 | `folder-management.md` | 永続 | フォルダ管理ルール（このファイル） |
 | `archive-operation-rules.md` | 永続 | アーカイブ操作ルール |
 | `artifact-management-rules.md` | 永続 | 成果物管理ルール |
 | `git-operations.md` | 永続 | git 操作ガイド |
+
+#### docs/ のファイル管理
+
+```yaml
+管理ファイル: docs/manifest.yaml
+
+ファイル追加時:
+  1. docs/ にファイルを作成
+  2. manifest.yaml に追記
+  3. CLAUDE.md のファイル一覧を更新
+
+ファイル削除時:
+  1. ファイルを削除
+  2. manifest.yaml から削除
+  3. CLAUDE.md のファイル一覧を更新
+
+自動通知:
+  - update-tracker.sh が docs/ への変更を検出
+  - manifest.yaml 更新を促すメッセージを出力
+```
 
 ### tmp/ 配下
 
@@ -277,4 +299,5 @@ du -sh .archive/
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-13 | docs/manifest.yaml 管理ルールを追加。docs/ ファイル管理セクション拡充。 |
 | 2025-12-13 | 初版作成。M014 対応。 |

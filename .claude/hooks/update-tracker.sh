@@ -89,6 +89,19 @@ case "$FILE_PATH" in
         AFFECTED_DOCS="docs/current-implementation.md"
         NEEDS_REGEN=true
         ;;
+    docs/*)
+        # docs/ へのファイル変更時は manifest.yaml 更新を促す
+        # manifest.yaml 自体への変更は除外
+        if [ "$FILE_PATH" != "docs/manifest.yaml" ]; then
+            cat << EOF
+{
+  "decision": "allow",
+  "systemMessage": "[update-tracker] 📄 docs/manifest.yaml の更新が必要\n\n変更されたファイル: $FILE_PATH\n\n⚠️ docs/ 内のファイルを追加/変更した場合は、以下も更新してください:\n  1. docs/manifest.yaml（ファイル一覧）\n  2. docs/CLAUDE.md（ファイル一覧テーブル）\n\n管理ルール: docs/CLAUDE.md「ファイル管理」セクション参照"
+}
+EOF
+        fi
+        exit 0
+        ;;
     *)
         # 該当なしなら終了
         exit 0

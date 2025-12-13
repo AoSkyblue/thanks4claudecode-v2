@@ -8,13 +8,13 @@
 # このファイルは自動生成されます。手動編集は上書きされます。
 
 meta:
-  generated: "2025-12-13 17:30:16"
+  generated: "2025-12-13 17:32:17"
   generator: ".claude/hooks/generate-repository-map.sh"
-  total_files: 132
+  total_files: 129
 
 hooks:
   directory: .claude/hooks/
-  count: 31
+  count: 30
   files:
     - name: "archive-playbook.sh"
       trigger: "unknown"
@@ -58,9 +58,6 @@ hooks:
     - name: "failure-logger.sh"
       trigger: "unknown"
       description: "failure-logger.sh - 失敗パターン記録ユーティリティ"
-    - name: "generate-implementation-doc.sh"
-      trigger: "unknown"
-      description: "generate-implementation-doc.sh - current-implementation.md 自動生成"
     - name: "generate-repository-map.sh"
       trigger: "unknown"
       description: "generate-repository-map.sh - 全ファイル自動マッピングシステム"
@@ -186,7 +183,7 @@ commands:
 
 docs:
   directory: docs/
-  count: 10
+  count: 8
   files:
     - name: "CLAUDE.md"
       description: "ドキュメント - 仕様書・運用ルール"
@@ -196,18 +193,12 @@ docs:
       description: "目的"
     - name: "criterion-validation-rules.md"
       description: "criterion（done_criteria の単位）の検証ルール"
-    - name: "current-implementation.md"
-      description: "現在の実装状況 - Single Source of Truth"
     - name: "extension-system.md"
       description: "公式リファレンスに基づく発火タイミング・トリガー・連�"
-    - name: "feature-map.md"
-      description: "Hooks / SubAgents / Skills の一覧（簡略版）"
     - name: "folder-management.md"
       description: "全フォルダの役割、テンポラリ/永続区分、削除タイミング�"
     - name: "git-operations.md"
       description: "設計方針"
-    - name: "manifest.yaml"
-      description: "docs/ フォルダのファイル一覧とメタデータ"
 
 plan:
   directory: plan/
@@ -239,21 +230,21 @@ root:
       description: ""
 
 summary:
-  hooks: 31
+  hooks: 30
   agents: 7
   skills: 13
   frameworks: 0
   commands: 8
-  docs: 10
+  docs: 8
   plan_active: 2
   plan_archive: 1
   plan_template: 7
-  total: 132
+  total: 129
 
 # ==============================================================================
 # 変更履歴
 # ==============================================================================
 changelog:
-  - date: "2025-12-13 17:30:16"
+  - date: "2025-12-13 17:32:17"
     action: "auto-generated"
     description: "playbook 完了時に自動生成"

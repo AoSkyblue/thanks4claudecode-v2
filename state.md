@@ -27,10 +27,10 @@ branch: feat/final-release-preparation
 ## goal
 
 ```yaml
-milestone: M016  # リリース準備：自己認識システム完成
-phase: p0  # 状態不整合の修正
-self_complete: false
-last_completed_milestone: M015 (achieved: 2025-12-13)
+milestone: M016  # リリース準備：自己認識システム完成（完了）
+phase: done  # 全 phase 完了
+self_complete: true
+last_completed_milestone: M016 (achieved: 2025-12-14)
 ```
 
 ---

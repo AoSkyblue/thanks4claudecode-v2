@@ -176,16 +176,17 @@ success_criteria:
     3. コンテキスト保護の検証
     4. [理解確認] に失敗リスク分析を恒常的に組み込み
     5. 全体の整合性確認
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-14
   depends_on: [M015]
   playbooks: [playbook-m016-release-preparation.md]
   done_when:
-    - [ ] repository-map.yaml の全 Hook に trigger が明示されている
-    - [ ] Hook 間の連鎖関係が docs/ にドキュメント化されている
-    - [ ] SubAgents/Skills の description が完全化されている
-    - [ ] [理解確認] に失敗リスク分析が組み込まれている
-    - [ ] session-start.sh がコンテキスト汚染を自動防止している
-    - [ ] state.md / project.md / playbook の整合性が確認されている
+    - [x] repository-map.yaml の全 Hook に trigger が明示されている
+    - [x] Hook 間の連鎖関係が docs/ にドキュメント化されている
+    - [x] SubAgents/Skills の description が完全化されている
+    - [x] [理解確認] に失敗リスク分析が組み込まれている
+    - [x] session-start.sh がコンテキスト汚染を自動防止している
+    - [x] state.md / project.md / playbook の整合性が確認されている
 ```
 
 ---

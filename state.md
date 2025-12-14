@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/active/playbook-m015-folder-validation.md
+branch: feat/m015-folder-validation-verify
 last_archived: plan/archive/playbook-m022-solid-refactoring.md
 ```
 
@@ -28,8 +28,8 @@ last_archived: plan/archive/playbook-m022-solid-refactoring.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
+milestone: M015
+phase: p0
 self_complete: false
 last_completed_milestone: M023 (achieved: 2025-12-14)
 ```
@@ -39,7 +39,7 @@ last_completed_milestone: M023 (achieved: 2025-12-14)
 ## session
 
 ```yaml
-last_start: 2025-12-14 15:52:27
+last_start: 2025-12-14 16:58:37
 last_clear: 2025-12-13 00:30:00
 ```
 

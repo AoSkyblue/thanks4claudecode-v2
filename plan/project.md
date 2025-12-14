@@ -160,7 +160,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M014]
-  playbooks: []
+  playbooks:
+    - playbook-m015-folder-validation.md
   done_when:
     - [x] tmp/ ディレクトリが存在し .gitignore に登録されている
     - [x] cleanup-hook.sh が実行可能で構文エラーがない

@@ -175,7 +175,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M015]
-  playbooks: []
+  playbooks:
+    - playbook-m016-release-preparation.md
   done_when:
     - [x] repository-map.yaml の全 Hook に trigger が明示されている（unknown が 0 個）
     - [x] CLAUDE.md に [理解確認] セクションが存在する
@@ -189,7 +190,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M016]
-  playbooks: []
+  playbooks:
+    - playbook-m017-state-schema.md
   done_when:
     - [x] .claude/schema/state-schema.sh が存在し source 可能
     - [x] state-schema.sh に SECTION_* 定数と getter 関数が定義されている
@@ -205,7 +207,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M017]
-  playbooks: []
+  playbooks:
+    - playbook-m018-3validations.md
   done_when:
     - [x] subtask-guard.sh が存在し実行可能
     - [x] subtask-guard.sh に 3 検証（technical/consistency/completeness）のロジックがある
@@ -219,7 +222,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M018]
-  playbooks: []
+  playbooks:
+    - playbook-m019-self-contained.md
   done_when:
     - [x] archive-playbook.sh に final_tasks チェックが実装されている
     - [x] playbook テンプレートに final_tasks 例が含まれている
@@ -232,7 +236,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M019]
-  playbooks: []
+  playbooks:
+    - playbook-m020-archive-bugfix.md
   done_when:
     - [x] archive-playbook.sh の ARCHIVE_DIR が plan/archive/ を指している
     - [x] archive-playbook.sh の構文が正しい（bash -n）
@@ -245,7 +250,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M020]
-  playbooks: []
+  playbooks:
+    - playbook-m021-init-guard-fix.md
   done_when:
     - [x] init-guard.sh に基本コマンド許可リスト（sed/grep/cat/echo/ls/wc）がある
     - [x] git show コマンドが許可されている
@@ -273,7 +279,8 @@ success_criteria:
   status: achieved
   achieved_at: 2025-12-14
   depends_on: [M022]
-  playbooks: []
+  playbooks:
+    - playbook-m023-plan-mode-guide.md
   done_when:
     - [x] CLAUDE.md に think/ultrathink の使い分けが明記されている
     - [x] docs/session-management.md が存在し /rename, /resume が記載されている

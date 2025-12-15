@@ -80,7 +80,7 @@ for protected in "${HARD_BLOCK_FILES[@]}"; do
                 echo "常に保護されています。" >&2
                 echo "" >&2
                 echo "========================================" >&2
-                exit 1
+                exit 2
             fi
         done
     fi
@@ -118,7 +118,7 @@ if [ "$SECURITY_MODE" = "strict" ]; then
                     echo "  2. state.md の security.mode を trusted に変更" >&2
                     echo "" >&2
                     echo "========================================" >&2
-                    exit 1
+                    exit 2
                 fi
             done
         fi
@@ -144,7 +144,7 @@ if [[ "$COMMAND" =~ $GIT_COMMIT_PATTERN ]]; then
             echo "回帰テストが失敗しました。"
             echo "問題を修正してから再度コミットしてください。"
             echo ""
-            exit 1
+            exit 2
         fi
         echo ""
         echo -e "  ✅ 回帰テスト PASS"

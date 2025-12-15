@@ -49,9 +49,6 @@ last_clear: 2025-12-13 00:30:00
 
 ```yaml
 security: admin
-learning:
-  operator: hybrid
-  expertise: intermediate
 ```
 
 ---

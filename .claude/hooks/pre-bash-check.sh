@@ -61,6 +61,13 @@ WRITE_PATTERNS=(
     "rm -rf"
 )
 
+# /dev/null への出力は許可（誤検出防止）
+if [[ "$COMMAND" == *"> /dev/null"* ]] || [[ "$COMMAND" == *">/dev/null"* ]]; then
+    # /dev/null 以外の書き込みがないかチェック
+    COMMAND_WITHOUT_NULL=$(echo "$COMMAND" | sed 's/>[[:space:]]*\/dev\/null//g; s/2>&1//g')
+    COMMAND="$COMMAND_WITHOUT_NULL"
+fi
+
 # HARD_BLOCK チェック（常時ブロック）
 for protected in "${HARD_BLOCK_FILES[@]}"; do
     if [[ "$COMMAND" == *"$protected"* ]]; then

@@ -8,13 +8,13 @@
 # このファイルは自動生成されます。手動編集は上書きされます。
 
 meta:
-  generated: "2025-12-14 14:21:07"
+  generated: "2025-12-15 16:39:33"
   generator: ".claude/hooks/generate-repository-map.sh"
-  total_files: 163
+  total_files: 180
 
 hooks:
   directory: .claude/hooks/
-  count: 30
+  count: 31
   files:
     - name: "archive-playbook.sh"
       trigger: "PostToolUse:Edit"
@@ -97,6 +97,9 @@ hooks:
     - name: "stop-summary.sh"
       trigger: "Stop:*"
       description: "stop-summary.sh - Stop Hook: Phase 状態サマリー + 整合性チェック"
+    - name: "subtask-guard.sh"
+      trigger: "utility"
+      description: "subtask-guard.sh - subtask の 3 検証を強制"
     - name: "system-health-check.sh"
       trigger: "utility"
       description: "system-health-check.sh - SessionStart 統合: システム健全性チェック"
@@ -183,7 +186,7 @@ commands:
 
 docs:
   directory: docs/
-  count: 8
+  count: 10
   files:
     - name: "CLAUDE.md"
       description: "ドキュメント - 仕様書・運用ルール"
@@ -199,16 +202,20 @@ docs:
       description: "全フォルダの役割、テンポラリ/永続区分、削除タイミングを定義"
     - name: "git-operations.md"
       description: "設計方針"
+    - name: "hook-responsibilities.md"
+      description: "各 Hook の単一責任を明示（SOLID 原則: Single Responsibility Principle）"
+    - name: "session-management.md"
+      description: "M023: セッション管理ガイド - Named Sessions と Plan Mode の活用"
 
 plan:
   directory: plan/
   subdirectories:
     active:
       description: "進行中の playbook"
-      count: 0
+      count: 1
     archive:
       description: "完了した playbook のアーカイブ"
-      count: 17
+      count: 24
     template:
       description: "playbook テンプレート"
       count: 7
@@ -230,21 +237,123 @@ root:
       description: ""
 
 summary:
-  hooks: 30
+  hooks: 31
   agents: 7
   skills: 13
   frameworks: 0
   commands: 8
-  docs: 8
-  plan_active: 0
-  plan_archive: 17
+  docs: 10
+  plan_active: 1
+  plan_archive: 24
   plan_template: 7
-  total: 163
+  total: 180
+
+# ==============================================================================
+# System Specification (M025)
+# Claude の行動ルールと自己認識に必要な情報
+# ==============================================================================
+
+system_specification:
+  description: "Claude の行動ルールと Hook 連鎖の Single Source of Truth"
+
+  init_flow:
+    description: "セッション開始時の必須フロー"
+    required_reads:
+      - state.md（現在地・goal・milestone）
+      - plan/project.md（プロジェクト計画）
+      - playbook（playbook.active から特定、なければ null）
+      - docs/repository-map.yaml（全ファイルマッピング）
+    steps:
+      - "必須ファイル Read"
+      - "git branch/status 取得"
+      - "playbook=null → pm SubAgent"
+      - "[自認] 出力"
+      - "LOOP 開始"
+
+  loop_flow:
+    description: "作業ループのフロー"
+    steps:
+      - "subtasks を読む"
+      - "executor に応じて実行"
+      - "test_command で PASS/FAIL 判定"
+      - "全 PASS → CRITIQUE()"
+      - "PASS → 次 phase、FAIL → 修正"
+
+  post_loop_flow:
+    description: "playbook 完了後のフロー"
+    steps:
+      - "自動コミット"
+      - "playbook アーカイブ"
+      - "project.milestone 更新"
+      - "/clear 推奨アナウンス"
+      - "次 milestone → pm"
+
+  hook_chains:
+    description: "Hook の発火順序と連鎖関係"
+    PreToolUse_Edit:
+      trigger: "PreToolUse:Edit"
+      order:
+        - init-guard.sh
+        - check-main-branch.sh
+        - consent-guard.sh
+        - check-protected-edit.sh
+        - playbook-guard.sh
+        - depends-check.sh
+        - check-file-dependencies.sh
+        - critic-guard.sh
+        - scope-guard.sh
+        - executor-guard.sh
+        - consent-guard.sh
+        - check-protected-edit.sh
+        - playbook-guard.sh
+        - check-file-dependencies.sh
+        - critic-guard.sh
+        - scope-guard.sh
+        - executor-guard.sh
+        - pre-bash-check.sh
+        - check-coherence.sh
+        - lint-check.sh
+    PostToolUse_Edit:
+      trigger: "PostToolUse:Edit"
+      order:
+        - log-subagent.sh
+        - doc-freshness-check.sh
+        - archive-playbook.sh
+        - cleanup-hook.sh
+        - create-pr-hook.sh
+        - update-tracker.sh
+        - update-tracker.sh
+    SessionStart:
+      trigger: "SessionStart"
+      order:
+        - session-start.sh
+
+  behavior_rules:
+    description: "CLAUDE.md から抽出した行動ルール"
+    core_principles:
+      - "pdca_autonomy: playbook 完了 → milestone 更新 → 次 playbook 自動作成"
+      - "tdd_first: done_criteria = テスト仕様、根拠必須"
+      - "validation: critic は frameworks/ を参照"
+      - "plan_based: playbook=null で Edit/Write → ブロック"
+      - "git_branch_sync: 1 playbook = 1 branch"
+    mandatory_outputs:
+      - "[自認]: セッション開始時"
+      - "[理解確認]: Edit/Write 前"
+    prohibited_actions:
+      - 確認を求める、許可を求める、選ばせる（安全上の例外を除く）
+      - done_criteria 確認なしで「完了しました」
+      - 保護対象ファイルを無断で編集
+      - playbook=null で Edit/Write を実行
+      - main ブランチで直接作業
+      - critic なしで phase を done にする（絶対禁止）
+      - ユーザーに聞かずに done_criteria を推測で定義する【報酬詐欺】
+      - pm SubAgent を経由せずに直接 playbook を作成する
+      - playbook 完了時に /clear を案内せずに次に進む
 
 # ==============================================================================
 # 変更履歴
 # ==============================================================================
 changelog:
-  - date: "2025-12-14 14:21:07"
+  - date: "2025-12-15 16:39:33"
     action: "auto-generated"
     description: "playbook 完了時に自動生成"

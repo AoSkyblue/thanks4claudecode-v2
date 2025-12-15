@@ -284,6 +284,23 @@ success_criteria:
   done_when:
     - [x] CLAUDE.md に think/ultrathink の使い分けが明記されている
     - [x] docs/session-management.md が存在し /rename, /resume が記載されている
+
+- id: M025
+  name: "システム仕様の Single Source of Truth 構築"
+  description: |
+    Claude の仕様が分散している問題を解決。
+    repository-map.yaml を拡張し、Claude の行動ルール・Hook 連鎖を統合。
+    二重管理を排除し、1ファイル・1スクリプトで完結する Single Source of Truth を構築。
+  status: achieved
+  achieved_at: 2025-12-15
+  depends_on: [M023]
+  playbooks:
+    - playbook-m025-system-specification.md
+  done_when:
+    - [x] generate-repository-map.sh に system_specification セクション生成機能が追加されている
+    - [x] repository-map.yaml に Claude 行動ルール・Hook トリガー連鎖が含まれている
+    - [x] 自動更新が 100% 安定（冪等性保証、原子的更新）
+    - [x] INIT フロー全体で冗長がなく、効率的に自己認識できることが確認される
 ```
 
 ---

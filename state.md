@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/active/playbook-m015-folder-validation.md
-branch: feat/m015-folder-validation-verify
-last_archived: plan/archive/playbook-m022-solid-refactoring.md
+active: plan/active/playbook-m025-system-specification.md
+branch: feat/m025-system-specification
+last_archived: plan/archive/playbook-m024-full-revalidation.md
 ```
 
 ---
@@ -28,10 +28,10 @@ last_archived: plan/archive/playbook-m022-solid-refactoring.md
 ## goal
 
 ```yaml
-milestone: M015
-phase: p0
-self_complete: false
-last_completed_milestone: M023 (achieved: 2025-12-14)
+milestone: M025
+phase: done
+self_complete: true
+last_completed_milestone: M024 (achieved: 2025-12-15)
 ```
 
 ---

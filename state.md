@@ -31,7 +31,7 @@ last_archived: plan/archive/playbook-m024-full-revalidation.md
 milestone: M025
 phase: done
 self_complete: true
-last_completed_milestone: M024 (achieved: 2025-12-15)
+last_completed_milestone: M025 (achieved: 2025-12-15)
 ```
 
 ---

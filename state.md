@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/active/playbook-m025-system-specification.md
+active: null
 branch: feat/m025-system-specification
-last_archived: plan/archive/playbook-m024-full-revalidation.md
+last_archived: plan/archive/playbook-m025-system-specification.md
 ```
 
 ---

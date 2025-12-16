@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/active/playbook-m053-multi-toolstack.md
+active: null
 branch: feat/m053-multi-toolstack
-last_archived: M052 (achieved: 2025-12-16)
+last_archived: M053 (achieved: 2025-12-17)
 ```
 
 ---

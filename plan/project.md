@@ -308,15 +308,16 @@ success_criteria:
     1. security: admin で全ガードをバイパス（繰り返し発生していた問題を根本修正）
     2. 3 パターン（A/B/C）の Toolstack を実装し、executor を構造的に制御
     3. Codex を SubAgent 化し、コンテキスト膨張を防止
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-17
   depends_on: [M025]
   playbooks:
     - playbook-m053-multi-toolstack.md
   done_when:
-    - [ ] admin モードで全ガードがバイパスされる
-    - [ ] setup フローに toolstack 選択 Phase がある
-    - [ ] executor-guard.sh が toolstack に応じて制御する
-    - [ ] Codex が SubAgent 化されコンテキスト分離されている
+    - [x] admin モードで全ガードがバイパスされる
+    - [x] setup フローに toolstack 選択 Phase がある
+    - [x] executor-guard.sh が toolstack に応じて制御する
+    - [x] Codex が SubAgent 化されコンテキスト分離されている
 ```
 
 ---

@@ -22,13 +22,11 @@ if [[ ! -f "$STATE_FILE" ]]; then
 fi
 
 # ============================================================
-# Admin モードチェック（最優先）
+# 注意: admin モードでも playbook チェックはバイパスしない
 # ============================================================
-SECURITY=$(grep -A3 "^## config" "$STATE_FILE" 2>/dev/null | grep "security:" | head -1 | sed 's/security: *//' | tr -d ' ')
-if [[ "$SECURITY" == "admin" ]]; then
-    # admin モードは playbook チェックをバイパス
-    exit 0
-fi
+# プロセスガード（playbook 必須）は安全ガードとは異なり、
+# 全モードで適用される。admin モードは他の安全ガードのみバイパス。
+# M058 で修正: playbook=null での Edit を構造的に防止
 
 # stdin から JSON を読み込む
 INPUT=$(cat)

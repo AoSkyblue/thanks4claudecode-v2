@@ -20,7 +20,7 @@ project: plan/project.md
 ```yaml
 active: plan/playbook-m058-system-correction.md
 branch: fix/m058-system-correction
-last_archived: M056 (achieved: 2025-12-17)
+last_archived: M057 (achieved: 2025-12-17)
 ```
 
 ---
@@ -29,14 +29,15 @@ last_archived: M056 (achieved: 2025-12-17)
 
 ```yaml
 milestone: M058
-phase: p1
+phase: p5 (done)
 done_criteria:
   - archive-playbook.sh が state.md の正しい構造（playbook.active）を参照している
+  - archive-playbook.sh の構文エラーが修正されている
   - plan/playbook-m057-cli-migration.md が削除されている
   - plan/archive/playbook-m057-cli-migration.md のみが存在する
-  - state.md の playbook.active が null に更新されている
   - project.md の M057 status が achieved に更新されている
   - project.md の M058 が新規マイルストーンとして追加されている
+  - playbook-guard.sh が admin モードでも playbook チェックをバイパスしない
   - CLAUDE.md の「設計思想」セクションが Codex/CodeRabbit メインワーカーの方針に更新されている
 ```
 

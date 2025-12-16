@@ -8,7 +8,7 @@
 #   - playbook 完了を自動検出
 #   - 移動は提案のみ（自動実行しない）★安全側設計
 #   - Claude が POST_LOOP で実行（CLAUDE.md 行動 0.5）
-#   - 現在進行中の playbook（state.md active_playbooks）はアーカイブ対象外
+#   - 現在進行中の playbook（state.md playbook.active）はアーカイブ対象外
 #
 # 実行経路:
 #   1. playbook を Edit → このスクリプト発火
@@ -51,8 +51,11 @@ fi
 
 # playbook 内の Phase status を確認
 # 全ての status: が done であるかチェック
-TOTAL_PHASES=$(grep -c "^  status:" "$FILE_PATH" 2>/dev/null || echo "0")
-DONE_PHASES=$(grep "^  status: done" "$FILE_PATH" 2>/dev/null | wc -l | tr -d ' ')
+TOTAL_PHASES=$(grep -c "^  status:" "$FILE_PATH" 2>/dev/null | head -1 | tr -d ' \n' || echo "0")
+DONE_PHASES=$(grep "^  status: done" "$FILE_PATH" 2>/dev/null | wc -l | tr -d ' \n')
+# 空の場合は 0 に設定
+TOTAL_PHASES=${TOTAL_PHASES:-0}
+DONE_PHASES=${DONE_PHASES:-0}
 
 # Phase がない場合はスキップ
 if [ "$TOTAL_PHASES" -eq 0 ]; then
@@ -69,8 +72,11 @@ fi
 # ==============================================================================
 # `- [x]` の数と `- [ ]` の数をカウントして完了率を確認
 # ==============================================================================
-CHECKED_COUNT=$(grep -c '\- \[x\]' "$FILE_PATH" 2>/dev/null || echo "0")
-UNCHECKED_COUNT=$(grep -c '\- \[ \]' "$FILE_PATH" 2>/dev/null || echo "0")
+CHECKED_COUNT=$(grep -c '\- \[x\]' "$FILE_PATH" 2>/dev/null | head -1 | tr -d ' \n' || echo "0")
+UNCHECKED_COUNT=$(grep -c '\- \[ \]' "$FILE_PATH" 2>/dev/null | head -1 | tr -d ' \n' || echo "0")
+# 空の場合は 0 に設定
+CHECKED_COUNT=${CHECKED_COUNT:-0}
+UNCHECKED_COUNT=${UNCHECKED_COUNT:-0}
 TOTAL_CHECKBOX=$((CHECKED_COUNT + UNCHECKED_COUNT))
 
 if [ "$TOTAL_CHECKBOX" -gt 0 ]; then
@@ -116,12 +122,11 @@ if grep -q "^## final_tasks" "$FILE_PATH" 2>/dev/null; then
     fi
 fi
 
-# 現在進行中の playbook（state.md active_playbooks）かチェック
+# 現在進行中の playbook（state.md playbook.active）かチェック
 # 進行中ならアーカイブ提案しない（安全策）
-if grep -q "$(basename "$FILE_PATH")" state.md 2>/dev/null; then
-    # active_playbooks に含まれているか確認
-    ACTIVE_SECTION=$(awk '/^## active_playbooks/,/^## [^a]/' state.md 2>/dev/null || true)
-    if echo "$ACTIVE_SECTION" | grep -q "$(basename "$FILE_PATH")"; then
+ACTIVE_PLAYBOOK=$(grep -A 5 "^## playbook" state.md 2>/dev/null | grep "^active:" | head -1 | sed 's/active: *//' | tr -d ' ')
+if [ -n "$ACTIVE_PLAYBOOK" ] && [ "$ACTIVE_PLAYBOOK" != "null" ]; then
+    if echo "$ACTIVE_PLAYBOOK" | grep -q "$(basename "$FILE_PATH")"; then
         # 現在進行中なのでスキップ（完了後に再度発火する）
         exit 0
     fi
@@ -227,7 +232,7 @@ cat << EOF
     mv $RELATIVE_PATH $ARCHIVE_PATH
 
   アーカイブ後:
-    1. state.md の active_playbooks を null に更新
+    1. state.md の playbook.active を null に更新
     2. 新しい playbook を作成（必要に応じて）
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

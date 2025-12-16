@@ -12,6 +12,8 @@
 #   1. technical: 技術的に正しく動作するか
 #   2. consistency: 他のコンポーネントと整合性があるか
 #   3. completeness: 必要な変更が全て完了しているか
+#
+# M056: final_tasks の status: done 変更は許可（スキップ）
 # ==============================================================================
 
 set -euo pipefail
@@ -36,11 +38,38 @@ fi
 OLD_STRING=$(echo "$TOOL_INPUT" | jq -r '.old_string // empty')
 NEW_STRING=$(echo "$TOOL_INPUT" | jq -r '.new_string // empty')
 
+# ==============================================================================
+# M056: final_tasks セクションの status: done 変更は許可（スキップ）
+# ==============================================================================
+# final_tasks は subtasks とは異なり、単純なチェックリストなので
+# validations は不要。status: done への変更を許可する。
+# 判定: old_string に "final_tasks" または "ft1\|ft2\|ft3" が含まれていれば final_tasks
+# ==============================================================================
+if [[ "$OLD_STRING" == *"final_tasks"* ]] || [[ "$OLD_STRING" == *"- id: ft"* ]]; then
+    # final_tasks の status 変更 → 許可（bypass）
+    exit 0
+fi
+
 # status が変更されていない場合はパス
 if [[ "$OLD_STRING" == *"status: pending"* || "$OLD_STRING" == *"status: in_progress"* ]]; then
     if [[ "$NEW_STRING" == *"status: done"* ]]; then
-        # status: done への変更を検出
-        # 現在のセッションでは警告のみ（将来的には検証を強制）
+        # subtask の status: done への変更を検出
+        # validations が含まれているかチェック
+        if [[ "$NEW_STRING" != *"validations:"* ]]; then
+            # validations がない場合はブロック
+            echo "[subtask-guard] ❌ BLOCKED: status: done への変更には validations が必須です。"
+            echo ""
+            echo "subtask に以下の 3 検証を追加してください:"
+            echo "  validations:"
+            echo "    technical: \"test_command の期待結果\""
+            echo "    consistency: \"関連ファイルとの整合性\""
+            echo "    completeness: \"必要な変更が全て完了\""
+            echo ""
+            echo "参照: plan/template/playbook-format.md"
+            exit 2
+        fi
+
+        # validations がある場合は警告のみで許可
         echo "{\"decision\": \"allow\", \"systemMessage\": \"[subtask-guard] ⚠️ Phase を done にする前に、以下の 3 検証を確認してください:\\n\\n1. technical: test_command が PASS を返すか\\n2. consistency: 関連ファイルとの整合性があるか\\n3. completeness: 必要な変更が全て完了しているか\\n\\n critic SubAgent による検証を推奨します。\"}"
         exit 0
     fi

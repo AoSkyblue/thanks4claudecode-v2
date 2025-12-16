@@ -93,6 +93,80 @@ if grep -q "$(basename "$FILE_PATH")" state.md 2>/dev/null; then
     fi
 fi
 
+# ==============================================================================
+# M056: done_when 再検証（報酬詐欺防止）
+# ==============================================================================
+# playbook の goal.done_when を抽出し、関連する test_command を実行して検証
+# 全 PASS でなければアーカイブをブロック
+
+DONE_WHEN_SECTION=$(sed -n '/^done_when:/,/^[a-z_]*:/p' "$FILE_PATH" 2>/dev/null | grep "^  - " | head -10)
+DONE_WHEN_COUNT=$(echo "$DONE_WHEN_SECTION" | grep -c "^  - " 2>/dev/null || echo "0")
+
+if [ "$DONE_WHEN_COUNT" -gt 0 ]; then
+    # p_final Phase の存在チェック
+    if ! grep -q "p_final" "$FILE_PATH" 2>/dev/null; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ⚠️ p_final（完了検証フェーズ）が存在しません"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  done_when: $DONE_WHEN_COUNT 項目"
+        echo ""
+        echo "  playbook に p_final フェーズを追加してください。"
+        echo "  参照: plan/template/playbook-format.md"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        # 警告のみ（ブロックしない）- 既存 playbook との互換性のため
+    fi
+
+    # p_final Phase の status チェック
+    P_FINAL_STATUS=$(grep -A 30 "p_final" "$FILE_PATH" 2>/dev/null | grep "^status:" | head -1 | sed 's/status: *//')
+    if [ -n "$P_FINAL_STATUS" ] && [ "$P_FINAL_STATUS" != "done" ]; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ❌ p_final（完了検証）が未完了です"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  done_when の検証: status = $P_FINAL_STATUS"
+        echo ""
+        echo "  p_final を完了させてからアーカイブしてください。"
+        echo "  → done_when の各項目が実際に満たされているか検証"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        exit 2  # done_when 未検証でブロック
+    fi
+
+    # done_when の test_command を実行（p_final.* の test_command を収集）
+    P_FINAL_TEST_COMMANDS=$(grep -A 50 "p_final" "$FILE_PATH" 2>/dev/null | grep "test_command:" | head -10)
+    if [ -n "$P_FINAL_TEST_COMMANDS" ]; then
+        FAIL_COUNT=0
+        PASS_COUNT=0
+
+        # 各 test_command を実行（簡易版: grep で PASS/FAIL を確認）
+        while IFS= read -r line; do
+            CMD=$(echo "$line" | sed 's/.*test_command: *"//' | sed 's/"$//')
+            if [ -n "$CMD" ] && [ "$CMD" != "test_command:" ]; then
+                # test_command を実行して結果を確認
+                RESULT=$(eval "$CMD" 2>/dev/null || echo "FAIL")
+                if echo "$RESULT" | grep -q "PASS"; then
+                    PASS_COUNT=$((PASS_COUNT + 1))
+                else
+                    FAIL_COUNT=$((FAIL_COUNT + 1))
+                fi
+            fi
+        done <<< "$P_FINAL_TEST_COMMANDS"
+
+        if [ "$FAIL_COUNT" -gt 0 ]; then
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "  ❌ done_when の検証に失敗しました"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "  PASS: $PASS_COUNT / FAIL: $FAIL_COUNT"
+            echo ""
+            echo "  アーカイブをブロックします。"
+            echo "  → 失敗した done_when 項目を修正してください。"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            exit 2  # done_when FAIL でブロック
+        fi
+    fi
+fi
+
 # 相対パスに変換
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 RELATIVE_PATH="${FILE_PATH#$PROJECT_DIR/}"

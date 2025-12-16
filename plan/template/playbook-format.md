@@ -746,6 +746,143 @@ bypass_audit:
 
 ---
 
+## p_final: 完了検証フェーズ（必須）
+
+> **M056: playbook 完了時に done_when が実際に満たされているか自動検証する**
+>
+> **このフェーズは全 playbook に必須。スキップは報酬詐欺とみなされる。**
+
+### p_final の目的
+
+```yaml
+目的: |
+  playbook の done_when が「本当に満たされているか」を自動検証。
+  「ロジックがある」ではなく「実際に動作する」を確認する。
+  報酬詐欺（done_when 未達成で achieved）を構造的に防止。
+
+問題背景:
+  - M014 等が achieved だが done_when が実際には満たされていなかった
+  - test_command で「存在チェック」だけでは不十分
+  - 「実際の動作確認」（end-to-end テスト）が必須
+
+解決策:
+  - playbook 最終フェーズとして p_final を必須化
+  - done_when の各項目に test_command を定義
+  - 全 PASS でなければアーカイブ不可
+```
+
+### p_final の構造
+
+```yaml
+### p_final: 完了検証（必須）
+
+> **playbook の done_when が全て満たされているか最終検証**
+
+#### subtasks
+
+- id: p_final.1
+  criterion: "done_when 項目1 が実際に満たされている"
+  executor: claudecode
+  test_command: "{done_when 項目1 の検証コマンド}"
+  validations:
+    technical: "検証コマンドが正常に実行できる"
+    consistency: "test_command の結果が実際の状態と一致"
+    completeness: "関連する全てのファイル/機能が含まれている"
+
+- id: p_final.2
+  criterion: "done_when 項目2 が実際に満たされている"
+  executor: claudecode
+  test_command: "{done_when 項目2 の検証コマンド}"
+  validations:
+    technical: "検証コマンドが正常に実行できる"
+    consistency: "test_command の結果が実際の状態と一致"
+    completeness: "関連する全てのファイル/機能が含まれている"
+
+# done_when の項目数だけ繰り返す
+
+status: pending
+max_iterations: 3
+```
+
+### p_final テンプレート例
+
+```yaml
+# 例: M055 の p_final（機能重要度マップと保護システム）
+### p_final: 完了検証
+
+#### subtasks
+
+- id: p_final.1
+  criterion: "docs/feature-priority-map.md が存在し、critical 機能が 5 個以上定義されている"
+  executor: claudecode
+  test_command: |
+    test -f docs/feature-priority-map.md && \
+    grep -c 'priority: critical' docs/feature-priority-map.md | awk '{if($1>=5) print "PASS"; else print "FAIL"}'
+  validations:
+    technical: "ファイルが存在し、grep コマンドが正常に動作する"
+    consistency: "critical 機能の数が feature-priority-map.md の定義と一致"
+    completeness: "全ての重要機能が critical に分類されている"
+
+- id: p_final.2
+  criterion: "セッション開始時に critical 機能一覧が実際に表示される"
+  executor: claudecode
+  test_command: |
+    echo '{"trigger":"startup"}' | bash .claude/hooks/session-start.sh 2>&1 | \
+    grep -q '保護すべき' && echo PASS || echo FAIL
+  validations:
+    technical: "session-start.sh が正常に実行できる"
+    consistency: "表示される機能一覧が feature-priority-map.md と一致"
+    completeness: "全 critical 機能が表示される"
+
+status: pending
+```
+
+### p_final 実装ガイド
+
+```yaml
+手順:
+  1. playbook の goal.done_when を確認
+  2. 各 done_when 項目に対応する p_final.{N} subtask を作成
+  3. test_command は「存在チェック」ではなく「実際の動作確認」を使用
+  4. validations に technical/consistency/completeness を必ず含める
+  5. p_final が全 PASS → final_tasks 実行 → アーカイブ可能
+
+done_when の再検証ポイント:
+  - 「〇〇が存在する」→「〇〇が存在し、期待する内容を含む」
+  - 「〇〇が動作する」→「〇〇を実行して期待する出力を得る」
+  - 「〇〇が設定されている」→「〇〇を参照して値を確認する」
+
+禁止パターン:
+  - test -f {file} だけで PASS（存在するが壊れている可能性）
+  - grep -q {pattern} だけで PASS（パターンはあるが動作しない可能性）
+  - 手動確認だけに依存（自動検証可能なら自動化必須）
+
+推奨パターン:
+  - 実際にコマンドを実行して出力を確認
+  - 複数条件を && で連結して全て満たすことを確認
+  - エラー出力も含めて検証（2>&1 | grep ...）
+```
+
+### p_final の強制メカニズム
+
+```yaml
+enforcement:
+  archive_playbook_sh:
+    - p_final Phase が存在しない playbook → 警告を表示
+    - p_final.status != done → アーカイブをブロック
+    - done_when の項目数と p_final subtask 数の不一致 → 警告
+
+  pm_subagent:
+    - 新規 playbook 作成時に p_final を自動追加
+    - done_when から p_final subtasks を自動生成
+
+  critic_subagent:
+    - p_final の検証結果を確認
+    - 「存在チェックのみ」のパターンを検出して警告
+```
+
+---
+
 ## final_tasks
 
 > **M019: playbook 自己完結システム - アーカイブ前の必須チェック**

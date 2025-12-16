@@ -74,8 +74,9 @@ done_when:
     consistency: "既存の criterion 記述ガイドと同じ形式を使用"
     completeness: "p_final に含めるべき項目（what, how, test_command）が全て説明されている"
   depends_on: [p0.2]
+  status: PASS
 
-status: pending
+status: done
 max_iterations: 5
 
 ---
@@ -126,8 +127,9 @@ archive-playbook.sh に done_when の test_command を実行し、
     consistency: "bash -n による検証が通る"
     completeness: "全ての行が構文的に正しい"
   depends_on: [p1.3]
+  status: PASS
 
-status: pending
+status: done
 max_iterations: 5
 
 ---
@@ -178,8 +180,9 @@ subtasks と final_tasks を区別するロジックを追加。
     consistency: "bash -n による検証が通る"
     completeness: "全ての行が構文的に正しい"
   depends_on: [p2.3]
+  status: PASS
 
-status: pending
+status: done
 max_iterations: 5
 
 ---

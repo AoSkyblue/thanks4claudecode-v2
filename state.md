@@ -29,7 +29,7 @@ last_archived: M055 (achieved: 2025-12-17)
 
 ```yaml
 milestone: M056
-phase: p0
+phase: p3
 done_criteria:
   - playbook-format.md に完了検証フェーズ（p_final）が必須として追加されている
   - archive-playbook.sh が done_when の test_command を再実行して検証する

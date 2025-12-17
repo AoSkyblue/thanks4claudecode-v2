@@ -19,7 +19,7 @@ project: plan/project.md
 
 ```yaml
 active: null
-branch: research/codex-mcp
+branch: null
 last_archived: M078 playbook-m078-codex-mcp.md (2025-12-18)
 ```
 
@@ -28,14 +28,9 @@ last_archived: M078 playbook-m078-codex-mcp.md (2025-12-18)
 ## goal
 
 ```yaml
-milestone: M078
+milestone: null
 phase: null
-done_criteria:
-  - .claude/mcp.json が存在し、codex mcp-server が登録されている
-  - codex-delegate.md が MCP ツール mcp__codex__codex を使用する形式に更新されている
-  - docs/ai-orchestration.md に Codex MCP の説明が追加されている
-  - toolstack C で簡単なコーディングタスクを Codex MCP 経由で実行し、正常に動作することが確認されている
-  - テスト完了後、toolstack: A に復元されている
+done_criteria: []
 ```
 
 ---
@@ -43,7 +38,7 @@ done_criteria:
 ## session
 
 ```yaml
-last_start: 2025-12-18 00:49:26
+last_start: 2025-12-18 01:54:23
 last_clear: 2025-12-13 00:30:00
 ```
 

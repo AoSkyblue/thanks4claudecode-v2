@@ -19,8 +19,8 @@ project: plan/project.md
 
 ```yaml
 active: null
-branch: feat/m071-self-awareness
-last_archived: M071 playbook-m071-self-awareness.md (2025-12-17)
+branch: main
+last_archived: M062 playbook-m062-fraud-investigation-e2e.md (2025-12-17)
 ```
 
 ---
@@ -28,10 +28,10 @@ last_archived: M071 playbook-m071-self-awareness.md (2025-12-17)
 ## goal
 
 ```yaml
-milestone: null
+milestone: 全 milestone 完了（M001-M071）
 phase: null
 done_criteria:
-  - 全 milestone 完了
+  - 全 27 milestone が achieved
 ```
 
 ---
@@ -39,7 +39,7 @@ done_criteria:
 ## session
 
 ```yaml
-last_start: 2025-12-17 20:56:41
+last_start: 2025-12-17 21:44:12
 last_clear: 2025-12-13 00:30:00
 ```
 

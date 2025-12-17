@@ -460,16 +460,17 @@ success_criteria:
     M061 の playbook プロセス違反を修正する。
     archive-playbook.sh に subtask 完了チェックを追加し、
     架空ユーザーとの会話形式で全機能の E2E シミュレーションを実施する。
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-17
   depends_on: [M061]
   playbooks:
     - playbook-m062-fraud-investigation-e2e.md
   done_when:
     完了条件:
-      - "[ ] M001-M061 の全 milestone に対して done_when の達成状況が検証されている"
-      - "[ ] archive-playbook.sh に subtask 単位の完了チェックが追加されている"
-      - "[ ] docs/e2e-simulation-log.md に全 Hook/SubAgent/Skill の動作確認ログが記録されている"
-      - "[ ] 発見された報酬詐欺（done_when 未達成）が 0 件、または修正済みである"
+      - "[x] M001-M061 の全 milestone に対して done_when の達成状況が検証されている"
+      - "[x] archive-playbook.sh に subtask 単位の完了チェックが追加されている"
+      - "[x] docs/e2e-simulation-log.md に全 Hook/SubAgent/Skill の動作確認ログが記録されている"
+      - "[x] 発見された報酬詐欺（done_when 未達成）が 0 件、または修正済みである"
     未完了条件:
       - "上記のいずれかが満たされていない"
     test_commands:
@@ -488,22 +489,23 @@ success_criteria:
     4. settings.json から無効な登録を削除
     5. ドキュメントを更新
     6. CLAUDE.md スリム化（オプション）
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-17
   depends_on: [M062]
   playbooks:
     - playbook-m063-repository-cleanup.md
   done_when:
     完了条件:
-      - "[ ] .claude/agents/plan-guard.md が存在しない"
-      - "[ ] .claude/CLAUDE-ref.md が存在しない"
-      - "[ ] .claude/skills/context-externalization/ が存在しない"
-      - "[ ] .claude/skills/execution-management/ が存在しない"
-      - "[ ] protected-files.txt から check-state-update.sh への参照が削除されている"
-      - "[ ] .claude/hooks/check-file-dependencies.sh が存在しない"
-      - "[ ] .claude/hooks/doc-freshness-check.sh が存在しない"
-      - "[ ] .claude/hooks/update-tracker.sh が存在しない"
-      - "[ ] settings.json から削除した Hook の登録が削除されている"
-      - "[ ] repository-map.yaml が更新されている"
+      - "[x] .claude/agents/plan-guard.md が存在しない"
+      - "[x] .claude/CLAUDE-ref.md が存在しない"
+      - "[x] .claude/skills/context-externalization/ が存在しない"
+      - "[x] .claude/skills/execution-management/ が存在しない"
+      - "[x] protected-files.txt から check-state-update.sh への参照が削除されている"
+      - "[x] .claude/hooks/check-file-dependencies.sh が存在しない"
+      - "[x] .claude/hooks/doc-freshness-check.sh が存在しない"
+      - "[x] .claude/hooks/update-tracker.sh が存在しない"
+      - "[x] settings.json から削除した Hook の登録が削除されている"
+      - "[x] repository-map.yaml が更新されている"
     未完了条件:
       - "上記のいずれかが満たされていない"
     test_commands:

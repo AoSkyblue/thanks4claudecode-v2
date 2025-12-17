@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m071-self-awareness.md
+active: null
 branch: feat/m071-self-awareness
-last_archived: M069 playbook-m069-documentation.md (2025-12-17)
+last_archived: M071 playbook-m071-self-awareness.md (2025-12-17)
 ```
 
 ---
@@ -28,13 +28,10 @@ last_archived: M069 playbook-m069-documentation.md (2025-12-17)
 ## goal
 
 ```yaml
-milestone: M071
-phase: p1
+milestone: null
+phase: null
 done_criteria:
-  - docs/feature-catalog.yaml が存在し、全 Hook/SubAgent/Skill の詳細情報を含む
-  - session-start.sh が feature-catalog.yaml を読み込み、機能サマリーを出力する
-  - 機能の追加・削除を自動検出する仕組みが実装されている
-  - 機能カタログが自動更新され、常に最新が保証されている
+  - 全 milestone 完了
 ```
 
 ---

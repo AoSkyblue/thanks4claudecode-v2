@@ -522,15 +522,16 @@ success_criteria:
     2. session-start.sh が feature-catalog.yaml を読み込み、機能一覧を認識
     3. Hook/SubAgent/Skill の追加・削除を自動検出する仕組み
     4. 機能変更時に feature-catalog.yaml を自動更新するワークフロー
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-17
   depends_on: [M063]
   playbooks:
     - playbook-m071-self-awareness.md
   done_when:
-    - "[ ] docs/feature-catalog.yaml が存在し、全 Hook/SubAgent/Skill の詳細情報を含む"
-    - "[ ] session-start.sh が feature-catalog.yaml を読み込み、機能サマリーを出力する"
-    - "[ ] 機能の追加・削除を自動検出する仕組みが実装されている"
-    - "[ ] 機能カタログが自動更新され、常に最新が保証されている"
+    - "[x] docs/feature-catalog.yaml が存在し、全 Hook/SubAgent/Skill の詳細情報を含む"
+    - "[x] session-start.sh が feature-catalog.yaml を読み込み、機能サマリーを出力する"
+    - "[x] 機能の追加・削除を自動検出する仕組みが実装されている"
+    - "[x] 機能カタログが自動更新され、常に最新が保証されている"
   test_commands:
     - "test -f docs/feature-catalog.yaml && grep -c 'purpose:' docs/feature-catalog.yaml | awk '{if($1>=40) print \"PASS\"; else print \"FAIL\"}'"
     - "bash .claude/hooks/session-start.sh 2>&1 | grep -qE '[0-9]+ Hooks' && echo PASS || echo FAIL"

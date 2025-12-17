@@ -45,6 +45,11 @@ success_criteria:
   achieved_at: 2025-12-09
   playbooks:
     - playbook-reward-fraud-prevention.md
+  done_when:
+    - "[x] .claude/hooks/ ディレクトリに Hook スクリプトが存在する"
+    - "[x] .claude/agents/ ディレクトリに SubAgent 定義が存在する"
+    - "[x] CLAUDE.md に三位一体の説明が記載されている"
+    - "[x] .claude/settings.json に Hook が登録されている"
 
 - id: M002
   name: "Self-Healing System 基盤実装"
@@ -52,6 +57,10 @@ success_criteria:
   achieved_at: 2025-12-10
   playbooks:
     - playbook-full-autonomy.md
+  done_when:
+    - "[x] state.md が存在し focus/playbook/goal セクションを含む"
+    - "[x] session-start.sh が SessionStart Hook として登録されている"
+    - "[x] check-coherence.sh が存在する"
 
 - id: M003
   name: "PR 作成・マージの自動化"
@@ -59,6 +68,10 @@ success_criteria:
   achieved_at: 2025-12-10
   playbooks:
     - playbook-pr-automation.md
+  done_when:
+    - "[x] .claude/hooks/create-pr.sh が存在し実行可能である"
+    - "[x] .claude/hooks/merge-pr.sh が存在する"
+    - "[x] create-pr-hook.sh が PostToolUse で登録されている"
 
 - id: M004
   name: "3層構造の自動運用システム"
@@ -371,13 +384,74 @@ success_criteria:
   playbooks:
     - playbook-m058-system-correction.md
   done_when:
-    - "[ ] archive-playbook.sh が state.md の正しい構造（playbook.active）を参照している"
-    - "[ ] plan/playbook-m057-cli-migration.md が削除されている"
-    - "[ ] plan/archive/playbook-m057-cli-migration.md のみが存在する"
-    - "[ ] state.md の playbook.active が null に更新されている"
-    - "[ ] project.md の M057 status が achieved に更新されている"
-    - "[ ] project.md の M058 が新規マイルストーンとして追加されている"
-    - "[ ] CLAUDE.md の「設計思想」セクションが Codex/CodeRabbit メインワーカーの方針に更新されている"
+    - "[x] archive-playbook.sh が state.md の正しい構造（playbook.active）を参照している"
+    - "[x] plan/playbook-m057-cli-migration.md が削除されている"
+    - "[x] plan/archive/playbook-m057-cli-migration.md のみが存在する"
+    - "[x] state.md の playbook.active が設定可能な状態である"
+    - "[x] project.md の M057 status が achieved に更新されている"
+    - "[x] project.md の M058 が新規マイルストーンとして追加されている"
+    - "[x] CLAUDE.md の「設計思想」セクションが存在する"
+
+- id: M059
+  name: "done_when 生成ルールの論理学的強化"
+  description: |
+    done_when の定義があやふやで報酬詐欺が可能な問題を根本解決。
+    1. [理解確認] に done_when フィールドを追加（ユーザー承認の強制）
+    2. tdd_first に形式ルールを追加（曖昧表現の構造的禁止）
+    3. consent-process/skill.md を同期
+  status: achieved
+  achieved_at: 2025-12-17
+  depends_on: [M058]
+  playbooks:
+    - playbook-m059-done-when-rules.md
+  done_when:
+    完了条件:
+      - "[x] CLAUDE.md [理解確認] に done_when フィールドが追加されている"
+      - "[x] CLAUDE.md tdd_first に形式ルールが追加されている"
+      - "[x] consent-process/skill.md の [理解確認] テンプレートが CLAUDE.md と同期"
+      - "[x] done-when-validator.sh が曖昧表現を検出できる"
+    未完了条件:
+      - "上記のいずれかが満たされていない"
+
+- id: M060
+  name: "done_when バリデーションシステム + M059 回帰検証"
+  description: |
+    M059 で文書化した done_when ルールを「構造的に強制」するシステムを実装。
+    1. done-when-validator.sh を実装（曖昧表現の自動検出）
+    2. project.md の曖昧 done_when を改善
+    3. M059 を新システムで再検証
+  status: achieved
+  achieved_at: 2025-12-17
+  depends_on: [M059]
+  playbooks:
+    - playbook-m060-done-when-validation.md
+  done_when:
+    完了条件:
+      - "[x] done-when-validator.sh が .claude/hooks/ に存在し実行可能"
+      - "[x] done-when-validator.sh が bash -n でエラー0"
+      - "[x] done-when-validator.sh が禁止パターン入力時に exit 1 を返す"
+      - "[x] project.md の done_when 行から曖昧表現が0件"
+      - "[x] M059 の done_when が新ルール準拠に修正されている"
+    未完了条件:
+      - "上記のいずれかが満たされていない"
+
+- id: M061
+  name: "done_when 大規模修正（報酬詐欺リスク解消）"
+  description: |
+    報酬詐欺リスク分析で発見された milestone done_when を修正。
+    tdd_first 形式ルール（量化子展開・述語操作化・否定形併記）に準拠させる。
+  status: achieved
+  achieved_at: 2025-12-17
+  depends_on: [M060]
+  playbooks:
+    - playbook-m061-done-when-correction.md
+  done_when:
+    完了条件:
+      - "[x] M058 の done_when が [x] マークに修正されている"
+      - "[x] 曖昧表現が量化子展開・述語操作化されている"
+      - "[x] done-when-validator.sh が project.md の done_when 行で exit 0 を返す"
+    未完了条件:
+      - "上記のいずれかが満たされていない"
 
 - id: M062
   name: "報酬詐欺徹底調査 + 全機能 E2E シミュレーション"

@@ -73,7 +73,7 @@ done_when:
     - consistency: "レポート内容が p1.1-p1.3 の調査結果と一致する"
     - completeness: "全 milestone の調査結果が記録されている"
 
-**status**: pending
+**status**: done
 **max_iterations**: 10
 
 ---
@@ -110,7 +110,7 @@ done_when:
     - consistency: "ログ出力が他の Hook と統一されたフォーマットである"
     - completeness: "未完了 subtask の一覧が表示される"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---
@@ -147,7 +147,7 @@ done_when:
     - consistency: "SubAgent 名が .claude/agents/ の実際のファイル名と一致する"
     - completeness: "全 7 SubAgent が網羅されている"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---
@@ -200,7 +200,7 @@ done_when:
     - consistency: "Skill の発火条件と結果が記録されている"
     - completeness: "consent-process, post-loop の 2 Skill が記録されている"
 
-**status**: pending
+**status**: done
 **max_iterations**: 10
 
 ---
@@ -237,7 +237,7 @@ done_when:
     - consistency: "ログ内容が p4 の subtask と対応している"
     - completeness: "全シミュレーションの結果が記録されている"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---
@@ -250,39 +250,43 @@ done_when:
 
 #### subtasks
 
-- [ ] **p_final.1**: M001-M061 の全 milestone に対して done_when の達成状況が検証されている
+- [x] **p_final.1**: M001-M061 の全 milestone に対して done_when の達成状況が検証されている
   - executor: claudecode
   - test_command: `test -f docs/fraud-investigation-report.md && grep -q 'M001' docs/fraud-investigation-report.md && grep -q 'M061' docs/fraud-investigation-report.md && echo PASS || echo FAIL`
   - validations:
-    - technical: "レポートファイルが存在する"
-    - consistency: "M001 から M061 まで網羅されている"
-    - completeness: "全 milestone の調査結果が含まれている"
+    - technical: PASS - レポートファイルが存在する
+    - consistency: PASS - M001 から M061 まで網羅されている
+    - completeness: PASS - 全 milestone の調査結果が含まれている
+  - validated: 2025-12-17T05:30:00
 
-- [ ] **p_final.2**: archive-playbook.sh に subtask 単位の完了チェックが追加されている
+- [x] **p_final.2**: archive-playbook.sh に subtask 単位の完了チェックが追加されている
   - executor: claudecode
   - test_command: `grep -q 'CHECKED_COUNT' .claude/hooks/archive-playbook.sh && grep -q 'UNCHECKED_COUNT' .claude/hooks/archive-playbook.sh && echo PASS || echo FAIL`
   - validations:
-    - technical: "チェックロジックが実装されている"
-    - consistency: "V12 形式と整合している"
-    - completeness: "ブロック機能が実装されている"
+    - technical: PASS - チェックロジックが実装されている
+    - consistency: PASS - V12 形式と整合している
+    - completeness: PASS - ブロック機能が実装されている
+  - validated: 2025-12-17T05:30:00
 
-- [ ] **p_final.3**: docs/e2e-simulation-log.md に全 Hook/SubAgent/Skill の動作確認ログが記録されている
+- [x] **p_final.3**: docs/e2e-simulation-log.md に全 Hook/SubAgent/Skill の動作確認ログが記録されている
   - executor: claudecode
   - test_command: `test -f docs/e2e-simulation-log.md && wc -l docs/e2e-simulation-log.md | awk '{if($1>=200) print "PASS"; else print "FAIL"}'`
   - validations:
-    - technical: "ログファイルが存在し十分な内容がある"
-    - consistency: "全コンポーネントの動作が記録されている"
-    - completeness: "シミュレーションが完了している"
+    - technical: PASS - ログファイルが存在し十分な内容がある（745 行）
+    - consistency: PASS - 全コンポーネントの動作が記録されている
+    - completeness: PASS - シミュレーションが完了している
+  - validated: 2025-12-17T05:30:00
 
-- [ ] **p_final.4**: 発見された報酬詐欺（done_when 未達成）が 0 件、または修正済みである
+- [x] **p_final.4**: 発見された報酬詐欺（done_when 未達成）が 0 件、または修正済みである
   - executor: claudecode
   - test_command: `grep -c '未修正' docs/fraud-investigation-report.md 2>/dev/null | awk '{if($1==0) print "PASS"; else print "FAIL"}' || echo PASS`
   - validations:
-    - technical: "未修正の問題が検出されない"
-    - consistency: "修正内容が project.md に反映されている"
-    - completeness: "全ての問題が解決されている"
+    - technical: PASS - 未修正の問題が検出されない
+    - consistency: PASS - 修正内容が project.md に反映されている
+    - completeness: PASS - 7件全ての問題が解決されている
+  - validated: 2025-12-17T05:30:00
 
-**status**: pending
+**status**: done
 **max_iterations**: 3
 
 ---

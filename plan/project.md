@@ -571,6 +571,29 @@ success_criteria:
     - "grep -q 'roles' .claude/agents/pm.md && echo PASS || echo FAIL"
     - "test -f docs/ai-orchestration.md && wc -l docs/ai-orchestration.md | awk '{if($1>=50) print \"PASS\"; else print \"FAIL\"}'"
 
+- id: M076
+  name: "AI オーケストレーション E2E テスト - toolstack B/C 実動作検証"
+  description: |
+    M075 で役割名形式に統一したが、実際の動作テストが不十分だった。
+    toolstack B/C での実動作を検証する。
+    1. state.md の toolstack を B/C に変更
+    2. role-resolver.sh が正しく解決するか確認
+    3. state.md を元の状態（toolstack: A）に復元
+  status: in_progress
+  depends_on: [M075]
+  playbooks:
+    - playbook-m076-orchestration-e2e-test.md
+  done_when:
+    - "[ ] state.md の toolstack を B に変更した場合、role-resolver.sh が worker -> codex を返す"
+    - "[ ] state.md の toolstack を C に変更した場合、role-resolver.sh が reviewer -> coderabbit を返す"
+    - "[ ] pm SubAgent が生成する playbook に executor: worker 形式が含まれている"
+    - "[ ] テスト完了後、state.md が toolstack: A に復元されている"
+  test_commands:
+    - "echo 'worker' | TOOLSTACK=B bash .claude/hooks/role-resolver.sh | grep -q 'codex' && echo PASS || echo FAIL"
+    - "echo 'reviewer' | TOOLSTACK=C bash .claude/hooks/role-resolver.sh | grep -q 'coderabbit' && echo PASS || echo FAIL"
+    - "grep -c 'executor: orchestrator' plan/playbook-m076-orchestration-e2e-test.md | awk '{if($1>=5) print \"PASS\"; else print \"FAIL\"}'"
+    - "grep -q 'toolstack: A' state.md && echo PASS || echo FAIL"
+
 ```
 
 ---

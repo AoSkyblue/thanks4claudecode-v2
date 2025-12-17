@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
-last_archived: M073 playbook-m073-ai-orchestration.md (2025-12-17)
+active: plan/playbook-m076-orchestration-e2e-test.md
+branch: feat/m076-orchestration-e2e-test
+last_archived: M075 playbook-m075-orchestration-fix.md (2025-12-17)
 ```
 
 ---
@@ -28,9 +28,13 @@ last_archived: M073 playbook-m073-ai-orchestration.md (2025-12-17)
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_criteria: []
+milestone: M076
+phase: p0
+done_criteria:
+  - state.md の toolstack を B に変更した場合、role-resolver.sh が worker -> codex を返す
+  - state.md の toolstack を C に変更した場合、role-resolver.sh が reviewer -> coderabbit を返す
+  - pm SubAgent が生成する playbook に executor: worker 形式が含まれている
+  - テスト完了後、state.md が toolstack: A に復元されている
 ```
 
 ---
@@ -38,7 +42,7 @@ done_criteria: []
 ## session
 
 ```yaml
-last_start: 2025-12-17 23:00:26
+last_start: 2025-12-18 00:00:18
 last_clear: 2025-12-13 00:30:00
 ```
 

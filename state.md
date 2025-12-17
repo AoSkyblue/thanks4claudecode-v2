@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m063-repository-cleanup.md
+active: null
 branch: feat/m063-repository-cleanup
-last_archived: M062 playbook-m062-fraud-investigation-e2e.md (2025-12-17)
+last_archived: M063 playbook-m063-repository-cleanup.md (2025-12-17)
 ```
 
 ---

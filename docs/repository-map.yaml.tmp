@@ -8,13 +8,13 @@
 # このファイルは自動生成されます。手動編集は上書きされます。
 
 meta:
-  generated: "2025-12-17 17:42:59"
+  generated: "2025-12-17 18:31:17"
   generator: ".claude/hooks/generate-repository-map.sh"
-  total_files: 207
+  total_files: 201
 
 hooks:
   directory: .claude/hooks/
-  count: 31
+  count: 28
   files:
     - name: "archive-playbook.sh"
       trigger: "PostToolUse:Edit"
@@ -22,9 +22,6 @@ hooks:
     - name: "check-coherence.sh"
       trigger: "PreToolUse:Bash"
       description: "check-coherence.sh - 簡略版：state.md と playbook の整合性チェック"
-    - name: "check-file-dependencies.sh"
-      trigger: "PreToolUse:Edit"
-      description: "check-file-dependencies.sh - ファイル依存関係チェック Hook"
     - name: "check-main-branch.sh"
       trigger: "PreToolUse:*"
       description: "check-main-branch.sh - main ブランチでの作業をブロック"
@@ -49,9 +46,6 @@ hooks:
     - name: "depends-check.sh"
       trigger: "PreToolUse:Edit"
       description: "depends-check.sh - Phase の depends_on を検証"
-    - name: "doc-freshness-check.sh"
-      trigger: "PostToolUse:Read"
-      description: "doc-freshness-check.sh - PostToolUse:Read Hook: ドキュメント鮮度チェック"
     - name: "executor-guard.sh"
       trigger: "PreToolUse:Edit"
       description: "executor-guard.sh - Phase の executor を構造的に強制"
@@ -106,13 +100,10 @@ hooks:
     - name: "test-hooks.sh"
       trigger: "utility"
       description: "test-hooks.sh - Hook 機能カタログスペック検証"
-    - name: "update-tracker.sh"
-      trigger: "PostToolUse:Edit"
-      description: "update-tracker.sh - PostToolUse:Edit/Write Hook: 変更追跡と自動更新提案"
 
 agents:
   directory: .claude/agents/
-  count: 8
+  count: 7
   files:
     - name: "codex-delegate"
       description: "Codex CLI をラップし、コンテキスト膨張を防止する SubAgent"
@@ -120,8 +111,6 @@ agents:
       description: "各 subtask の test_command を実行し、PASS/FAIL を判定する"
     - name: "health-checker"
       description: "description: システム状態の定期監視。state.md/playbook の整合性、git 状態、ファイル存在確認などを行う。"
-    - name: "plan-guard"
-      description: "description: PROACTIVELY checks 3-layer plan coherence at session start. Rejects or reconfirms when no plan exists or user prompt is unrelated to existing plan. LLM-led session flow."
     - name: "pm"
       description: "重要"
     - name: "reviewer"
@@ -131,18 +120,14 @@ agents:
 
 skills:
   directory: .claude/skills/
-  count: 11
+  count: 9
   files:
     - name: "consent-process"
       description: "合意プロセス（CONSENT）- ユーザープロンプトの誤解釈防止"
-    - name: "context-externalization"
-      description: "コンテキスト外部化 - チャット履歴に依存しない状態管理"
     - name: "context-management"
       description: "チャット履歴に依存しない状態管理。プロンプト→意図→処理→結果を外部ファイルに記録。"
     - name: "deploy-checker"
       description: "デプロイ準備・検証専門スキル"
-    - name: "execution-management"
-      description: "description: 並列実行制御とリソース配分のガイドライン。タスク実行の最適化を支援。"
     - name: "frontend-design"
       description: "プロダクション品質のフロントエンドインターフェースを作成する"
     - name: "lint-checker"

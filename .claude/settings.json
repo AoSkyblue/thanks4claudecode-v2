@@ -61,11 +61,6 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/check-file-dependencies.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "bash .claude/hooks/critic-guard.sh",
             "timeout": 3000
           },
@@ -102,11 +97,6 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/playbook-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/check-file-dependencies.sh",
             "timeout": 3000
           },
           {
@@ -188,16 +178,6 @@
         ]
       },
       {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/doc-freshness-check.sh",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
         "matcher": "Edit",
         "hooks": [
           {
@@ -214,21 +194,6 @@
             "type": "command",
             "command": "bash .claude/hooks/create-pr-hook.sh",
             "timeout": 30000
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/update-tracker.sh",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/update-tracker.sh",
-            "timeout": 3000
           }
         ]
       }

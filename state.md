@@ -29,13 +29,13 @@ last_archived: M062 playbook-m062-fraud-investigation-e2e.md (2025-12-17)
 
 ```yaml
 milestone: M063
-phase: p1
+phase: p_final (done)
 done_criteria:
-  - 孤立ファイル（plan-guard.md, CLAUDE-ref.md, context-externalization/, execution-management/）が削除されている
-  - protected-files.txt から存在しないファイルへの参照が削除されている
-  - 壊れた Hook（check-file-dependencies.sh, doc-freshness-check.sh, update-tracker.sh）が削除されている
-  - settings.json から削除した Hook の登録が削除されている
-  - ドキュメント（repository-map.yaml, CLAUDE.md 等）が更新されている
+  - 孤立ファイル（plan-guard.md, CLAUDE-ref.md, context-externalization/, execution-management/）が削除されている ✓
+  - protected-files.txt から存在しないファイルへの参照が削除されている ✓
+  - 壊れた Hook（check-file-dependencies.sh, doc-freshness-check.sh, update-tracker.sh）が削除されている ✓
+  - settings.json から削除した Hook の登録が削除されている ✓
+  - ドキュメント（repository-map.yaml, CLAUDE.md 等）が更新されている ✓
 ```
 
 ---
@@ -43,7 +43,7 @@ done_criteria:
 ## session
 
 ```yaml
-last_start: 2025-12-17 19:30:00
+last_start: 2025-12-17 18:26:38
 last_clear: 2025-12-13 00:30:00
 ```
 

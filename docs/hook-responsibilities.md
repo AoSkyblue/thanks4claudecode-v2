@@ -74,12 +74,6 @@
 - **詳細**: 状態の矛盾を検出
 - **連携**: system-health-check.sh
 
-### doc-freshness-check.sh
-- **トリガー**: PostToolUse:Edit
-- 責任: ドキュメント鮮度チェック
-- **詳細**: 更新漏れを検出
-- **連携**: なし
-
 ---
 
 ## 保護・セキュリティ
@@ -155,12 +149,6 @@
 - **詳細**: playbook 完了時に一時ファイルを削除
 - **連携**: archive-playbook.sh
 
-### update-tracker.sh
-- **トリガー**: PostToolUse:Edit
-- 責任: 進捗トラッカーの更新
-- **詳細**: state.md の自動更新
-- **連携**: なし
-
 ---
 
 ## PR・Git 操作
@@ -186,12 +174,6 @@
 ---
 
 ## ファイル依存・分析
-
-### check-file-dependencies.sh
-- **トリガー**: PreToolUse:Edit
-- 責任: ファイル依存関係のチェック
-- **詳細**: 変更ファイルに依存するファイルの警告
-- **連携**: generate-repository-map.sh
 
 ### generate-repository-map.sh
 - **トリガー**: PostToolUse:Write

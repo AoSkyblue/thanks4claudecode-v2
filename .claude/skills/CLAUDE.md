@@ -29,7 +29,6 @@ Skill: "skill-name"
 |-------|------|----------|
 | consent-process | 合意プロセス（[理解確認]） | playbook=null で新規タスク開始時 |
 | post-loop | playbook 完了後の処理 | playbook の全 Phase が done |
-| context-externalization | コンテキスト外部化 | Phase 完了時 |
 | plan-management | 計画管理 | playbook 作成時 |
 
 ### 検証系
@@ -45,7 +44,6 @@ Skill: "skill-name"
 | Skill | 役割 | トリガー |
 |-------|------|----------|
 | context-management | /compact 最適化ガイド | コンテキスト管理時 |
-| execution-management | 並列実行制御ガイド | タスク最適化時 |
 | learning | 失敗パターン記録・学習 | エラー発生時 |
 
 ---

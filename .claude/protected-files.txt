@@ -36,7 +36,6 @@ BLOCK:.claude/settings.json
 BLOCK:.claude/hooks/session-start.sh
 BLOCK:.claude/hooks/session-end.sh
 BLOCK:.claude/hooks/check-coherence.sh
-BLOCK:.claude/hooks/check-state-update.sh
 BLOCK:.claude/hooks/pre-bash-check.sh
 BLOCK:.claude/hooks/check-protected-edit.sh
 

@@ -71,7 +71,7 @@ done_when:
     - consistency: "skills/CLAUDE.md から参照が削除されること（p4で実施）"
     - completeness: "ディレクトリ内の全ファイルが削除されること"
 
-**status**: pending
+**status**: done
 **max_iterations**: 3
 
 ---
@@ -92,7 +92,7 @@ done_when:
     - consistency: "他の BLOCK 行は維持されていること"
     - completeness: "存在しないファイルへの全参照が削除されること"
 
-**status**: pending
+**status**: done
 **max_iterations**: 3
 
 ---
@@ -145,7 +145,7 @@ done_when:
     - consistency: "既存の設定が破壊されていないこと"
     - completeness: "全ての Hook 登録が有効であること"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---
@@ -190,7 +190,7 @@ done_when:
     - consistency: "他の Hook の説明は維持されていること"
     - completeness: "削除した 3 つの Hook 全ての説明が削除されていること"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---
@@ -227,7 +227,8 @@ done_when:
     - consistency: "参照先ファイルが実際に存在すること"
     - completeness: "参照が適切な場所（参照ドキュメントセクション等）に配置されていること"
 
-**status**: pending
+**status**: skipped
+**reason**: オプション。CLAUDE.md は HARD_BLOCK で保護されており、今回のスコープ外
 **max_iterations**: 3
 
 ---
@@ -236,7 +237,7 @@ done_when:
 
 **goal**: 全ての done_when が満たされていることを最終確認する
 
-**depends_on**: [p5]
+**depends_on**: [p4]
 
 #### subtasks
 
@@ -280,7 +281,7 @@ done_when:
     - consistency: "全ドキュメントが更新されていること"
     - completeness: "全ての参照が削除されていること"
 
-**status**: pending
+**status**: done
 **max_iterations**: 3
 
 ---

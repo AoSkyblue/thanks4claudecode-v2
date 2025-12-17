@@ -90,13 +90,13 @@ if [ "$PLAYBOOK" = "null" ] || [ ! -f "$PLAYBOOK" ]; then
     touch "$INIT_DIR/consent"  # [理解確認] 完了で削除
 fi
 
-# roadmap 取得（workspace レイヤー用）
+# roadmap 取得（workspace 用）
 ROADMAP=$(grep -A10 "## plan_hierarchy" state.md 2>/dev/null | grep "roadmap:" | sed 's/.*: *//' | sed 's/ *#.*//')
 # null または空の場合はデフォルト値を使用
 [ -z "$ROADMAP" ] || [ "$ROADMAP" = "null" ] && ROADMAP="plan/roadmap.md"
 MILESTONE=$(grep -A10 "## plan_hierarchy" state.md 2>/dev/null | grep "current_milestone:" | sed 's/.*: *//' | sed 's/ *#.*//')
 
-# project_context 取得（setup/product レイヤー用）
+# project_context 取得（setup/product 用）
 PROJECT_GENERATED=$(grep -A10 "## project_context" state.md 2>/dev/null | grep "generated:" | sed 's/.*: *//' | sed 's/ *#.*//')
 PROJECT_PLAN=$(grep -A10 "## project_context" state.md 2>/dev/null | grep "project_plan:" | sed 's/.*: *//' | sed 's/ *#.*//')
 
@@ -259,7 +259,7 @@ EOF
     fi
 fi
 
-# playbook 未作成時は pm 呼び出しを強制指示（setup レイヤーでは抑制）
+# playbook 未作成時は pm 呼び出しを強制指示（setup では抑制）
 if [ "$PLAYBOOK" = "null" ] && [ "$FOCUS" != "setup" ]; then
     cat <<EOF
 $SEP
@@ -328,7 +328,7 @@ EOF
 
 case "$FOCUS" in
     setup)
-        # setup レイヤー: playbook-setup.md のみ読めば完結
+        # setup: playbook-setup.md のみ読めば完結
         echo "  1. Read: $WS/state.md"
         echo "  2. Read: $WS/setup/playbook-setup.md"
         echo ""
@@ -336,7 +336,7 @@ case "$FOCUS" in
         echo "  → CATALOG.md は必要な時だけ参照"
         ;;
     product)
-        # product レイヤー: plan/project.md を参照して開発
+        # product: plan/project.md を参照して開発
         echo "  1. Read: $WS/state.md"
         if [ "$PROJECT_GENERATED" = "true" ] && [ -n "$PROJECT_PLAN" ] && [ "$PROJECT_PLAN" != "null" ] && [ -f "$PROJECT_PLAN" ]; then
             echo "  2. Read: $WS/$PROJECT_PLAN"
@@ -345,14 +345,14 @@ case "$FOCUS" in
         fi
         [ "$PLAYBOOK" != "null" ] && echo "  3. Read: $WS/$PLAYBOOK" || echo "  3. /playbook-init を実行"
         ;;
-    workspace)
-        # workspace レイヤー: roadmap を参照して開発
+    workspace|thanks4claudecode)
+        # workspace/thanks4claudecode: roadmap を参照して開発
         echo "  1. Read: $WS/state.md"
         [ -f "$ROADMAP" ] && echo "  2. Read: $WS/$ROADMAP"
         [ "$PLAYBOOK" != "null" ] && echo "  3. Read: $WS/$PLAYBOOK" || echo "  3. /playbook-init を実行"
         ;;
     plan-template)
-        # plan-template レイヤー: テンプレート開発
+        # plan-template: テンプレート開発
         echo "  1. Read: $WS/state.md"
         [ "$PLAYBOOK" != "null" ] && echo "  2. Read: $WS/$PLAYBOOK"
         ;;

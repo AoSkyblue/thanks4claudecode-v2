@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-honest-readme.md
+branch: docs/honest-readme
 last_archived: M078 playbook-m078-codex-mcp.md (2025-12-18)
 ```
 
@@ -28,9 +28,13 @@ last_archived: M078 playbook-m078-codex-mcp.md (2025-12-18)
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_criteria: []
+milestone: ad-hoc
+phase: p3
+done_criteria:
+  - docs/current-definitions.md が存在し、最新の正しい定義が記載されている
+  - docs/deprecated-references.md が存在し、発見した古い表記が記載されている
+  - 古い表記が削除/修正されている
+  - README.md が正確な現状を反映している
 ```
 
 ---
@@ -38,7 +42,7 @@ done_criteria: []
 ## session
 
 ```yaml
-last_start: 2025-12-18 01:54:23
+last_start: 2025-12-18 02:15:52
 last_clear: 2025-12-13 00:30:00
 ```
 

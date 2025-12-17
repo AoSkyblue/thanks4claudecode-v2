@@ -61,7 +61,7 @@ reward_fraud:
 
   L1_project: |
     plan/project.md
-    - mission を達成するための Macro 計画
+    - mission を達成するためのプロジェクト計画
     - vision は mission から導出される
 
   L2_playbook: |

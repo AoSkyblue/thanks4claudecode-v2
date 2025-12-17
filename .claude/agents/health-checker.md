@@ -34,8 +34,8 @@ model: opus
 
 ```yaml
 state_md:
-  - focus.current が有効なレイヤー名か
-  - session が task/discussion のいずれか
+  - focus.current が有効な値か（setup | product | plan-template）
+  - playbook.active が存在するファイルか
   - active_playbooks のファイルが存在するか
   - goal.done_criteria が定義されているか
 

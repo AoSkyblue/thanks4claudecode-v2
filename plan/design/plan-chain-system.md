@@ -355,7 +355,7 @@ meta:
 ### INIT フローへの追加
 
 ```yaml
-【フェーズ 5: Macro チェック & 計画の導出】
+【フェーズ 5: project チェック & 計画の導出】
 
   9. plan/project.md の存在を確認
   10. playbook=null の場合:

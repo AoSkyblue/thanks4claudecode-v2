@@ -145,6 +145,5 @@ model: opus
 
 - `.claude/frameworks/playbook-review-criteria.md` - playbook レビュー基準（必須参照）
 - AGENTS.md - コーディング規約
-- architecture-*.md - システム設計思想
 - state.md - 現在のコンテキスト
 - pm.md - 役割定義

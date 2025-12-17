@@ -131,5 +131,4 @@
 | 情報 | 参照先 |
 |------|-------|
 | 運用ルール | CLAUDE.md |
-| システム設計図 | architecture-*.md |
 | 現在地・done_criteria | state.md |

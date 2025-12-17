@@ -163,17 +163,17 @@ echo "playbook の branch:" && grep "^branch:" plan/playbook-*.md | tail -1
 
 ## Step 4: state.md 更新（自動実行）
 
-該当レイヤーの以下を更新：
+以下のセクションを更新：
 
-1. `playbook:` → 作成した playbook のパス
-2. `state:` → `implementing`
-3. `sub:` → 新しいバージョン名
+1. `playbook.active:` → 作成した playbook のパス
+2. `playbook.branch:` → Step 1 で作成したブランチ名
+3. `goal.phase:` → p0 または最初の phase ID
 
 ```yaml
-# 例: workspace レイヤーの場合
-state: implementing
-sub: v{N}-{description}
-playbook: plan/playbook-{project-name}.md
+# state.md の playbook セクション
+playbook:
+  active: plan/playbook-{project-name}.md
+  branch: {Step 1 で作成したブランチ名}
 ```
 
 ---

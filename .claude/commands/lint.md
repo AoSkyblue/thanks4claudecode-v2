@@ -10,8 +10,8 @@ bash .claude/hooks/check-coherence.sh
 
 ## チェック項目
 
-1. 全レイヤーの state と playbook の整合性
-2. focus.current レイヤーの詳細チェック
+1. state.md と playbook の整合性
+2. focus.current の有効性（setup | product | plan-template）
 3. staged ファイルと focus の矛盾検出
 
 ---

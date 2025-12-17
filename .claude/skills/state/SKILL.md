@@ -1,6 +1,6 @@
 ---
 name: state
-description: このワークスペースの state.md 管理、playbook 運用、レイヤー構造の専門知識。state.md の更新、focus の切り替え、done_criteria の判定、CRITIQUE の実行時に使用する。
+description: このワークスペースの state.md 管理、playbook 運用の専門知識。state.md の更新、focus の切り替え、done_criteria の判定、CRITIQUE の実行時に使用する。
 ---
 
 # Workspace Management Skill
@@ -12,39 +12,40 @@ description: このワークスペースの state.md 管理、playbook 運用、
 ```yaml
 # 必須セクション
 focus:
-  current: <layer>           # 現在のフォーカスレイヤー
-  session: task | discussion # セッションタイプ
+  current: <focus-value>    # setup | product | plan-template
+  project: plan/project.md  # プロジェクト計画ファイル
+
+playbook:
+  active: <playbook-path>   # 現在の playbook パス
+  branch: <branch-name>     # playbook に紐づくブランチ
 
 goal:
-  phase: <phase-id>          # 現在のフェーズ
-  done_criteria:             # 達成条件（テストとして扱う）
+  milestone: <milestone-id> # 現在のマイルストーン
+  phase: <phase-id>         # 現在のフェーズ
+  done_criteria:            # 達成条件（テストとして扱う）
     - criteria1
     - criteria2
 
-# レイヤー定義（4つ）
-layer: plan-template         # playbook テンプレートの改善
-layer: workspace             # ワークスペース自体の改善
-layer: setup                 # Mac 開発環境標準化
-layer: product               # ユーザーのプロダクト開発
+session:
+  last_start: <timestamp>   # セッション開始時刻
+  last_clear: <timestamp>   # 最後の /clear 実行時刻
+
+config:
+  security: admin           # セキュリティレベル
+  toolstack: A              # A: Claude Code only | B: +Codex | C: +Codex+CodeRabbit
 ```
 
-## レイヤーの編集権限
+## focus の有効値と編集権限
 
-| focus.current | 編集可能な範囲 |
-|---------------|---------------|
-| plan-template | plan/template/**, plan/playbook-* |
-| workspace | .claude/**, CLAUDE.md, AGENTS.md, plan/** |
-| setup | setup/** |
-| product | projects/**, 実装コード |
+| focus.current | 用途 | main での Edit/Write |
+|---------------|------|---------------------|
+| setup | 新規ユーザーのセットアップ | 許可 |
+| product | 新規ユーザーのプロダクト開発 | 許可 |
+| plan-template | テンプレート編集 | 許可 |
+| thanks4claudecode | ワークスペース作業 | ブロック（ブランチ必須）|
+| workspace | 一般的なワークスペース作業 | ブロック（ブランチ必須）|
 
 **常に編集可能**: state.md, README.md
-
-## session の違い
-
-| session | 特徴 |
-|---------|------|
-| task | state.md 更新必須、commit 前チェック有効 |
-| discussion | 自由な議論、チェック無効 |
 
 ## CRITIQUE の実行方法
 
@@ -61,28 +62,15 @@ playbook 自体の妥当性: {問題なし|修正が必要}
 
 ## state.md 更新のルール
 
-1. task セッションでは commit 前に state.md を更新する
-2. done_criteria を満たしたら sub を更新する
-3. Phase 完了時は state を次の状態に遷移させる
-
-## 状態遷移
-
-```
-pending → designing → implementing → reviewing → state_update → done
-```
-
-禁止遷移:
-- pending → implementing（designing をスキップ）
-- implementing → done（state_update をスキップ）
-
----
+1. phase 完了時は state.md の goal.phase を次の phase に更新
+2. playbook 完了時は playbook.active を null または次の playbook に更新
+3. done_criteria を満たしたら証拠と共に記録
 
 ## playbook 必須ルール
 
 ```yaml
 条件:
-  session: task
-  playbook: null
+  playbook.active: null
 
 対応:
   1. 作業開始禁止
@@ -95,7 +83,7 @@ pending → designing → implementing → reviewing → state_update → done
      - 完了条件は何か（done_criteria）
      - フェーズ分割
   3. plan/playbook-{name}.md を作成
-  4. state.md の playbook: を更新
+  4. state.md の playbook.active を更新
   5. 作業開始
 
 なぜ必須か:
@@ -110,7 +98,9 @@ pending → designing → implementing → reviewing → state_update → done
 
 ## meta
 project: {プロジェクト名}
+branch: {ブランチ名}
 created: {今日の日付}
+derives_from: {project.milestone の ID}
 
 ## goal
 summary: {1行の目標}
@@ -122,7 +112,7 @@ done_when:
 - id: p1
   name: {フェーズ名}
   goal: {このフェーズの目標}
-  executor: codex
+  executor: claudecode
   done_criteria:
     - {完了条件1}
     - {完了条件2}

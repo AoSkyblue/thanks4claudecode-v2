@@ -313,7 +313,7 @@ LLM の性質を活用:
 
 ```yaml
 構造:
-  Macro（project.md）→ Medium（playbook）→ Micro（Phase）
+  project（project.md）→ playbook → phase
 
 フロー:
   1. project.md の done_when を分析

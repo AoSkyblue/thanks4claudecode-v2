@@ -584,14 +584,39 @@ success_criteria:
   playbooks:
     - playbook-m076-orchestration-e2e-test.md
   done_when:
-    - "[ ] state.md の toolstack を B に変更した場合、role-resolver.sh が worker -> codex を返す"
-    - "[ ] state.md の toolstack を C に変更した場合、role-resolver.sh が reviewer -> coderabbit を返す"
-    - "[ ] pm SubAgent が生成する playbook に executor: worker 形式が含まれている"
-    - "[ ] テスト完了後、state.md が toolstack: A に復元されている"
+    - "[x] state.md の toolstack を B に変更した場合、role-resolver.sh が worker -> codex を返す"
+    - "[x] state.md の toolstack を C に変更した場合、role-resolver.sh が reviewer -> coderabbit を返す"
+    - "[x] pm SubAgent が生成する playbook に executor: worker 形式が含まれている"
+    - "[x] テスト完了後、state.md が toolstack: A に復元されている"
   test_commands:
     - "echo 'worker' | TOOLSTACK=B bash .claude/hooks/role-resolver.sh | grep -q 'codex' && echo PASS || echo FAIL"
     - "echo 'reviewer' | TOOLSTACK=C bash .claude/hooks/role-resolver.sh | grep -q 'coderabbit' && echo PASS || echo FAIL"
     - "grep -c 'executor: orchestrator' plan/playbook-m076-orchestration-e2e-test.md | awk '{if($1>=5) print \"PASS\"; else print \"FAIL\"}'"
+    - "grep -q 'toolstack: A' state.md && echo PASS || echo FAIL"
+
+- id: M078
+  name: "Codex MCP 切り替え - TTY 制約回避"
+  description: |
+    Codex CLI は TTY 制約のため Claude Code から直接呼び出せない問題がある。
+    Codex MCP サーバー経由で呼び出すことで、この制約を回避する。
+    1. .claude/mcp.json に codex mcp-server を登録
+    2. codex-delegate SubAgent を MCP ツール呼び出しに変更
+    3. ドキュメントを更新
+    4. 動作確認
+  status: in_progress
+  depends_on: [M076]
+  playbooks:
+    - playbook-m078-codex-mcp.md
+  done_when:
+    - "[ ] .claude/mcp.json が存在し、codex mcp-server が登録されている"
+    - "[ ] codex-delegate.md が MCP ツール mcp__codex__codex を使用する形式に更新されている"
+    - "[ ] docs/ai-orchestration.md に Codex MCP の説明が追加されている"
+    - "[ ] toolstack C で簡単なコーディングタスクを Codex MCP 経由で実行し、正常に動作することが確認されている"
+    - "[ ] テスト完了後、toolstack: A に復元されている"
+  test_commands:
+    - "test -f .claude/mcp.json && grep -q 'codex' .claude/mcp.json && echo PASS || echo FAIL"
+    - "grep -q 'mcp__codex__codex' .claude/agents/codex-delegate.md && echo PASS || echo FAIL"
+    - "grep -q 'Codex MCP' docs/ai-orchestration.md && echo PASS || echo FAIL"
     - "grep -q 'toolstack: A' state.md && echo PASS || echo FAIL"
 
 ```

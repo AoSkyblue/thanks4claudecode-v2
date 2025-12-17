@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: feat/m076-orchestration-e2e-test
+active: plan/playbook-m078-codex-mcp.md
+branch: research/codex-mcp
 last_archived: M076 playbook-m076-orchestration-e2e-test.md (2025-12-18)
 ```
 
@@ -28,13 +28,14 @@ last_archived: M076 playbook-m076-orchestration-e2e-test.md (2025-12-18)
 ## goal
 
 ```yaml
-milestone: M076
-phase: p0
+milestone: M078
+phase: p1
 done_criteria:
-  - state.md の toolstack を B に変更した場合、role-resolver.sh が worker -> codex を返す
-  - state.md の toolstack を C に変更した場合、role-resolver.sh が reviewer -> coderabbit を返す
-  - pm SubAgent が生成する playbook に executor: worker 形式が含まれている
-  - テスト完了後、state.md が toolstack: A に復元されている
+  - .claude/mcp.json が存在し、codex mcp-server が登録されている
+  - codex-delegate.md が MCP ツール mcp__codex__codex を使用する形式に更新されている
+  - docs/ai-orchestration.md に Codex MCP の説明が追加されている
+  - toolstack C で簡単なコーディングタスクを Codex MCP 経由で実行し、正常に動作することが確認されている
+  - テスト完了後、toolstack: A に復元されている
 ```
 
 ---

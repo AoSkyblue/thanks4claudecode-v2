@@ -105,6 +105,71 @@ config:
 
 ---
 
+## Codex MCP 統合（M078）
+
+> **TTY 制約を回避するため、Codex CLI から Codex MCP に移行**
+
+### 背景
+
+Codex CLI は対話型ターミナル（TTY）を必要とするため、Claude Code の SubAgent から
+直接呼び出すことができませんでした（stdin がパイプになるため起動しない）。
+
+### 解決策
+
+Codex を MCP サーバーとして起動し、Claude Code から MCP ツールとして呼び出す。
+
+```
+Claude Code → mcp__codex__codex → Codex MCP Server → コード生成
+```
+
+### 設定方法
+
+#### 1. .claude/mcp.json を作成
+
+```json
+{
+  "mcpServers": {
+    "codex": {
+      "command": "codex",
+      "args": ["mcp-server"],
+      "env": {},
+      "timeout": 600000
+    }
+  }
+}
+```
+
+#### 2. Claude Code を再起動
+
+MCP サーバー設定を読み込むため、Claude Code を再起動します。
+
+#### 3. MCP ツールを使用
+
+```yaml
+# 新規セッション
+mcp__codex__codex:
+  prompt: "実装内容"
+  model: "o3"  # オプション
+
+# 継続会話
+mcp__codex__codex-reply:
+  prompt: "追加指示"
+  conversationId: "前回のセッションID"
+```
+
+### 注意事項
+
+- **タイムアウト**: Codex は処理に数分かかる場合があるため、timeout を 600000ms（10分）に設定
+- **Codex CLI**: `npm install -g @openai/codex` でインストール済みであること
+- **OPENAI_API_KEY**: 環境変数に設定済みであること
+
+### 参考リンク
+
+- [Codex MCP 公式ドキュメント](https://developers.openai.com/codex/mcp/)
+- [Codex CLI GitHub](https://github.com/openai/codex)
+
+---
+
 ## 実装詳細
 
 ### role-resolver.sh
@@ -131,4 +196,5 @@ toolstack に対してチェックします。
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-18 | Codex MCP 統合追加（M078） |
 | 2025-12-17 | 初版作成（M073） |

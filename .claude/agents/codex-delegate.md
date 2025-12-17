@@ -1,13 +1,15 @@
 ---
 name: codex-delegate
-description: Codex CLI をラップし、コンテキスト膨張を防止する SubAgent。結果を要約して返す。
-tools: Bash
+description: Codex MCP をラップし、コンテキスト膨張を防止する SubAgent。結果を要約して返す。
+tools: Bash, mcp__codex__codex, mcp__codex__codex-reply
 model: opus
 ---
 
 # codex-delegate SubAgent
 
-> **Codex CLI をラップし、コンテキスト膨張を防止する SubAgent**
+> **Codex MCP をラップし、コンテキスト膨張を防止する SubAgent**
+>
+> ⚠️ **M078 で CLI → MCP に変更**: TTY 制約を回避するため、`codex exec` ではなく MCP ツール `mcp__codex__codex` を使用
 
 ---
 
@@ -46,9 +48,9 @@ model: opus
    - 実装内容を理解
    - 必要に応じて追加情報を収集
 
-2. Codex CLI 呼び出し（Bash）:
-   - codex exec "実装内容"
-   - または codex review（レビュー時）
+2. Codex MCP 呼び出し:
+   - mcp__codex__codex(prompt: "実装内容")
+   - 継続会話: mcp__codex__codex-reply(prompt: "追加指示", conversationId: "...")
 
 3. 結果の要約:
    - 生成されたコードの概要を抽出
@@ -63,20 +65,28 @@ model: opus
 
 ---
 
-## CLI コマンド
+## MCP ツール
+
+```yaml
+# 新規セッション開始
+mcp__codex__codex:
+  prompt: "実装内容"  # 必須
+  model: "o3"         # オプション（デフォルト: 設定に依存）
+  sandbox: "..."      # オプション
+  approval-policy: "..." # オプション
+
+# 既存セッション継続
+mcp__codex__codex-reply:
+  prompt: "追加指示"      # 必須
+  conversationId: "..."   # 必須（前回の結果から取得）
+```
+
+### 旧 CLI コマンド（非推奨）
 
 ```bash
-# 非インタラクティブ実行（推奨）
-codex exec "ユーザー認証機能を実装してください"
-
-# コードレビュー
-codex review
-
-# モデル指定
-codex exec -m o3 "複雑なアルゴリズムを実装"
-
-# diff の適用
-codex apply
+# ⚠️ TTY 制約により Claude Code SubAgent からは動作しない
+# codex exec "..."
+# codex review
 ```
 
 ---
@@ -149,7 +159,7 @@ prompt: |
   - GET /api/auth/me（ユーザー情報取得）
 
 SubAgent 内部実行:
-  Bash: codex exec "ユーザー認証 API を作成..."
+  mcp__codex__codex(prompt: "ユーザー認証 API を作成...")
 
 期待される戻り値:
   summary: |
@@ -166,24 +176,26 @@ SubAgent 内部実行:
     - "JWT_SECRET を環境変数に設定必要"
 ```
 
-### 例 2: コードレビュー
+### 例 2: 継続会話
 
 ```yaml
 prompt: |
-  現在の変更をレビュー
+  前回の実装にテストを追加
 
 SubAgent 内部実行:
-  Bash: codex review
+  mcp__codex__codex-reply(
+    prompt: "前回の実装にテストを追加",
+    conversationId: "前回のセッションID"
+  )
 
 期待される戻り値:
   summary: |
-    5 ファイルをレビュー。2 件の改善提案。
+    3 ファイルにテストを追加。Jest を使用。
   files:
-    - path: "src/utils/auth.ts"
-      action: "reviewed"
-      description: "セキュリティ改善の提案あり"
+    - path: "src/api/auth/__tests__/login.test.ts"
+      action: "created"
   notes:
-    - "パスワードハッシュの強度を上げることを推奨"
+    - "npm test でテスト実行可能"
 ```
 
 ---
@@ -192,5 +204,6 @@ SubAgent 内部実行:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-18 | CLI → MCP に変更（M078）。TTY 制約回避のため mcp__codex__codex を使用。 |
 | 2025-12-17 | CLI ベースに全面書き換え（M057） |
 | 2025-12-17 | 初版作成（M053） |

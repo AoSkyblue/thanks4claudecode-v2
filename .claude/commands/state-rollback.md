@@ -1,3 +1,9 @@
+---
+description: state.md のバックアップと復元を管理。backup/list/rollback/snapshot/restore から選択。
+allowed-tools: Read, Write, Bash
+argument-hint: <backup|list|rollback|snapshot|restore|cleanup> [引数]
+---
+
 # /state-rollback コマンド
 
 state.md のバックアップと復元を管理します。

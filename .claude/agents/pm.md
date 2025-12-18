@@ -3,6 +3,7 @@ name: pm
 description: PROACTIVELY manages playbooks and project progress. Creates playbook when missing, tracks phase completion, manages scope. Says NO to scope creep. **MANDATORY entry point for all task starts.**
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: opus
+skills: state, plan-management
 ---
 
 # Project Manager Agent

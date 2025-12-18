@@ -3,6 +3,7 @@ name: critic
 description: MUST BE USED before marking any task as done. Evaluates done_criteria with evidence-based judgment. Prevents self-reward fraud through critical thinking.
 tools: Read, Grep, Bash
 model: opus
+skills: state, lint-checker, test-runner
 ---
 
 # Critique Evaluator Agent

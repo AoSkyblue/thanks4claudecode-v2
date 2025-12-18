@@ -1,3 +1,8 @@
+---
+description: done_criteria の達成状況を CRITIQUE する。Phase 完了前の検証に使用。
+allowed-tools: Read, Grep, Bash
+---
+
 # /crit - done_criteria の達成状況チェック
 
 現在の `goal.done_criteria` の達成状況を CRITIQUE してください。

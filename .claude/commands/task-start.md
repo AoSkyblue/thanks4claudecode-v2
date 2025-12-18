@@ -1,3 +1,8 @@
+---
+description: project.md から新しいタスクを開始。pm SubAgent を呼び出し playbook を作成する標準フロー。
+allowed-tools: Read, Write, Edit, Bash, Task
+---
+
 # /task-start - project.md からタスクを開始
 
 > **標準タスク開始コマンド。全てのタスクは project.md からの導出を経由する。**

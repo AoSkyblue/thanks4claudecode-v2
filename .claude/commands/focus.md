@@ -1,3 +1,9 @@
+---
+description: state.md の focus.current を切り替える。setup/product/plan-template の切り替えに使用。
+allowed-tools: Read, Edit, Bash
+argument-hint: <focus-value>
+---
+
 # /focus - フォーカスの切り替え
 
 state.md の `focus.current` を指定した値に変更してください。

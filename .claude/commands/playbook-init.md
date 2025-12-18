@@ -1,3 +1,8 @@
+---
+description: 新しい playbook を作成するウィザード。既存 playbook のチェック、ブランチ作成、pm 呼び出しを含む。
+allowed-tools: Read, Write, Edit, Bash, Task
+---
+
 # /init - 新しいタスク開始フロー
 
 > **このフローは構造的に強制される。手順をスキップしてはならない。**

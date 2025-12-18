@@ -1,3 +1,9 @@
+---
+description: Git ロールバックを実行。soft/mixed/hard/revert/stash から選択可能。
+allowed-tools: Read, Bash
+argument-hint: <soft|mixed|hard|revert|stash|status> [n|commit_hash]
+---
+
 # /rollback コマンド
 
 Git ロールバックを実行します。

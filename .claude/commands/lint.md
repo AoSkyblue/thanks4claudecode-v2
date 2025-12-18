@@ -1,3 +1,8 @@
+---
+description: state.md と playbook の整合性チェックを実行。コミット前の検証に使用。
+allowed-tools: Read, Bash
+---
+
 # /lint - 整合性チェックの実行
 
 state.md と playbook の整合性をチェックしてください。

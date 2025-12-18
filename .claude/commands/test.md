@@ -1,3 +1,9 @@
+---
+description: done_criteria のテストを実行。特定テストまたは全テストを実行可能。
+allowed-tools: Read, Bash
+argument-hint: [test-name]
+---
+
 # /test - done_criteria テストの実行
 
 `.claude/tests/` 配下のテストを実行してください。

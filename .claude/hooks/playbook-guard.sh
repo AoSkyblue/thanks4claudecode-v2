@@ -23,13 +23,12 @@ if [[ ! -f "$STATE_FILE" ]]; then
 fi
 
 # --------------------------------------------------
-# Admin モードチェック（最優先）
+# M079: コア契約は回避不可
 # --------------------------------------------------
+# security モードに関係なく playbook 必須チェックは維持
+# CLAUDE.md Core Contract: "Playbook Gate" は常に有効
 SECURITY=$(grep -A3 "^## config" "$STATE_FILE" 2>/dev/null | grep "security:" | head -1 | sed 's/security: *//' | tr -d ' ')
-if [[ "$SECURITY" == "admin" ]]; then
-    # admin モードは全ての制限をバイパス
-    exit 0
-fi
+# 特権モードでも playbook チェックは維持（コア契約）
 
 # stdin から JSON を読み込む
 INPUT=$(cat)

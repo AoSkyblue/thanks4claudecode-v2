@@ -9,8 +9,9 @@
 #   - Read/Grep/WebSearch 等は常に許可
 #   - Edit/Write のみ playbook チェック
 #
-# 注意: このスクリプトは matcher: "Edit" と "Write" でのみ登録すること
-#       matcher: "*" で登録すると stdin を消費し、後続の Hook に影響する
+# ブートストラップ例外 (M-bootstrap):
+#   - playbook=null でも playbook ファイル自体の作成は許可
+#   - これがないと /playbook-init が動作しない（デッドロック）
 
 set -euo pipefail
 
@@ -21,13 +22,6 @@ if [[ ! -f "$STATE_FILE" ]]; then
     exit 0
 fi
 
-# ============================================================
-# 注意: admin モードでも playbook チェックはバイパスしない
-# ============================================================
-# プロセスガード（playbook 必須）は安全ガードとは異なり、
-# 全モードで適用される。admin モードは他の安全ガードのみバイパス。
-# M058 で修正: playbook=null での Edit を構造的に防止
-
 # stdin から JSON を読み込む
 INPUT=$(cat)
 
@@ -36,11 +30,30 @@ if ! command -v jq &> /dev/null; then
     exit 0
 fi
 
-# state.md への編集は常に許可（デッドロック回避）
+# ファイルパスを取得
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // ""')
+
+# --------------------------------------------------
+# 常に許可するファイル（デッドロック回避）
+# --------------------------------------------------
+
+# state.md への編集は常に許可
 if [[ "$FILE_PATH" == *"state.md" ]]; then
     exit 0
 fi
+
+# --------------------------------------------------
+# ブートストラップ例外: playbook ファイル自体の作成/編集は許可
+# /playbook-init や pm が新規 playbook を作成できるようにする
+# --------------------------------------------------
+if [[ "$FILE_PATH" == *"plan/playbook-"*.md ]] || \
+   [[ "$FILE_PATH" == *"plan/active/playbook-"*.md ]]; then
+    exit 0
+fi
+
+# --------------------------------------------------
+# playbook チェック
+# --------------------------------------------------
 
 # focus.current を取得
 FOCUS=$(grep -A6 "^## focus" "$STATE_FILE" | grep "^current:" | head -1 | sed 's/current: *//' | sed 's/ *#.*//' | tr -d ' ')
@@ -77,14 +90,6 @@ EOF
     echo "" >&2
     echo "========================================" >&2
     exit 2
-fi
-
-# --------------------------------------------------
-# playbook の reviewed チェック
-# --------------------------------------------------
-# playbook 自体の編集は許可（reviewed を更新するため）
-if [[ "$FILE_PATH" == *"playbook-"* ]]; then
-    exit 0
 fi
 
 # playbook ファイルが存在するか確認

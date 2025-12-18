@@ -1,6 +1,8 @@
 #!/bin/bash
 # depends-check.sh - Phase の depends_on を検証
 # depends_on で指定された Phase が done でないと警告
+#
+# 更新: 新スキーマ対応 (state.md の playbook.active を使用)
 
 set -e
 
@@ -14,20 +16,17 @@ if [ ! -f "state.md" ]; then
     exit 0  # state.md がない場合はスキップ
 fi
 
-# focus.current を取得
-FOCUS=$(grep -A5 "## focus" state.md | grep "current:" | sed 's/.*current: *//' | sed 's/ *#.*//')
-
-# active_playbooks から playbook パスを取得
-PLAYBOOK=$(awk "/## active_playbooks/,/^## [^a]/" state.md | grep "^${FOCUS}:" | sed "s/${FOCUS}: *//" | sed 's/ *#.*//')
+# 新スキーマ: playbook セクションから active を取得
+PLAYBOOK=$(grep -A6 "^## playbook" state.md | grep "^active:" | head -1 | sed 's/active: *//' | sed 's/ *#.*//' | tr -d ' ')
 
 if [ -z "$PLAYBOOK" ] || [ "$PLAYBOOK" = "null" ] || [ ! -f "$PLAYBOOK" ]; then
     exit 0  # playbook がない場合はスキップ
 fi
 
 # 現在の phase を取得
-CURRENT_PHASE=$(awk "/## goal/,/^## [^g]/" state.md | grep "phase:" | head -1 | sed 's/.*phase: *//' | sed 's/ *#.*//')
+CURRENT_PHASE=$(grep -A6 "^## goal" state.md | grep "^phase:" | head -1 | sed 's/phase: *//' | sed 's/ *#.*//' | tr -d ' ')
 
-if [ -z "$CURRENT_PHASE" ]; then
+if [ -z "$CURRENT_PHASE" ] || [ "$CURRENT_PHASE" = "null" ]; then
     exit 0  # phase が不明な場合はスキップ
 fi
 
@@ -75,8 +74,6 @@ if [ $ERRORS -gt 0 ]; then
     echo -e "${YELLOW}[WARN]${NC} $ERRORS 件の依存 Phase が未完了です"
     echo ""
     # 警告のみで exit 0（ブロックしない）
-    # 将来的に exit 2 でブロックする場合はコメント解除
-    # exit 2
     exit 0
 else
     echo -e "${GREEN}[PASS]${NC} 全ての依存 Phase が完了しています"

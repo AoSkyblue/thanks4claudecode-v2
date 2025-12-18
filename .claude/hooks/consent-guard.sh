@@ -24,9 +24,14 @@
 set -euo pipefail
 
 # ============================================================
+# リポジトリルート取得（portable化）
+# ============================================================
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+
+# ============================================================
 # Admin モードチェック（最優先）
 # ============================================================
-STATE_FILE="state.md"
+STATE_FILE="${REPO_ROOT}/state.md"
 if [ -f "$STATE_FILE" ]; then
     SECURITY=$(grep -A3 "^## config" "$STATE_FILE" 2>/dev/null | grep "security:" | head -1 | sed 's/security: *//' | tr -d ' ')
     if [[ "$SECURITY" == "admin" ]]; then
@@ -36,10 +41,18 @@ if [ -f "$STATE_FILE" ]; then
 fi
 
 # ============================================================
-# 設定
+# 設定（リポジトリルートから相対パス）
 # ============================================================
-CONSENT_DIR="${HOME}/Desktop/thanks4claudecode/.claude/.session-init"
+CONSENT_DIR="${REPO_ROOT}/.claude/.session-init"
 CONSENT_FILE="${CONSENT_DIR}/consent"
+
+# ============================================================
+# jq チェック
+# ============================================================
+if ! command -v jq &> /dev/null; then
+    # jq がない場合はスキップ（安全側に倒す）
+    exit 0
+fi
 
 # ============================================================
 # 入力解析

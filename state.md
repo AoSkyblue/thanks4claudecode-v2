@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m095-branch-merge.md
+active: null
 branch: main
-last_archived: plan/archive/playbook-m094-consent-auto-delete.md
+last_archived: plan/archive/playbook-m095-branch-merge.md
 ```
 
 ---
@@ -29,10 +29,10 @@ last_archived: plan/archive/playbook-m094-consent-auto-delete.md
 
 ```yaml
 milestone: M095
-phase: p1
+phase: done
 done_when:
-  - "[ ] M093 と M094 のコミットが main に統合されている"
-  - "[ ] feat/m093-ssc-phase3 と feat/m094-consent-auto-delete が削除されている"
+  - "[x] M093 と M094 のコミットが main に統合されている"
+  - "[x] feat/m093-ssc-phase3 と feat/m094-consent-auto-delete が削除されている"
 ```
 
 ---

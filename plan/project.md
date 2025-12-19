@@ -792,20 +792,21 @@ success_criteria:
     - "[ ] PR 作成成功時に PR URL をログに出力"
 
 - id: M087
-  name: "Hook 回帰 E2E の CI 化"
+  name: "ローカル Hook テストスイートの整備"
   description: |
-    Hook の動作を保証する E2E テストを CI で自動実行。
-    1. .claude/tests/e2e-hooks.sh を作成
-    2. GitHub Actions で自動実行
-    3. 回帰テストのレポート生成
+    Hook の動作を保証するローカルテストスイートを整備。
+    ローカル完結の設計原則を維持し、CI 依存を回避。
+    1. .claude/tests/hook-tests.sh を作成
+    2. 全 Hook の構文チェック（bash -n）
+    3. 擬似入力での基本動作テスト
   status: not_started
   depends_on: [M086]
   playbooks: []
   done_when:
-    - "[ ] .claude/tests/e2e-hooks.sh が存在し実行可能"
-    - "[ ] .github/workflows/hook-tests.yml が存在"
-    - "[ ] E2E テストが全 PASS している"
-    - "[ ] テストレポートが生成される"
+    - "[ ] .claude/tests/hook-tests.sh が存在し実行可能"
+    - "[ ] 全 Hook が bash -n で構文エラーなし"
+    - "[ ] 主要 Hook の基本動作テストが PASS"
+    - "[ ] テスト結果が stdout に出力される"
 
 ```
 

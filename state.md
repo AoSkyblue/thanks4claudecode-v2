@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m086-create-pr-hook-recovery.md
-branch: feat/m086-create-pr-hook-recovery
-last_archived: plan/archive/playbook-m084-playbook-schema-v2.md
+active: plan/playbook-m087-local-hook-tests.md
+branch: feat/m087-local-hook-tests
+last_archived: plan/archive/playbook-m086-create-pr-hook-recovery.md
 ```
 
 ---
@@ -28,12 +28,13 @@ last_archived: plan/archive/playbook-m084-playbook-schema-v2.md
 ## goal
 
 ```yaml
-milestone: M086
+milestone: M087
 phase: p1
 done_when:
-  - "[ ] create-pr-hook.sh が SKIP 時に理由を stderr に出す"
-  - "[ ] gh コマンド不存在時に WARN を出力"
-  - "[ ] PR 作成成功時に PR URL をログに出力"
+  - "[ ] .claude/tests/hook-tests.sh が存在し実行可能"
+  - "[ ] 全 Hook が bash -n で構文エラーなし"
+  - "[ ] 主要 Hook の基本動作テストが PASS"
+  - "[ ] テスト結果が stdout に出力される"
 ```
 
 ---

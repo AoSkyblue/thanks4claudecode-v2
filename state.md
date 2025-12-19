@@ -18,7 +18,7 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/archive/playbook-m093-ssc-phase3.md
+active: null
 branch: feat/m093-ssc-phase3
 last_archived: plan/archive/playbook-m093-ssc-phase3.md
 ```
@@ -43,7 +43,7 @@ done_when:
 ## session
 
 ```yaml
-last_start: 2025-12-19 21:40:25
+last_start: 2025-12-19 22:00:34
 last_clear: 2025-12-13 00:30:00
 ```
 

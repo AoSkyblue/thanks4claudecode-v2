@@ -167,6 +167,29 @@ $SEP
 EOF
 fi
 
+# 残存 playbook 警告（setup/product は新規ユーザーのため除外）
+if [ "$FOCUS" != "setup" ] && [ "$FOCUS" != "product" ]; then
+    PLAYBOOK_COUNT=$(find plan -maxdepth 1 -name "playbook-*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$PLAYBOOK_COUNT" -ge 2 ]; then
+        PLAYBOOK_FILES=$(find plan -maxdepth 1 -name "playbook-*.md" -type f 2>/dev/null | sort)
+        cat <<EOF
+$SEP
+  ⚠️ plan/ に複数の playbook が残存しています（${PLAYBOOK_COUNT}件）
+$SEP
+  以下のファイルを確認してください:
+EOF
+        echo "$PLAYBOOK_FILES" | while read -r f; do
+            echo "    - $f"
+        done
+        cat <<EOF
+
+  完了済みなら plan/archive/ に移動してください:
+    mv plan/playbook-xxx.md plan/archive/
+
+EOF
+    fi
+fi
+
 # === compact トリガー時の特別処理 ===
 SNAPSHOT_FILE=".claude/.session-init/snapshot.json"
 if [ "$TRIGGER" = "compact" ]; then

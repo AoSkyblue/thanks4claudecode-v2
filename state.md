@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m093-ssc-phase3.md
+branch: feat/m093-ssc-phase3
 last_archived: plan/archive/playbook-m092-ssc-phase2.md
 ```
 
@@ -28,9 +28,14 @@ last_archived: plan/archive/playbook-m092-ssc-phase2.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_when: []
+milestone: M093
+phase: p1
+done_when:
+  - state.md に FREEZE_QUEUE セクションが存在する
+  - state.md に DELETE_LOG セクションが存在する
+  - scripts/freeze-file.sh が存在し実行可能である
+  - scripts/delete-frozen.sh が存在し実行可能である
+  - Freeze-then-Delete プロセスが文書化されている
 ```
 
 ---
@@ -38,7 +43,7 @@ done_when: []
 ## session
 
 ```yaml
-last_start: 2025-12-19 15:06:14
+last_start: 2025-12-19 21:40:25
 last_clear: 2025-12-13 00:30:00
 ```
 
@@ -61,7 +66,7 @@ roles:
 ## COMPONENT_REGISTRY
 
 ```yaml
-hooks: 33
+hooks: 34
 agents: 6
 skills: 9
 commands: 8
@@ -88,6 +93,31 @@ last_checked: 2025-12-19
 
 > **仕様同期スナップショット**: README/project.md の数値を記録。
 > check-spec-sync.sh が実行時にこの値と実態を比較し、乖離があれば警告を出力する。
+
+---
+
+## FREEZE_QUEUE
+
+```yaml
+queue: []
+freeze_period_days: 7
+```
+
+> **削除予定ファイルの凍結キュー**: 削除前に一定期間保持するファイルのリスト。
+> freeze-file.sh でファイルを追加、delete-frozen.sh で凍結期間経過後に削除。
+> 形式: `- { path: "path/to/file", freeze_date: "YYYY-MM-DD", reason: "理由" }`
+
+---
+
+## DELETE_LOG
+
+```yaml
+log: []
+```
+
+> **削除履歴ログ**: 削除されたファイルの記録。
+> delete-frozen.sh が削除実行時に自動で記録。
+> 形式: `- { path: "path/to/file", deleted_date: "YYYY-MM-DD", reason: "理由" }`
 
 ---
 

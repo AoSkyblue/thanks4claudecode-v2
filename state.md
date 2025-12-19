@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m096-pre-bash-deadlock-fix.md
-branch: fix/pre-bash-deadlock
-last_archived: plan/archive/playbook-m095-branch-merge.md
+active: null
+branch: main
+last_archived: plan/archive/playbook-m096-pre-bash-deadlock-fix.md
 ```
 
 ---
@@ -29,12 +29,12 @@ last_archived: plan/archive/playbook-m095-branch-merge.md
 
 ```yaml
 milestone: M096
-phase: p1
+phase: done
 done_when:
-  - "[ ] scripts/contract.sh の ADMIN_MAINTENANCE_PATTERNS に git checkout/merge/branch -d が追加されている"
-  - "[ ] playbook=null で git add state.md が実行できる"
-  - "[ ] playbook=null で git commit が実行できる"
-  - "[ ] playbook=null で git checkout main が実行できる"
+  - "[x] scripts/contract.sh の ADMIN_MAINTENANCE_PATTERNS に git checkout/merge/branch -d が追加されている"
+  - "[x] playbook=null で git add state.md が実行できる"
+  - "[x] playbook=null で git commit が実行できる"
+  - "[x] playbook=null で git checkout main が実行できる"
 ```
 
 ---

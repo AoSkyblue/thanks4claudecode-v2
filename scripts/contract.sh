@@ -265,6 +265,8 @@ ADMIN_MAINTENANCE_PATTERNS=(
     '^git[[:space:]]+add[[:space:]]+state\.md$'
     # git add plan/archive/（単独またはファイル指定）
     '^git[[:space:]]+add[[:space:]]+plan/archive(/[^[:space:]]*)?$'
+    # git add -f plan/archive/（.gitignore 無視、アーカイブ用）
+    '^git[[:space:]]+add[[:space:]]+-f[[:space:]]+plan/archive(/[^[:space:]]*)?$'
     # git add state.md plan/archive/（2つ同時）
     '^git[[:space:]]+add[[:space:]]+state\.md[[:space:]]+plan/archive/?$'
     # git commit -m "..." (maintenance メッセージ)

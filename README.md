@@ -143,7 +143,7 @@ bash .claude/hooks/check-integrity.sh
 
 ## 開発履歴
 
-- **40 milestone** を定義（M001〜M088、欠番あり）
+- **45 milestone** を定義（M001〜M093）
 - **52 E2E テスト** で契約システムを保証
 - **CLAUDE.md** を 648行 → 262行に最適化
 

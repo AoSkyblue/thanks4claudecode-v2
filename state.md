@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m091-ssc-phase1.md
+branch: feat/m091-ssc-phase1
 last_archived: plan/archive/playbook-m090-component-tests.md
 ```
 
@@ -28,9 +28,13 @@ last_archived: plan/archive/playbook-m090-component-tests.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_when: []
+milestone: M091
+phase: p1
+done_when:
+  - state.md に COMPONENT_REGISTRY セクションが存在する
+  - COMPONENT_REGISTRY に hooks/agents/skills/commands の数値が記録されている
+  - generate-repository-map.sh が COMPONENT_REGISTRY を更新する
+  - 数値変更時に警告が出力される
 ```
 
 ---
@@ -55,6 +59,21 @@ roles:
   reviewer: claudecode      # レビュー担当（A/B: claudecode, C: coderabbit）
   human: user               # 人間の介入（常に user）
 ```
+
+---
+
+## COMPONENT_REGISTRY
+
+```yaml
+hooks: 33
+agents: 6
+skills: 9
+commands: 8
+last_verified: 2025-12-19
+```
+
+> **Single Source of Truth**: コンポーネント数の正規値。
+> generate-repository-map.sh が実行時にこの値と比較し、差分があれば警告を出力する。
 
 ---
 

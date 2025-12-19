@@ -176,6 +176,104 @@ count_files() {
 }
 
 # ==============================================================================
+# M091: COMPONENT_REGISTRY 更新関数
+# ==============================================================================
+
+# state.md から COMPONENT_REGISTRY の現在値を取得
+get_registry_value() {
+    local key="$1"
+    local state_file="$PROJECT_ROOT/state.md"
+
+    if [[ ! -f "$state_file" ]]; then
+        echo "0"
+        return
+    fi
+
+    # COMPONENT_REGISTRY セクションから値を抽出
+    grep -A10 "## COMPONENT_REGISTRY" "$state_file" 2>/dev/null | \
+        grep "^${key}:" | \
+        sed 's/.*: *//' | \
+        tr -d ' ' || echo "0"
+}
+
+# COMPONENT_REGISTRY を更新し、差分があれば警告を出力
+update_component_registry() {
+    local state_file="$PROJECT_ROOT/state.md"
+    local today=$(date '+%Y-%m-%d')
+    local has_diff=false
+
+    if [[ ! -f "$state_file" ]]; then
+        echo "WARNING: state.md not found, skipping COMPONENT_REGISTRY update" >&2
+        return
+    fi
+
+    # 現在の登録値を取得
+    local reg_hooks=$(get_registry_value "hooks")
+    local reg_agents=$(get_registry_value "agents")
+    local reg_skills=$(get_registry_value "skills")
+    local reg_commands=$(get_registry_value "commands")
+
+    # 差分チェック
+    if [[ "$reg_hooks" != "$HOOKS_COUNT" ]]; then
+        echo "WARNING: hooks 数が変更されました: $reg_hooks -> $HOOKS_COUNT" >&2
+        has_diff=true
+    fi
+
+    if [[ "$reg_agents" != "$AGENTS_COUNT" ]]; then
+        echo "WARNING: agents 数が変更されました: $reg_agents -> $AGENTS_COUNT" >&2
+        has_diff=true
+    fi
+
+    if [[ "$reg_skills" != "$SKILLS_COUNT" ]]; then
+        echo "WARNING: skills 数が変更されました: $reg_skills -> $SKILLS_COUNT" >&2
+        has_diff=true
+    fi
+
+    if [[ "$reg_commands" != "$COMMANDS_COUNT" ]]; then
+        echo "WARNING: commands 数が変更されました: $reg_commands -> $COMMANDS_COUNT" >&2
+        has_diff=true
+    fi
+
+    # COMPONENT_REGISTRY セクションが存在するかチェック
+    if ! grep -q "## COMPONENT_REGISTRY" "$state_file"; then
+        echo "INFO: COMPONENT_REGISTRY セクションが存在しません。追加を推奨します。" >&2
+        return
+    fi
+
+    # 差分がある場合のみ数値を更新（last_verified は常に更新）
+    # 注: COMPONENT_REGISTRY セクション内の値のみを更新するため、
+    # 行頭からのマッチを使用（YAML コードブロック内の値に対応）
+    if [[ "$has_diff" == "true" ]]; then
+        echo "INFO: COMPONENT_REGISTRY を更新しています..." >&2
+        # awk を使用して COMPONENT_REGISTRY セクション内のみ更新
+        awk -v hooks="$HOOKS_COUNT" -v agents="$AGENTS_COUNT" \
+            -v skills="$SKILLS_COUNT" -v commands="$COMMANDS_COUNT" '
+            /^## COMPONENT_REGISTRY/ { in_section=1 }
+            /^## [^C]/ { if (in_section) in_section=0 }
+            in_section && /^hooks:/ { print "hooks: " hooks; next }
+            in_section && /^agents:/ { print "agents: " agents; next }
+            in_section && /^skills:/ { print "skills: " skills; next }
+            in_section && /^commands:/ { print "commands: " commands; next }
+            { print }
+        ' "$state_file" > "$state_file.tmp" && mv "$state_file.tmp" "$state_file"
+    fi
+
+    # last_verified を更新（COMPONENT_REGISTRY セクション内のみ）
+    awk -v today="$today" '
+        /^## COMPONENT_REGISTRY/ { in_section=1 }
+        /^## [^C]/ { if (in_section) in_section=0 }
+        in_section && /^last_verified:/ { print "last_verified: " today; next }
+        { print }
+    ' "$state_file" > "$state_file.tmp" && mv "$state_file.tmp" "$state_file"
+
+    if [[ "$has_diff" == "true" ]]; then
+        echo "INFO: COMPONENT_REGISTRY 更新完了（差分あり）" >&2
+    else
+        echo "INFO: COMPONENT_REGISTRY 検証完了（差分なし、last_verified 更新）" >&2
+    fi
+}
+
+# ==============================================================================
 # M025: system_specification 生成関数
 # ==============================================================================
 
@@ -655,6 +753,12 @@ EOF
 
 # 出力ファイルを更新
 mv "$TEMP_FILE" "$OUTPUT_FILE"
+
+# ==============================================================================
+# M091: COMPONENT_REGISTRY の更新
+# ==============================================================================
+echo "  Updating COMPONENT_REGISTRY..."
+update_component_registry
 
 echo "Repository map generated: $OUTPUT_FILE"
 echo "  Total files: $TOTAL_FILES"

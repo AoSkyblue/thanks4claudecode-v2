@@ -29,12 +29,12 @@ last_archived: plan/archive/playbook-m097-anti-lie-system.md
 
 ```yaml
 milestone: M098-M100
-phase: M098
+phase: done
 done_when:
-  - "[ ] governance/core-manifest.yaml が存在し policy.no_new_components=true"
-  - "[ ] 未登録 hooks が削除されている（34→22）"
-  - "[ ] scripts/behavior-test.sh が PASS"
-  - "[ ] README から数字自慢が消えている"
+  - "[x] governance/core-manifest.yaml が存在し policy.no_new_components=true"
+  - "[x] 未登録 hooks が削除されている（34→22）"
+  - "[x] scripts/behavior-test.sh が PASS"
+  - "[x] README から数字自慢が消えている"
 ```
 
 ---

@@ -152,14 +152,12 @@ update_readme() {
     stats_file=$(mktemp)
     cat > "$stats_file" <<EOF
 <!-- STATS_START -->
-| 項目 | 数 | 備考 |
-|------|-----|------|
-| Hook | ${hooks} | 登録済: ${registered} |
-| SubAgent | ${subagents} | |
-| Skill | ${skills} | |
-| Command | ${commands} | |
-| E2E テスト | ${e2e} | |
-| Milestone | ${milestones} | 達成: ${achieved} |
+| 項目 | 数 |
+|------|-----|
+| Hook | ${hooks} |
+| SubAgent | ${subagents} |
+| Skill | ${skills} |
+| Command | ${commands} |
 <!-- STATS_END -->
 EOF
 

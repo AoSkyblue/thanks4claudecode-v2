@@ -65,15 +65,15 @@ roles:
 ## COMPONENT_REGISTRY
 
 ```yaml
-hooks: 34
-agents: 6
-skills: 9
+hooks: 22
+agents: 3
+skills: 7
 commands: 8
 last_verified: 2025-12-20
 ```
 
 > **Single Source of Truth**: コンポーネント数の正規値。
-> generate-repository-map.sh が実行時にこの値と比較し、差分があれば警告を出力する。
+> 正本は governance/core-manifest.yaml。
 
 ---
 
@@ -81,12 +81,12 @@ last_verified: 2025-12-20
 
 ```yaml
 readme:
-  hooks: 34
-  milestone_count: 46
+  hooks: 22
+  milestone_count: 47
 project:
-  total: 45
-  achieved: 45
-  pending: 0
+  total: 47
+  achieved: 46
+  pending: 1
 last_checked: 2025-12-19
 ```
 

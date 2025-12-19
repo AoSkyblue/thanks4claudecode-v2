@@ -78,9 +78,9 @@ is_compound_command()   # 複合コマンド検出
 <!-- STATS_START -->
 | 項目 | 数 | 備考 |
 |------|-----|------|
-| Hook | 34 | 登録済: 29 |
-| SubAgent | 6 | |
-| Skill | 9 | |
+| Hook | 22 | 登録済: 29 |
+| SubAgent | 3 | |
+| Skill | 7 | |
 | Command | 8 | |
 | E2E テスト | 10 | |
 | Milestone | 47 | 達成: 46 |

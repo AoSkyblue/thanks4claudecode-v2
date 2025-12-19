@@ -923,12 +923,15 @@ success_criteria:
     1. SPEC_SNAPSHOT の導入（README/project.md の数値スナップショット）
     2. repository-map.yaml と実態の自動比較
     3. 乖離検出時の警告システム
-  status: pending
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M091]
+  playbooks:
+    - playbook-m092-ssc-phase2.md
   done_when:
-    - "[ ] state.md に SPEC_SNAPSHOT セクションが存在"
-    - "[ ] playbook 完了時に SPEC_SNAPSHOT が自動更新される"
-    - "[ ] README/project.md と実態の乖離検出時に警告が出力される"
+    - "[x] state.md に SPEC_SNAPSHOT セクションが存在"
+    - "[x] playbook 完了時に SPEC_SNAPSHOT が自動更新される"
+    - "[x] README/project.md と実態の乖離検出時に警告が出力される"
   test_commands:
     - "grep -q 'SPEC_SNAPSHOT' state.md && echo PASS || echo FAIL"
     - "bash .claude/hooks/check-spec-sync.sh && echo PASS || echo FAIL"

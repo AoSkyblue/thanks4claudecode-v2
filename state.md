@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m092-ssc-phase2.md
-branch: feat/m092-ssc-phase2
-last_archived: plan/archive/playbook-m091-ssc-phase1.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m092-ssc-phase2.md
 ```
 
 ---
@@ -28,12 +28,9 @@ last_archived: plan/archive/playbook-m091-ssc-phase1.md
 ## goal
 
 ```yaml
-milestone: M092
-phase: p1
-done_when:
-  - state.md に SPEC_SNAPSHOT セクションが存在する
-  - playbook 完了時に SPEC_SNAPSHOT が自動更新される
-  - README/project.md と実態の乖離検出時に警告が出力される
+milestone: null
+phase: null
+done_when: []
 ```
 
 ---
@@ -84,8 +81,8 @@ readme:
   milestone_count: 45
 project:
   total: 45
-  achieved: 43
-  pending: 2
+  achieved: 44
+  pending: 1
 last_checked: 2025-12-19
 ```
 

@@ -196,15 +196,62 @@ PLAYBOOK_NAME=$(basename "$FILE_PATH")
 ARCHIVE_DIR="plan/archive"
 ARCHIVE_PATH="$ARCHIVE_DIR/$PLAYBOOK_NAME"
 
+# ==============================================================================
+# M083: derives_from を読み取り、project.md の milestone を自動更新
+# ==============================================================================
+# playbook の meta.derives_from を読み取り、対応する milestone を特定
+# status: achieved に更新し、achieved_at を設定
+
+DERIVES_FROM=""
+MILESTONE_UPDATE_CMD=""
+
+# derives_from を抽出（meta セクション内）
+if grep -q "^derives_from:" "$FILE_PATH" 2>/dev/null; then
+    DERIVES_FROM=$(grep "^derives_from:" "$FILE_PATH" | head -1 | sed 's/derives_from: *//' | tr -d ' "')
+fi
+
+# derives_from が見つかった場合、project.md 更新コマンドを生成
+if [ -n "$DERIVES_FROM" ] && [ "$DERIVES_FROM" != "null" ]; then
+    if [ -f "plan/project.md" ]; then
+        # milestone ID を確認
+        if grep -q "id: $DERIVES_FROM" plan/project.md 2>/dev/null; then
+            CURRENT_DATE=$(date +%Y-%m-%d)
+            # sed コマンドを生成（milestone ブロック内の status と achieved_at を更新）
+            MILESTONE_UPDATE_CMD="sed -i '' '/id: $DERIVES_FROM/,/^- id:/ { s/status: .*/status: achieved/; s/achieved_at: .*/achieved_at: $CURRENT_DATE/; }' plan/project.md"
+            echo "[INFO] $HOOK_NAME: milestone $DERIVES_FROM will be marked as achieved" >&2
+        else
+            echo "[WARN] $HOOK_NAME: milestone $DERIVES_FROM not found in project.md" >&2
+        fi
+    else
+        echo "[WARN] $HOOK_NAME: plan/project.md not found" >&2
+    fi
+fi
+
 # 全 Phase が done の場合、アーカイブを提案
 echo "[PASS] $HOOK_NAME: playbook ready for archive ($RELATIVE_PATH)" >&2
 cat << EOF
 
   Playbook: $RELATIVE_PATH
   Status: all $TOTAL_PHASES phases done
+  Milestone: ${DERIVES_FROM:-"(none)"}
 
-  Archive command:
+  Archive commands:
     mkdir -p $ARCHIVE_DIR && mv $RELATIVE_PATH $ARCHIVE_PATH
+EOF
+
+# milestone 更新コマンドがある場合は追加
+if [ -n "$MILESTONE_UPDATE_CMD" ]; then
+    cat << EOF
+    $MILESTONE_UPDATE_CMD
+EOF
+fi
+
+cat << EOF
+
+  Post-archive tasks:
+    1. Update state.md playbook.active to null
+    2. Update state.md playbook.last_archived to $ARCHIVE_PATH
+    3. Create new playbook if needed
 
 EOF
 

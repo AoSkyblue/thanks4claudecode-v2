@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m085-subtask-guard-compliance.md
-branch: feat/m085-subtask-guard-compliance
+active: plan/playbook-m086-create-pr-hook-recovery.md
+branch: feat/m086-create-pr-hook-recovery
 last_archived: plan/archive/playbook-m084-playbook-schema-v2.md
 ```
 
@@ -28,13 +28,12 @@ last_archived: plan/archive/playbook-m084-playbook-schema-v2.md
 ## goal
 
 ```yaml
-milestone: M085
+milestone: M086
 phase: p1
 done_when:
-  - "[ ] subtask-guard.sh がパース失敗時に exit 0 を返す"
-  - "[ ] subtask-guard.sh に厳格モード（STRICT=1）オプションが存在する"
-  - "[ ] 通常モードで validations 不足は WARN のみ"
-  - "[ ] 厳格モードで validations 不足は BLOCK"
+  - "[ ] create-pr-hook.sh が SKIP 時に理由を stderr に出す"
+  - "[ ] gh コマンド不存在時に WARN を出力"
+  - "[ ] PR 作成成功時に PR URL をログに出力"
 ```
 
 ---

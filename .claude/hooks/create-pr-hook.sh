@@ -38,6 +38,13 @@ NC='\033[0m'
 # 前提条件チェック
 # ============================================================
 
+# M086: gh CLI の存在確認（不存在時は WARN で通す）
+if ! command -v gh &> /dev/null; then
+    echo "[WARN] $HOOK_NAME: gh CLI not installed, PR creation will be skipped" >&2
+    echo "  Install: brew install gh" >&2
+    exit 0
+fi
+
 # create-pr.sh の存在確認
 if [ ! -x "$CREATE_PR_SCRIPT" ]; then
     echo "[SKIP] $HOOK_NAME: create-pr.sh not found or not executable ($CREATE_PR_SCRIPT)" >&2

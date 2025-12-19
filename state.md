@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
-last_archived: plan/archive/playbook-m090-component-tests.md
+active: plan/playbook-m092-ssc-phase2.md
+branch: feat/m092-ssc-phase2
+last_archived: plan/archive/playbook-m091-ssc-phase1.md
 ```
 
 ---
@@ -28,9 +28,12 @@ last_archived: plan/archive/playbook-m090-component-tests.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_when: []
+milestone: M092
+phase: p1
+done_when:
+  - state.md に SPEC_SNAPSHOT セクションが存在する
+  - playbook 完了時に SPEC_SNAPSHOT が自動更新される
+  - README/project.md と実態の乖離検出時に警告が出力される
 ```
 
 ---
@@ -55,6 +58,39 @@ roles:
   reviewer: claudecode      # レビュー担当（A/B: claudecode, C: coderabbit）
   human: user               # 人間の介入（常に user）
 ```
+
+---
+
+## COMPONENT_REGISTRY
+
+```yaml
+hooks: 33
+agents: 6
+skills: 9
+commands: 8
+last_verified: 2025-12-19
+```
+
+> **Single Source of Truth**: コンポーネント数の正規値。
+> generate-repository-map.sh が実行時にこの値と比較し、差分があれば警告を出力する。
+
+---
+
+## SPEC_SNAPSHOT
+
+```yaml
+readme:
+  hooks: 33
+  milestone_count: 45
+project:
+  total: 45
+  achieved: 43
+  pending: 2
+last_checked: 2025-12-19
+```
+
+> **仕様同期スナップショット**: README/project.md の数値を記録。
+> check-spec-sync.sh が実行時にこの値と実態を比較し、乖離があれば警告を出力する。
 
 ---
 

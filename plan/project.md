@@ -851,17 +851,18 @@ success_criteria:
     generate-repository-map.sh のバグ修正と repository-map.yaml の数値同期。
     1. plan/active ディレクトリ不存在時のエラー修正
     2. repository-map.yaml の hooks/agents/skills/commands 数値を実態と同期
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M088]
   playbooks:
     - playbook-m089-component-registry-normalization.md
   done_when:
-    - "[ ] generate-repository-map.sh が exit 0 で完了する"
-    - "[ ] repository-map.yaml の hooks が 33 と一致"
-    - "[ ] repository-map.yaml の agents が 6 と一致"
-    - "[ ] repository-map.yaml の skills が 9 と一致"
-    - "[ ] repository-map.yaml の commands が 8 と一致"
-    - "[ ] check-integrity.sh が PASS"
+    - "[x] generate-repository-map.sh が exit 0 で完了する"
+    - "[x] repository-map.yaml の hooks が 33 と一致"
+    - "[x] repository-map.yaml の agents が 6 と一致"
+    - "[x] repository-map.yaml の skills が 9 と一致"
+    - "[x] repository-map.yaml の commands が 8 と一致"
+    - "[x] check-integrity.sh が PASS"
   test_commands:
     - "bash .claude/hooks/generate-repository-map.sh && echo PASS || echo FAIL"
     - "grep 'hooks: 33' docs/repository-map.yaml && echo PASS || echo FAIL"

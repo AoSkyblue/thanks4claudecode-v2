@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m089-component-registry-normalization.md
-branch: feat/m089-component-registry
-last_archived: plan/archive/playbook-m088-gap-fix.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m089-component-registry-normalization.md
 ```
 
 ---
@@ -28,15 +28,9 @@ last_archived: plan/archive/playbook-m088-gap-fix.md
 ## goal
 
 ```yaml
-milestone: M089
-phase: p_final
-done_when:
-  - generate-repository-map.sh が exit 0 で完了する
-  - repository-map.yaml の hooks が 33 と一致
-  - repository-map.yaml の agents が 6 と一致
-  - repository-map.yaml の skills が 9 と一致
-  - repository-map.yaml の commands が 8 と一致
-  - check-integrity.sh が PASS
+milestone: null
+phase: null
+done_when: []
 ```
 
 ---

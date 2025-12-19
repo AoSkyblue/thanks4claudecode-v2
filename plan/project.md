@@ -751,14 +751,16 @@ success_criteria:
     1. playbook-format.md を Schema v2 として厳密化
     2. playbook-validator.sh を実装
     3. 既存 playbook を正規化
-  status: not_started
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M083]
-  playbooks: []
+  playbooks:
+    - playbook-m084-playbook-schema-v2.md
   done_when:
-    - "[ ] plan/template/playbook-format.md に Schema v2 マーカーが存在する"
-    - "[ ] .claude/hooks/playbook-validator.sh が存在し実行可能"
-    - "[ ] playbook-validator.sh が不正形式を検出して exit 非0 を返す"
-    - "[ ] 既存の active playbook が Schema v2 に準拠している"
+    - "[x] plan/template/playbook-format.md に Schema v2 マーカーが存在する"
+    - "[x] .claude/hooks/playbook-validator.sh が存在し実行可能"
+    - "[x] playbook-validator.sh が不正形式を検出して exit 非0 を返す"
+    - "[x] 既存の active playbook が Schema v2 に準拠している"
 
 - id: M085
   name: "subtask-guard の仕様準拠化"
@@ -767,14 +769,16 @@ success_criteria:
     1. パース失敗時は WARN で通す
     2. validations チェックをオプション化（厳格モードで BLOCK）
     3. 詳細なデバッグログを stderr に出力
-  status: not_started
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M084]
-  playbooks: []
+  playbooks:
+    - playbook-m085-subtask-guard-compliance.md
   done_when:
-    - "[ ] subtask-guard.sh がパース失敗時に exit 0 を返す"
-    - "[ ] subtask-guard.sh に厳格モード（STRICT=1）オプションが存在する"
-    - "[ ] 通常モードで validations 不足は WARN のみ"
-    - "[ ] 厳格モードで validations 不足は BLOCK"
+    - "[x] subtask-guard.sh がパース失敗時に exit 0 を返す"
+    - "[x] subtask-guard.sh に厳格モード（STRICT=1）オプションが存在する"
+    - "[x] 通常モードで validations 不足は WARN のみ"
+    - "[x] 厳格モードで validations 不足は BLOCK"
 
 - id: M086
   name: "create-pr-hook の復旧"
@@ -783,13 +787,15 @@ success_criteria:
     1. SKIP 理由の明確化
     2. gh コマンドの存在チェック
     3. PR 作成成功時のログ強化
-  status: not_started
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M085]
-  playbooks: []
+  playbooks:
+    - playbook-m086-create-pr-hook-recovery.md
   done_when:
-    - "[ ] create-pr-hook.sh が SKIP 時に理由を stderr に出す"
-    - "[ ] gh コマンド不存在時に WARN を出力"
-    - "[ ] PR 作成成功時に PR URL をログに出力"
+    - "[x] create-pr-hook.sh が SKIP 時に理由を stderr に出す"
+    - "[x] gh コマンド不存在時に WARN を出力"
+    - "[x] PR 作成成功時に PR URL をログに出力"
 
 - id: M087
   name: "ローカル Hook テストスイートの整備"
@@ -799,14 +805,16 @@ success_criteria:
     1. .claude/tests/hook-tests.sh を作成
     2. 全 Hook の構文チェック（bash -n）
     3. 擬似入力での基本動作テスト
-  status: not_started
+  status: achieved
+  achieved_at: 2025-12-19
   depends_on: [M086]
-  playbooks: []
+  playbooks:
+    - playbook-m087-local-hook-tests.md
   done_when:
-    - "[ ] .claude/tests/hook-tests.sh が存在し実行可能"
-    - "[ ] 全 Hook が bash -n で構文エラーなし"
-    - "[ ] 主要 Hook の基本動作テストが PASS"
-    - "[ ] テスト結果が stdout に出力される"
+    - "[x] .claude/tests/hook-tests.sh が存在し実行可能"
+    - "[x] 全 Hook が bash -n で構文エラーなし"
+    - "[x] 主要 Hook の基本動作テストが PASS"
+    - "[x] テスト結果が stdout に出力される"
 
 ```
 

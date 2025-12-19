@@ -190,6 +190,30 @@ EOF
     fi
 fi
 
+# tmp/ 残存ファイル警告（README.md は除外）
+if [ -d "tmp" ]; then
+    TMP_COUNT=$(find tmp -mindepth 1 -maxdepth 1 ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$TMP_COUNT" -ge 1 ]; then
+        TMP_FILES=$(find tmp -mindepth 1 -maxdepth 1 ! -name "README.md" 2>/dev/null | sort)
+        cat <<EOF
+$SEP
+  ⚠️ tmp/ に一時ファイルが残存しています（${TMP_COUNT}件）
+$SEP
+  以下のファイル/ディレクトリを確認してください:
+EOF
+        echo "$TMP_FILES" | while read -r f; do
+            echo "    - $f"
+        done
+        cat <<EOF
+
+  不要なら削除してください:
+    rm -rf tmp/xxx
+  （README.md は保持されます）
+
+EOF
+    fi
+fi
+
 # === compact トリガー時の特別処理 ===
 SNAPSHOT_FILE=".claude/.session-init/snapshot.json"
 if [ "$TRIGGER" = "compact" ]; then

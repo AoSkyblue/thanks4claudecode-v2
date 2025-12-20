@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m106-component-fix.md
+active: plan/playbook-m107-flow-test.md
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m106-m107-milestone-addition.md
+last_archived: plan/archive/playbook-m106-component-fix.md
 ```
 
 ---
@@ -28,11 +28,13 @@ last_archived: plan/archive/playbook-m106-m107-milestone-addition.md
 ## goal
 
 ```yaml
-milestone: M106 (achieved) → M107 開始
-phase: transition
+milestone: M107
+phase: p_final
 done_when:
-  - "[x] M106 critic PASS"
-next: M107
+  - "[x] scripts/flow-test.sh が存在し実行可能である（18/18 PASS）"
+  - "[x] 動線単位テストが全て完了している"
+  - "[x] 全 PASS のため FAIL 修正不要（テスト設計の限界を docs/flow-test-report.md に記載）"
+next: M108
 ```
 
 ---

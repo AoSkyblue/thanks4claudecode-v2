@@ -41,11 +41,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/consent-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "bash .claude/hooks/check-protected-edit.sh",
             "timeout": 5000
           },
@@ -56,12 +51,7 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/depends-check.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/critic-guard.sh",
+            "command": "bash .claude/hooks/consent-guard.sh",
             "timeout": 3000
           },
           {
@@ -71,12 +61,17 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/executor-guard.sh",
+            "command": "bash .claude/hooks/subtask-guard.sh",
             "timeout": 3000
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/subtask-guard.sh",
+            "command": "bash .claude/hooks/critic-guard.sh",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/executor-guard.sh",
             "timeout": 3000
           }
         ]
@@ -86,17 +81,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/consent-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "bash .claude/hooks/check-protected-edit.sh",
             "timeout": 5000
           },
           {
             "type": "command",
             "command": "bash .claude/hooks/playbook-guard.sh",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/consent-guard.sh",
             "timeout": 3000
           },
           {

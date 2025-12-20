@@ -1022,6 +1022,74 @@ success_criteria:
     - "[x] scripts/behavior-test.sh が PASS"
     - "[x] README から数字自慢が消えている"
 
+- id: M103
+  name: "Freeze Core Runtime - 非コア Hook 削除と最終安定化"
+  description: |
+    settings.json を Core Hooks 8本のみに削減し、非コア Hook ファイルを削除して最終凍結。
+    ※ M104 の Layer アーキテクチャ議論で方針が見直される可能性があるため保留。
+  status: postponed
+  depends_on: [M100]
+  postponed_reason: "M104 で Layer アーキテクチャを再定義した後に再検討"
+  playbooks:
+    - playbook-m103-freeze-core-runtime.md
+  done_when:
+    - "[ ] settings.json に登録されている hooks が Core 定義に準拠"
+    - "[ ] 非コア Hook ファイルが削除されている"
+    - "[ ] behavior-test.sh が全て PASS"
+
+- id: M104
+  name: "Layer Architecture - 黄金動線ベースの設計議論"
+  description: |
+    現在の core-manifest.yaml v2 は「発火タイミング」で Layer を分類しているが、
+    「黄金動線における役割の深さ/保護レベル」で再定義すべきという議論から発生。
+
+    黄金動線:
+      /task-start → pm → playbook → work → /crit → critic → done
+
+    このマイルストーンは「設計議論と合意形成」のみがスコープ。
+    実装は M105 で実施する。
+  status: achieved
+  achieved_at: 2025-12-20
+  depends_on: [M100]
+  playbooks:
+    - playbook-m104-layer-architecture.md
+  done_when:
+    - "[x] Layer アーキテクチャの設計案が文書化されている（docs/layer-architecture-design.md）"
+    - "[x] 「黄金動線での役割」ベースの Layer 定義案が作成されている"
+    - "[x] Core 最小セットの候補リストが議論・合意されている"
+    - "[x] 実装フェーズが次のマイルストーン（M105）として project.md に定義されている"
+  test_commands:
+    - "test -f docs/layer-architecture-design.md && echo PASS || echo FAIL"
+    - "grep -q '黄金動線' docs/layer-architecture-design.md && echo PASS || echo FAIL"
+    - "grep -q 'M105' plan/project.md && echo PASS || echo FAIL"
+
+- id: M105
+  name: "Golden Path Verification - 動線単位の動作テスト"
+  description: |
+    M104 で設計した動線ベースの分類に基づき、各動線のコンポーネントが正しく動作することをテストする。
+    Layer 実装は不要。既存コンポーネントの動作確認と不具合修正がスコープ。
+
+    テスト対象:
+      1. 計画動線（6個）: pm, playbook-format, project.md, reviewer, skill-resolver, playbook-validator
+      2. 実行動線（11個）: executor-guard, role-resolver, codex-delegate, prompt-guard, playbook-guard, pre-bash-check, scope-guard, subtask-guard, context7, log-subagent, stop-summary
+      3. 検証動線（6個）: critic, critic-guard, consent-guard, session-end, archive-playbook, check-coherence
+      4. 完了動線（8個）: cleanup-hook, state.md, project.md自動更新, check-integrity, check-spec-sync, generate-repository-map, depends-check, lint-check
+      5. 共通基盤（6個）: CLAUDE.md, session-start, contract.sh, state-schema, core-manifest, repository-map
+      6. 横断的整合性（3個）: check.md, docs/layer-architecture-design.md, governance/
+  status: not_achieved
+  depends_on: [M104]
+  done_when:
+    - "[ ] 計画動線の全コンポーネント（6個）が正しく動作する"
+    - "[ ] 実行動線の全コンポーネント（11個）が正しく動作する"
+    - "[ ] 検証動線の全コンポーネント（6個）が正しく動作する"
+    - "[ ] 完了動線の全コンポーネント（8個）が正しく動作する"
+    - "[ ] 共通基盤の全コンポーネント（6個）が正しく動作する"
+    - "[ ] 横断的整合性の全コンポーネント（3個）が正しく動作する"
+    - "[ ] 動作不良（subtask-guard WARN モード、critic-guard playbook 未対応）が修正されている"
+  test_commands:
+    - "bash scripts/behavior-test.sh && echo PASS || echo FAIL"
+    - "test -f docs/check.md && echo PASS || echo FAIL"
+
 ```
 
 ---

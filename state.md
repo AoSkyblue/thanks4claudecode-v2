@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m111-scenario-test-100.md
+active: null
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m110-fix-and-defend.md
+last_archived: plan/archive/playbook-m111-scenario-test-100.md
 ```
 
 ---
@@ -29,12 +29,12 @@ last_archived: plan/archive/playbook-m110-fix-and-defend.md
 
 ```yaml
 milestone: M111
-phase: p1
+phase: done
 done_when:
-  - "[ ] scenario-test.sh 未変更（git diff で確認）"
-  - "[ ] subtask-guard.sh が STRICT=1 で警告を出す"
-  - "[ ] scenario-test.sh 実行で 13/13 PASS（完遂率 100%）"
-  - "[ ] 100% 警告が表示される（報酬詐欺監視機能）"
+  - "[x] scenario-test.sh 未変更（git diff で確認）"
+  - "[x] subtask-guard.sh が STRICT=1 で警告を出す"
+  - "[x] scenario-test.sh 実行で 13/13 PASS（完遂率 100%）"
+  - "[x] 100% 警告が表示される（報酬詐欺監視機能）"
 next: null
 ```
 

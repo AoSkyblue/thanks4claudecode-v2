@@ -1,268 +1,313 @@
-# core-manifest.yaml
+# core-manifest.yaml v3
 #
-# このリポジトリの「凍結された正本」
-# 2層構造 + 隔離領域で、拡張時の混濁と将来アップデートへの耐性を確保
+# 動線ベースの Layer アーキテクチャ
 #
-# Layer 0: Core Runtime - 常時発火（安全柵）
-# Layer 1: Core Orchestration - タスク中のみ強く発火（品質柵）
-# Layer X: Quarantine - 凍結解除アップデートの隔離領域
+# ═══════════════════════════════════════════════════════════════════
+# 設計原則: 全コンポーネントは「動線単位」で扱う
+# ═══════════════════════════════════════════════════════════════════
 #
-# NOTE: M104 で Layer アーキテクチャを「黄金動線ベース」に再定義予定
+# 黄金動線:
+#   計画動線: ユーザー要求 → pm → playbook → state.md
+#   実行動線: playbook → Edit/Write → Guard発火
+#   検証動線: /crit → critic → done_criteria検証
+#   完了動線: phase完了 → アーカイブ → 次タスク導出
+#
+# Layer分類（動線単位）:
+#   Core: 計画動線 + 検証動線（ないと破綻）
+#   Quality: 実行動線（ないと品質低下）
+#   Extension: 完了動線 + 共通基盤（手動代替可）
+#
+# ═══════════════════════════════════════════════════════════════════
 
-version: 2
+version: 3
 frozen_at: "2025-12-20"
-upgraded_from: 1
+upgraded_from: 2
 
 # ────────────────────────────────────────────────────────────────
 # 変更ポリシー
 # ────────────────────────────────────────────────────────────────
 policy:
+  golden_rule: "全コンポーネントは動線単位で扱う"
   no_new_components: true
   allow_changes:
     - bugfix
     - deletion
     - test_improvement
-    - quarantine_to_core_promotion  # Quarantine からの昇格は可
   forbid_changes:
-    - new_hook_without_quarantine
-    - new_subagent_without_quarantine
-    - new_skill_without_quarantine
-    - direct_core_addition  # 直接 Core 追加は禁止
-
-  # Quarantine → Core 昇格条件
-  promotion_criteria:
-    - behavior_test_all_pass  # 全シナリオ PASS
-    - no_namespace_conflict   # 既存 Core と名前空間衝突なし
-    - dx_impact_positive      # DX への影響が正または中立
-    - reviewed_by_human       # 人間によるレビュー済み
+    - new_hook_without_review
+    - new_subagent_without_review
+    - new_skill_without_review
 
 # ════════════════════════════════════════════════════════════════
-# LAYER 0: CORE RUNTIME（常時発火 - 安全柵）
+# CORE LAYER（計画動線 + 検証動線）
 # ════════════════════════════════════════════════════════════════
 #
-# 設計原則:
-#   - ここは絶対に薄くする（常時発火 = DX に直撃）
-#   - 「最低限の契約制御」のみ
-#   - 6 hooks 以下を維持
-
+# これがないとシステムが破綻する。
+# 変更は凍結（HARD_BLOCK レベル）。
+#
 core:
-  runtime:
-    description: |
-      常時発火する安全柵。セッション開始からツール実行まで、
-      最低限の契約制御を提供する。ここを増やすと DX が死ぬ。
+  description: |
+    計画動線と検証動線のコンポーネント。
+    ないとシステムが破綻する。凍結対象。
 
-    hooks:
-      - name: session-start.sh
-        trigger: SessionStart
-        reason: セッション初期化、state.md 読み込み指示、失敗パターン表示
-        weight: light  # 常時発火だが処理が軽い
-
-      - name: init-guard.sh
-        trigger: PreToolUse
-        reason: 必須ファイル（state.md, playbook）Read 強制
-        weight: light  # 既読なら即 PASS
-
-      - name: prompt-guard.sh
-        trigger: UserPromptSubmit
-        reason: タスク要求パターン検出、pm 必須警告
-        weight: light  # パターンマッチのみ
-
-      - name: playbook-guard.sh
-        trigger: PreToolUse:Edit,Write
-        reason: Playbook Gate（playbook=null で Edit/Write ブロック）
-        weight: medium  # 毎回 state.md 参照
-
-      - name: pre-bash-check.sh
-        trigger: PreToolUse:Bash
-        reason: Playbook Gate（Bash 変更系コマンドブロック）
-        weight: medium  # コマンド解析
-
-      - name: check-protected-edit.sh
-        trigger: PreToolUse:Edit
-        reason: HARD_BLOCK（CLAUDE.md 等の保護ファイル編集防止）
-        weight: light  # パス照合のみ
-
-  # ════════════════════════════════════════════════════════════════
-  # LAYER 1: CORE ORCHESTRATION（タスク中のみ強く発火 - 品質柵）
-  # ════════════════════════════════════════════════════════════════
+  # ────────────────────────────────────────────────────────────────
+  # 計画動線（6コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  # フロー: ユーザープロンプト → prompt-guard → /task-start → pm → state → playbook完成
   #
-  # 設計原則:
-  #   - 「状態（phase/focus）に依存して発火」
-  #   - 報酬詐欺防止（3観点 + ダブルチェック）
-  #   - 常時発火にすると重くなるが、タスク中だけなら価値が出る
+  planning_flow:
+    description: "ユーザー要求 → playbook 作成までの動線"
+    criticality: "ないと playbook なし → 破綻"
 
-  orchestration:
-    description: |
-      タスク実行中に発火する品質柵。報酬詐欺防止と作業品質保証を提供。
-      playbook.active != null の場合のみ意味を持つ。
+    components:
+      - name: prompt-guard.sh
+        type: hook
+        trigger: UserPromptSubmit
+        role: タスク検出、pm 必須警告
+        why_core: "タスク要求を検出し pm を強制する入口"
 
-    hooks:
-      - name: consent-guard.sh
-        trigger: PreToolUse
-        reason: 危険操作のユーザー同意取得
-        condition: 危険操作リストに該当する場合のみ
-        weight: light
+      - name: task-start.md
+        type: command
+        role: 計画動線の起点コマンド
+        why_core: "project.md から playbook を導出する唯一の正規ルート"
+
+      - name: pm.md
+        type: subagent
+        role: playbook 作成
+        why_core: "playbook を作成できる唯一の存在"
+
+      - name: state
+        type: skill
+        role: state.md 管理
+        why_core: "state.md の更新ロジックを集約"
+
+      - name: plan-management
+        type: skill
+        role: playbook 運用ガイド
+        why_core: "playbook 作成時のルール適用"
+
+      - name: playbook-init.md
+        type: command
+        role: playbook 直接作成（旧互換）
+        why_core: "/task-start へのエイリアス、互換性維持"
+
+  # ────────────────────────────────────────────────────────────────
+  # 検証動線（5コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  # フロー: Phase完了宣言 → /crit → critic → critic-guard → PASS/FAIL判定
+  #
+  verification_flow:
+    description: "done_criteria 検証の動線"
+    criticality: "ないと報酬詐欺可能 → 破綻"
+
+    components:
+      - name: crit.md
+        type: command
+        role: 検証起点コマンド
+        why_core: "critic を呼び出す唯一の正規ルート"
+
+      - name: critic.md
+        type: subagent
+        role: done_criteria 検証
+        why_core: "done_criteria を検証できる唯一の存在"
 
       - name: critic-guard.sh
+        type: hook
         trigger: PostToolUse
-        reason: Phase 完了時の critic 強制（報酬詐欺防止の中核）
-        condition: Phase 完了宣言時
-        weight: medium
+        role: critic PASS 必須
+        why_core: "phase 完了時に critic を強制"
 
-      - name: subtask-guard.sh
-        trigger: PreToolUse:Edit
-        reason: |
-          作業品質保証（subtask 完了時の 3 観点検証強制）
-          - technical: 技術的に正しいか
-          - consistency: 既存コードと整合しているか
-          - completeness: 要件を満たしているか
-        condition: subtask チェックボックス編集時
-        weight: medium
+      - name: test
+        type: skill
+        role: test_command 実行
+        why_core: "done_criteria の test_command を実行"
 
-      - name: scope-guard.sh
-        trigger: PreToolUse:Edit
-        reason: スコープクリープ防止（done_criteria/done_when 無断変更検出）
-        condition: playbook/project.md の done 系フィールド編集時
-        weight: light
-        # 発火条件を絞ることで DX を維持
-
-  # ════════════════════════════════════════════════════════════════
-  # CORE SUBAGENTS
-  # ════════════════════════════════════════════════════════════════
-
-  subagents:
-    - name: pm.md
-      reason: playbook 作成・管理（黄金動線の起点）
-
-    - name: critic.md
-      reason: done_criteria 検証（報酬詐欺防止）
-      modes:
-        - audit: done_when の達成検証（証拠ベース）
-        - adversarial: 抜け穴探索（詐欺的完了の検出）
-      # 2モード運用でダブルチェックを実現（reviewer 不要）
-
-  # ════════════════════════════════════════════════════════════════
-  # CORE SKILLS
-  # ════════════════════════════════════════════════════════════════
-
-  skills:
-    - name: state
-      reason: state.md 管理の専門知識
-
-    - name: plan-management
-      reason: playbook 運用の一貫性
-
-  # ════════════════════════════════════════════════════════════════
-  # CORE COMMANDS
-  # ════════════════════════════════════════════════════════════════
-
-  commands:
-    - name: task-start.md
-      reason: pm 呼び出し（黄金動線の起点）
-
-    - name: crit.md
-      reason: critic 呼び出し（黄金動線の検証フェーズ）
-
-  # ════════════════════════════════════════════════════════════════
-  # CORE SCRIPTS
-  # ════════════════════════════════════════════════════════════════
-
-  scripts:
-    - name: contract.sh
-      reason: 契約判定の中核ロジック（HARD_BLOCK/BLOCK/WARN 判定）
-
-  # ════════════════════════════════════════════════════════════════
-  # CORE DOCS
-  # ════════════════════════════════════════════════════════════════
-
-  docs:
-    - name: README.md
-      reason: 公開時の入口
-
-    - name: CLAUDE.md
-      reason: 凍結された憲法（絶対不可侵）
+      - name: lint
+        type: skill
+        role: state/playbook 整合性チェック
+        why_core: "構造的整合性を検証"
 
 # ════════════════════════════════════════════════════════════════
-# LAYER X: QUARANTINE（凍結解除アップデートの隔離領域）
+# QUALITY LAYER（実行動線）
 # ════════════════════════════════════════════════════════════════
 #
-# 設計原則:
-#   - Claude Code 本体アップデート、公式プラグイン導入はここ
-#   - 互換テスト（behavior_test 全シナリオ）を通してから Core に昇格
-#   - 名前空間で衝突を防ぐ（plugin-name:command 形式）
-
-quarantine:
+# これがないと品質低下するが、動作はする。
+# 変更は保護（レビュー必須）。
+#
+quality:
   description: |
-    凍結解除アップデートの隔離領域。
-    ここに置いたものは Core と混濁しない。
-    テスト後に Core へ昇格可能。
+    実行動線のコンポーネント。
+    ないと品質低下するが、動作はする。保護対象。
 
-  # 将来導入候補のプラグイン
-  plugins:
-    - name: commit-commands
-      source: claude-code/plugins
-      reason: git ワークフロー自動化（/commit 等）
-      status: not_installed
-      dx_benefit: playbook gate と git 操作の詰み軽減
+  # ────────────────────────────────────────────────────────────────
+  # 実行動線（10コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  # フロー: playbook読込 → ガード群 → Edit/Write → subtask-guard → validations
+  #
+  execution_flow:
+    description: "playbook に基づく実行の動線"
+    criticality: "ないと品質低下、ただし動作はする"
 
-    - name: security-guidance
-      source: claude-code/plugins
-      reason: 危険な編集パターンの注意喚起
-      status: not_installed
-      dx_benefit: consent-guard の「危険操作分類」を外部化
+    components:
+      - name: init-guard.sh
+        type: hook
+        trigger: PreToolUse
+        role: 必須ファイル Read 強制
+        why_quality: "state.md/playbook の Read を強制"
 
-    - name: pr-review-toolkit
-      source: claude-code/plugins
-      reason: PR レビュー強化
-      status: not_installed
-      dx_benefit: reviewer SubAgent を Core に入れずに済む
+      - name: playbook-guard.sh
+        type: hook
+        trigger: PreToolUse:Edit,Write
+        role: playbook 存在チェック
+        why_quality: "playbook=null で Edit/Write をブロック"
 
-  # Core から外れた SubAgents（必要時のみ使用）
-  subagents:
-    - name: reviewer.md
-      reason: |
-        レビュー機能。Core には入れない。
-        ダブルチェックは critic の 2 モード運用で代替。
-      status: available_on_demand
+      - name: subtask-guard.sh
+        type: hook
+        trigger: PreToolUse:Edit
+        role: 3観点検証（technical/consistency/completeness）
+        why_quality: "subtask 完了時の検証を強制"
 
-  # 便利機能 Hooks（Core ではない）
-  hooks:
-    - archive-playbook.sh
-    - check-coherence.sh
-    - check-main-branch.sh
-    - cleanup-hook.sh
-    - create-pr-hook.sh
-    - depends-check.sh
-    - executor-guard.sh
-    - lint-check.sh
-    - log-subagent.sh
-    - pre-compact.sh
-    - session-end.sh
-    - stop-summary.sh
+      - name: scope-guard.sh
+        type: hook
+        trigger: PreToolUse:Edit
+        role: done_criteria 変更検出
+        why_quality: "スコープクリープを防止"
 
-  # 便利機能 Skills（Core ではない）
-  skills:
-    - consent-process
-    - context-management
-    - deploy-checker
-    - frontend-design
-    - lint-checker
-    - post-loop
-    - test-runner
+      - name: check-protected-edit.sh
+        type: hook
+        trigger: PreToolUse:Edit
+        role: HARD_BLOCK ファイル保護
+        why_quality: "CLAUDE.md 等の編集を防止"
 
-  # 便利機能 Commands（Core ではない）
-  commands:
-    - focus.md
-    - lint.md
-    - playbook-init.md
-    - rollback.md
-    - state-rollback.md
-    - test.md
+      - name: pre-bash-check.sh
+        type: hook
+        trigger: PreToolUse:Bash
+        role: 危険コマンドブロック
+        why_quality: "rm -rf 等をブロック"
+
+      - name: consent-guard.sh
+        type: hook
+        trigger: PreToolUse
+        role: 危険操作同意取得
+        why_quality: "破壊的操作前にユーザー確認"
+
+      - name: check-main-branch.sh
+        type: hook
+        trigger: PreToolUse:Edit,Write
+        role: main ブランチ保護
+        why_quality: "main での直接編集を防止"
+
+      - name: lint-checker
+        type: skill
+        role: 静的解析
+        why_quality: "コード品質を保証"
+
+      - name: test-runner
+        type: skill
+        role: テスト実行
+        why_quality: "テスト通過を保証"
 
 # ════════════════════════════════════════════════════════════════
-# DELETION CANDIDATES（削除候補）
+# EXTENSION LAYER（完了動線 + 共通基盤 + 横断的）
 # ════════════════════════════════════════════════════════════════
+#
+# 手動で代替可能。あると便利。
+# 変更は柔軟（自由に追加・削除可）。
+#
+extension:
+  description: |
+    完了動線、共通基盤、横断的整合性のコンポーネント。
+    手動で代替可能。あると便利。
 
+  # ────────────────────────────────────────────────────────────────
+  # 完了動線（7コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  completion_flow:
+    description: "phase 完了 → 次タスクの動線"
+    criticality: "手動で代替可能"
+
+    components:
+      - name: archive-playbook.sh
+        type: hook
+        role: playbook アーカイブ
+
+      - name: cleanup-hook.sh
+        type: hook
+        role: tmp/ クリーンアップ
+
+      - name: create-pr-hook.sh
+        type: hook
+        role: PR 作成
+
+      - name: post-loop
+        type: skill
+        role: 完了後処理
+
+      - name: context-management
+        type: skill
+        role: コンテキスト管理
+
+      - name: rollback.md
+        type: command
+        role: Git ロールバック
+
+      - name: state-rollback.md
+        type: command
+        role: state.md ロールバック
+
+  # ────────────────────────────────────────────────────────────────
+  # 共通基盤（5コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  common:
+    description: "セッションライフサイクル管理"
+    criticality: "状態把握に便利だが必須ではない"
+
+    components:
+      - name: session-start.sh
+        type: hook
+        trigger: SessionStart
+        role: セッション初期化
+
+      - name: session-end.sh
+        type: hook
+        trigger: SessionEnd
+        role: セッション終了処理
+
+      - name: pre-compact.sh
+        type: hook
+        role: コンパクト前処理
+
+      - name: stop-summary.sh
+        type: hook
+        role: 中断時サマリー
+
+      - name: log-subagent.sh
+        type: hook
+        role: SubAgent ログ
+
+  # ────────────────────────────────────────────────────────────────
+  # 横断的整合性（3コンポーネント）
+  # ────────────────────────────────────────────────────────────────
+  cross_cutting:
+    description: "動線間の整合性保証"
+    criticality: "整合性リスクあるが動作はする"
+
+    components:
+      - name: check-coherence.sh
+        type: hook
+        role: focus/playbook/branch 整合性
+
+      - name: depends-check.sh
+        type: hook
+        role: playbook 間依存関係
+
+      - name: executor-guard.sh
+        type: hook
+        role: executor 制御
+
+# ════════════════════════════════════════════════════════════════
+# 削除候補
+# ════════════════════════════════════════════════════════════════
 deletion_candidates:
   hooks:
     - audit-unused.sh
@@ -287,13 +332,19 @@ deletion_candidates:
 # SUMMARY
 # ════════════════════════════════════════════════════════════════
 #
-# Layer 0 (Core Runtime):   6 hooks
-# Layer 1 (Core Orchestration): 4 hooks
-# Core SubAgents: 2
-# Core Skills: 2
-# Core Commands: 2
-# Core Scripts: 1
-# Core Docs: 2
+# Core Layer:
+#   計画動線: 6 components (prompt-guard, task-start, pm, state, plan-management, playbook-init)
+#   検証動線: 5 components (crit, critic, critic-guard, test, lint)
+#   合計: 11 components
 #
-# Quarantine: 12 hooks, 7 skills, 6 commands, 1 subagent, 3 plugins (候補)
-# Deletion Candidates: 12 hooks, 3 subagents
+# Quality Layer:
+#   実行動線: 10 components
+#
+# Extension Layer:
+#   完了動線: 7 components
+#   共通基盤: 5 components
+#   横断的: 3 components
+#   合計: 15 components
+#
+# 総計: 36 components (動線ベースで再分類)
+#

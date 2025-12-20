@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m107-flow-test.md
+active: plan/playbook-m108-core-finalization.md
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m106-component-fix.md
+last_archived: plan/archive/playbook-m107-flow-test.md
 ```
 
 ---
@@ -28,13 +28,14 @@ last_archived: plan/archive/playbook-m106-component-fix.md
 ## goal
 
 ```yaml
-milestone: M107
+milestone: M108
 phase: p_final
 done_when:
-  - "[x] scripts/flow-test.sh が存在し実行可能である（18/18 PASS）"
-  - "[x] 動線単位テストが全て完了している"
-  - "[x] 全 PASS のため FAIL 修正不要（テスト設計の限界を docs/flow-test-report.md に記載）"
-next: M108
+  - "[x] core-manifest.yaml v3 が動線ベースで再構成されている"
+  - "[x] session-start.sh が動線単位の認識を表示する"
+  - "[x] Core/Quality/Extension Functions が動線単位で定義されている"
+  - "[x] docs/core-functions.md にコア機能リストが記載されている"
+next: M109
 ```
 
 ---

@@ -353,7 +353,7 @@ EOF
     echo ""
 fi
 
-# === CORE（最小限の行動ルール）===
+# === CORE（動線単位の認識 - 最重要）===
 cat <<EOF
 $SEP
   🧠 CORE
@@ -363,6 +363,20 @@ $SEP
   validation: critic → PASS で phase 完了
   plan: Edit/Write → playbook必須
   git: 1 playbook = 1 branch
+
+$SEP
+  🔄 動線単位で考える（CRITICAL）
+$SEP
+  全コンポーネントは「動線単位」で扱う:
+    計画動線: 要求 → pm → playbook → state.md
+    実行動線: playbook → Edit → Guard発火
+    検証動線: /crit → critic → PASS/FAIL
+    完了動線: phase完了 → アーカイブ → 次タスク
+
+  Layer（動線ベース）:
+    Core: 計画動線 + 検証動線（ないと破綻）
+    Quality: 実行動線（品質低下）
+    Extension: 完了動線 + 共通（手動代替可）
 
 EOF
 

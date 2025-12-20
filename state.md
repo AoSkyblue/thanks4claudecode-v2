@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m105-update.md
+active: null
 branch: feat/layer-architecture
-last_archived: plan/playbook-m104-layer-architecture.md
+last_archived: plan/archive/playbook-m105-update.md
 ```
 
 ---

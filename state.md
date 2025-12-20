@@ -18,7 +18,7 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
+active: plan/playbook-m109-scenario-test.md
 branch: feat/layer-architecture
 last_archived: plan/archive/playbook-m108-core-finalization.md
 ```
@@ -28,14 +28,15 @@ last_archived: plan/archive/playbook-m108-core-finalization.md
 ## goal
 
 ```yaml
-milestone: M108
+milestone: M109
 phase: p_final
 done_when:
-  - "[x] core-manifest.yaml v3 が動線ベースで再構成されている"
-  - "[x] session-start.sh が動線単位の認識を表示する"
-  - "[x] Core/Quality/Extension Functions が動線単位で定義されている"
-  - "[x] docs/core-functions.md にコア機能リストが記載されている"
-next: M109
+  - "[x] 計画動線シナリオ 3つ以上策定・実行（3シナリオ、1/3 PASS）"
+  - "[x] 実行動線シナリオ 3つ以上策定・実行（4シナリオ、2/4 PASS）"
+  - "[x] 検証動線シナリオ 3つ以上策定・実行（3シナリオ、3/3 PASS）"
+  - "[x] 完了動線シナリオ 3つ以上策定・実行（3シナリオ、3/3 PASS）"
+  - "[x] 完遂率算出・改善点洗い出し（69%、3改善点特定）"
+next: M110
 ```
 
 ---

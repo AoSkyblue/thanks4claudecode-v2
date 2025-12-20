@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m106-m107-milestone-addition.md
+active: plan/playbook-m106-component-fix.md
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m105-golden-path-verification.md
+last_archived: plan/archive/playbook-m106-m107-milestone-addition.md
 ```
 
 ---
@@ -28,12 +28,13 @@ last_archived: plan/archive/playbook-m105-golden-path-verification.md
 ## goal
 
 ```yaml
-milestone: M106/M107 計画更新
+milestone: M106 動作不良コンポーネント修正
 phase: p1
 done_when:
-  - "[x] project.md に M106 が追加されている"
-  - "[x] project.md に M107 が追加されている"
-  - "[x] M105 に報酬詐欺の note が追加されている"
+  - "[ ] consent-guard.sh のデッドロック問題が解消されている"
+  - "[ ] critic-guard.sh が phase.status 変更を検出する"
+  - "[ ] subtask-guard.sh がデフォルト STRICT=1 になっている"
+  - "[ ] 各修正に対する回帰テストが追加されている"
 ```
 
 ---

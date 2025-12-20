@@ -28,13 +28,11 @@ last_archived: plan/archive/playbook-m106-m107-milestone-addition.md
 ## goal
 
 ```yaml
-milestone: M106 動作不良コンポーネント修正
-phase: p_final
+milestone: M106 (achieved) → M107 開始
+phase: transition
 done_when:
-  - "[x] consent-guard.sh のデッドロック問題が解消されている"
-  - "[x] critic-guard.sh が phase.status 変更を検出する"
-  - "[x] subtask-guard.sh がデフォルト STRICT=1 になっている"
-  - "[x] 各修正に対する回帰テストが追加されている（6/6 PASS）"
+  - "[x] M106 critic PASS"
+next: M107
 ```
 
 ---

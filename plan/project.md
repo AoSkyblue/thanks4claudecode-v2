@@ -1106,27 +1106,29 @@ success_criteria:
     修正対象:
       1. consent-guard.sh - デッドロック問題（HIGH）
          - 「削除」「rm」等のトリガー単語で無限ループ
-         - 対策: admin モードで無効化 or トリガー単語見直し
+         - 対策: playbook.active 存在時は consent チェックをスキップ
 
       2. critic-guard.sh - phase 完了チェック欠落（HIGH）
          - playbook の phase.status 変更を検出しない
-         - subtask チェックボックス編集のみ監視
-         - 対策: phase 完了時の critic 呼び出し強制
+         - 対策: playbook-*.md の status: done/completed も監視
 
       3. subtask-guard.sh - デフォルト WARN モード（MEDIUM）
          - STRICT=0 がデフォルト
-         - 3 観点検証なしで subtask 完了可能
          - 対策: デフォルト STRICT=1 に変更
-  status: not_achieved
+  status: achieved
+  achieved_at: 2025-12-20
   depends_on: [M105]
+  playbooks:
+    - playbook-m106-component-fix.md
   done_when:
-    - "[ ] consent-guard.sh のデッドロック問題が解消されている"
-    - "[ ] critic-guard.sh が phase.status 変更を検出する"
-    - "[ ] subtask-guard.sh がデフォルト STRICT=1 になっている"
-    - "[ ] 各修正に対する回帰テストが追加されている"
+    - "[x] consent-guard.sh のデッドロック問題が解消されている"
+    - "[x] critic-guard.sh が phase.status 変更を検出する"
+    - "[x] subtask-guard.sh がデフォルト STRICT=1 になっている"
+    - "[x] 各修正に対する回帰テストが追加されている（6/6 PASS）"
   test_commands:
-    - "grep -q 'STRICT=1' .claude/hooks/subtask-guard.sh && echo PASS || echo FAIL"
-    - "grep -q 'phase' .claude/hooks/critic-guard.sh && echo PASS || echo FAIL"
+    - "grep -q 'STRICT:-1' .claude/hooks/subtask-guard.sh && echo PASS || echo FAIL"
+    - "grep -q 'playbook-' .claude/hooks/critic-guard.sh && echo PASS || echo FAIL"
+    - "bash scripts/m106-test.sh 2>&1 | grep -q 'ALL TESTS PASSED' && echo PASS || echo FAIL"
 
 - id: M107
   name: "動線単位テスト - Golden Path 検証再実施"

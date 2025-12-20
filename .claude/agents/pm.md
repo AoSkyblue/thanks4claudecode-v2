@@ -414,3 +414,36 @@ user:
 - .claude/agents/reviewer.md - 計画レビュー SubAgent（playbook レビューも担当）
 - docs/git-operations.md - git 操作 参照ドキュメント
 - docs/file-creation-process-design.md - 中間成果物の処理設計
+
+---
+
+## 計画動線コアドキュメント（必須 Read）
+
+> **M118: context-manifest.yaml に基づく構造的参照**
+>
+> 計画動線の開始時に以下のドキュメントを必ず Read すること。
+
+```yaml
+参照: governance/context-manifest.yaml
+
+計画動線 required_reads:
+  - docs/ai-orchestration.md      # 役割ベース executor の設計
+  - docs/playbook-schema-v2.md    # Playbook のフォーマット仕様
+  - docs/criterion-validation-rules.md  # done_criteria の記述ルール
+  - plan/template/playbook-format.md    # Playbook テンプレート
+```
+
+### Read タイミング
+
+```yaml
+playbook 作成前:
+  1. Read: governance/context-manifest.yaml（マニフェスト確認）
+  2. Read: docs/ai-orchestration.md（executor 設計）
+  3. Read: docs/playbook-schema-v2.md（フォーマット仕様）
+  4. Read: docs/criterion-validation-rules.md（記述ルール）
+  5. Read: plan/template/playbook-format.md（テンプレート）
+
+禁止:
+  - コアドキュメントを Read せずに playbook を作成
+  - 「覚えているから」でスキップ
+```

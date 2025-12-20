@@ -380,6 +380,25 @@ $SEP
 
 EOF
 
+# === Flow Context（動線別コアドキュメント）===
+CONTEXT_MANIFEST="governance/context-manifest.yaml"
+if [ -f "$CONTEXT_MANIFEST" ]; then
+    cat <<EOF
+$SEP
+  📚 Flow Context（動線別コアドキュメント）
+$SEP
+  参照: $CONTEXT_MANIFEST
+
+  計画動線: docs/ai-orchestration.md, docs/playbook-schema-v2.md
+  実行動線: docs/hook-exit-code-contract.md, docs/core-contract.md
+  検証動線: docs/verification-criteria.md
+  完了動線: docs/folder-management.md, docs/git-operations.md
+
+  → 動線開始時に該当ドキュメントを Read すること
+
+EOF
+fi
+
 # === 必須 Read 指示（focus 別分岐）===
 cat <<EOF
 $SEP

@@ -1271,6 +1271,28 @@ success_criteria:
     - "test -f docs/document-catalog.md && grep -c 'DISCARD\\|MERGE\\|KEEP' docs/document-catalog.md | awk '{if($1>=28) print \"PASS\"; else print \"FAIL\"}'"
     - "test -f docs/flow-document-map.md && grep -c '動線' docs/flow-document-map.md | awk '{if($1>=4) print \"PASS\"; else print \"FAIL\"}'"
 
+- id: M118
+  name: "ドキュメントのコアコンテキスト化"
+  description: |
+    ドキュメントを動線の一部として「構造的に参照される」ようにする。
+    1. governance/context-manifest.yaml を作成し、動線別のコアドキュメントを定義
+    2. pm.md / critic.md を更新してコアドキュメントの Read を必須化
+    3. session-start.sh を更新して動線別コアドキュメント一覧を出力
+  status: in_progress
+  depends_on: [M117]
+  playbooks:
+    - playbook-m118-document-core-context.md
+  done_when:
+    - "[ ] governance/context-manifest.yaml が存在し、動線別のコアドキュメントが定義されている"
+    - "[ ] pm.md が計画動線のコアドキュメントを必ず Read するよう指示されている"
+    - "[ ] critic.md が検証動線のコアドキュメントを必ず Read するよう指示されている"
+    - "[ ] session-start.sh が動線別のコアドキュメント一覧を出力している"
+  test_commands:
+    - "test -f governance/context-manifest.yaml && grep -c 'planning:\\|execution:\\|verification:\\|completion:' governance/context-manifest.yaml | awk '{if($1>=4) print \"PASS\"; else print \"FAIL\"}'"
+    - "grep -qE 'ai-orchestration|playbook-schema|criterion-validation' .claude/agents/pm.md && echo PASS || echo FAIL"
+    - "grep -qE 'verification-criteria|criterion-validation' .claude/agents/critic.md && echo PASS || echo FAIL"
+    - "bash .claude/hooks/session-start.sh 2>&1 | grep -qE '計画動線|Flow Context' && echo PASS || echo FAIL"
+
 ```
 
 ---

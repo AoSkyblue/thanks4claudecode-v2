@@ -260,3 +260,33 @@ Skills FAIL:
    - 計画との整合性
    - 報酬詐欺の検出
    - 証拠の品質
+
+---
+
+## 検証動線コアドキュメント（必須 Read）
+
+> **M118: context-manifest.yaml に基づく構造的参照**
+>
+> 検証動線の開始時に以下のドキュメントを必ず Read すること。
+
+```yaml
+参照: governance/context-manifest.yaml
+
+検証動線 required_reads:
+  - docs/verification-criteria.md       # PASS/FAIL 判定基準
+  - docs/criterion-validation-rules.md  # Criterion の検証ルール
+```
+
+### Read タイミング
+
+```yaml
+CRITIQUE 実行前:
+  1. Read: governance/context-manifest.yaml（マニフェスト確認）
+  2. Read: docs/verification-criteria.md（判定基準）
+  3. Read: docs/criterion-validation-rules.md（検証ルール）
+  4. Read: .claude/frameworks/done-criteria-validation.md（固定フレームワーク）
+
+禁止:
+  - コアドキュメントを Read せずに CRITIQUE を実行
+  - 判定基準を確認せずに PASS/FAIL を判定
+```

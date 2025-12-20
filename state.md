@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m117-document-organization.md
-branch: docs/document-organization
-last_archived: plan/archive/playbook-m113-planning-flow-verification.md
+active: plan/playbook-m118-document-core-context.md
+branch: feat/layer-architecture
+last_archived: plan/archive/playbook-m117-document-organization.md
 ```
 
 ---
@@ -29,14 +29,14 @@ last_archived: plan/archive/playbook-m113-planning-flow-verification.md
 ## goal
 
 ```yaml
-milestone: M117
+milestone: M118
 phase: p1
 done_when:
-  - docs/ 全ファイルが評価され廃棄/統合/維持に分類されている
-  - 動線マップ（docs/flow-document-map.md）が作成されている
-  - 統合対象ファイルがマージされている
-  - 廃棄対象ファイルが FREEZE_QUEUE に追加されている
-next: M118
+  - governance/context-manifest.yaml が存在し、動線別のコアドキュメントが定義されている
+  - pm.md が計画動線のコアドキュメントを必ず Read するよう指示されている
+  - critic.md が検証動線のコアドキュメントを必ず Read するよう指示されている
+  - session-start.sh が動線別のコアドキュメント一覧を出力している
+next: null
 ```
 
 ---
@@ -93,7 +93,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 01:06:05
+last_start: 2025-12-21 01:39:12
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: false
 ```

@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m113-m116-milestone-addition.md
-branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m112-completion-flow-order.md
+active: null
+branch: main
+last_archived: plan/archive/playbook-m113-m116-milestone-addition.md
 ```
 
 ---
@@ -28,13 +28,10 @@ last_archived: plan/archive/playbook-m112-completion-flow-order.md
 ## goal
 
 ```yaml
-milestone: M113-M116
-phase: p1
-done_when:
-  - "[ ] M113-M116 が project.md に追加されている"
-  - "[ ] 各マイルストーンが depends_on: [M112] を持っている"
-  - "[ ] done_when が検証可能な形式で記述されている"
-next: null
+milestone: M116
+phase: null
+done_when: []
+next: M113
 ```
 
 ---

@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m113-planning-flow-verification.md
-branch: fix/planning-flow-verification
-last_archived: plan/archive/playbook-m113-m116-milestone-addition.md
+active: plan/playbook-m117-document-organization.md
+branch: docs/document-organization
+last_archived: plan/archive/playbook-m113-planning-flow-verification.md
 ```
 
 ---
@@ -29,14 +29,14 @@ last_archived: plan/archive/playbook-m113-m116-milestone-addition.md
 ## goal
 
 ```yaml
-milestone: M113
+milestone: M117
 phase: p1
 done_when:
-  - 理解確認プロセスが発火する
-  - pm 経由で playbook が作成される
-  - state.md が正しく更新される
-  - playbook=null での Edit がブロックされる
-next: M114
+  - docs/ 全ファイルが評価され廃棄/統合/維持に分類されている
+  - 動線マップ（docs/flow-document-map.md）が作成されている
+  - 統合対象ファイルがマージされている
+  - 廃棄対象ファイルが FREEZE_QUEUE に追加されている
+next: M118
 ```
 
 ---

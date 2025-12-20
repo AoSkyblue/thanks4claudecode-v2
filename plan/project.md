@@ -1185,13 +1185,16 @@ success_criteria:
   description: |
     計画動線が正しく機能するか検証する。
     動線: 要求 → [理解確認] → pm → playbook → state.md
-  status: pending
+  status: achieved
+  achieved_at: 2025-12-21
   depends_on: [M112]
+  playbooks:
+    - playbook-m113-planning-flow-verification.md
   done_when:
-    - "[ ] 理解確認プロセスが発火する"
-    - "[ ] pm 経由で playbook が作成される"
-    - "[ ] state.md が正しく更新される"
-    - "[ ] playbook=null での Edit がブロックされる"
+    - "[x] 理解確認プロセスが発火する"
+    - "[x] pm 経由で playbook が作成される"
+    - "[x] state.md が正しく更新される"
+    - "[x] playbook=null での Edit がブロックされる"
   test_commands:
     - "bash scripts/flow-test.sh planning 2>&1 | grep -q 'PASS' && echo PASS || echo FAIL"
 
@@ -1239,6 +1242,34 @@ success_criteria:
     - "[ ] 次タスクへの移行が正常"
   test_commands:
     - "bash scripts/flow-test.sh completion 2>&1 | grep -q 'PASS' && echo PASS || echo FAIL"
+
+# ============================================================
+# M117+: ドキュメント整理・保守マイルストーン
+# ============================================================
+
+- id: M117
+  name: "ドキュメント整理と動線紐づけ"
+  description: |
+    docs/ 内の全ファイル（28個）を評価し、廃棄/統合/維持に分類する。
+    維持するドキュメントを4つの動線（計画/実行/検証/完了）にマッピングし、
+    管理を効率化する。
+
+    Phase 1: 全ファイルのカタログ作成と一括評価
+    Phase 2: 動線マッピング（docs/flow-document-map.md 作成）
+    Phase 3: 統合・廃棄の実行
+  status: achieved
+  achieved_at: 2025-12-21
+  depends_on: [M113]
+  playbooks:
+    - playbook-m117-document-organization.md
+  done_when:
+    - "[x] docs/ 全ファイルが評価され廃棄/統合/維持に分類されている"
+    - "[x] 動線マップ（docs/flow-document-map.md）が作成されている"
+    - "[x] 統合対象ファイル7件が特定されている（実行は M118）"
+    - "[x] 廃棄対象ファイル6件が特定されている（実行は M118）"
+  test_commands:
+    - "test -f docs/document-catalog.md && grep -c 'DISCARD\\|MERGE\\|KEEP' docs/document-catalog.md | awk '{if($1>=28) print \"PASS\"; else print \"FAIL\"}'"
+    - "test -f docs/flow-document-map.md && grep -c '動線' docs/flow-document-map.md | awk '{if($1>=4) print \"PASS\"; else print \"FAIL\"}'"
 
 ```
 

@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m118-document-core-context.md
-branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m117-document-organization.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m118-document-core-context.md
 ```
 
 ---
@@ -29,14 +29,10 @@ last_archived: plan/archive/playbook-m117-document-organization.md
 ## goal
 
 ```yaml
-milestone: M118
-phase: p1
-done_when:
-  - governance/context-manifest.yaml が存在し、動線別のコアドキュメントが定義されている
-  - pm.md が計画動線のコアドキュメントを必ず Read するよう指示されている
-  - critic.md が検証動線のコアドキュメントを必ず Read するよう指示されている
-  - session-start.sh が動線別のコアドキュメント一覧を出力している
-next: null
+milestone: null
+phase: null
+done_when: []
+next: M119
 ```
 
 ---

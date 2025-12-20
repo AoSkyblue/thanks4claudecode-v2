@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m120-role-resolver.md
+branch: feat/layer-architecture
 last_archived: plan/archive/playbook-m119-consent-guard-fix.md
 ```
 

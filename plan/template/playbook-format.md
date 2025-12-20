@@ -988,8 +988,22 @@ enforcement:
 
 ```yaml
 目的: |
-  playbook アーカイブ前に必須のクリーンアップを強制。
+  playbook 完了時の動線を正しい順序で実行する。
   archive-playbook.sh が final_tasks の完了をチェック。
+
+完了動線の順序（M112）:
+  # 重要: playbook.active が設定されている間に全て実行すること
+  # state.md 更新（playbook=null）を先に行うと、以降の操作がブロックされる
+  1. コミット: 変更を全てコミット（playbook active 中）
+  2. マージ: main ブランチにマージ（playbook active 中）★重要
+  3. ブランチ削除: フィーチャーブランチを削除（オプション）
+  4. アーカイブ: playbook を plan/archive/ に移動
+  5. state更新: playbook.active を null に更新
+
+なぜこの順序か:
+  - playbook=null になると pre-bash-check.sh が変更系コマンドをブロック
+  - マージ操作も変更系コマンドなのでブロック対象
+  - したがってマージは playbook.active 設定中に実行する必要がある
 
 チェックタイミング:
   - archive-playbook.sh が PostToolUse:Edit で発火
@@ -1009,21 +1023,42 @@ status 更新:
 
 ### 標準 final_tasks
 
+> **M112: 順序が重要。マージは playbook.active 設定中に実行すること。**
+
 ```markdown
 ## final_tasks
 
-- [ ] **ft1**: repository-map.yaml を更新する
+- [ ] **ft1**: 変更を全てコミットする
+  - command: `git add -A && git commit -m "feat({phase}): {summary}"`
+  - status: pending
+
+- [ ] **ft2**: main ブランチにマージする
+  - command: `git checkout main && git merge {branch} --no-edit`
+  - status: pending
+  - note: playbook.active 設定中に実行必須
+
+- [ ] **ft3**: フィーチャーブランチを削除する（オプション）
+  - command: `git branch -d {branch}`
+  - status: pending
+
+- [ ] **ft4**: playbook をアーカイブする
+  - command: `mkdir -p plan/archive && mv {playbook-path} plan/archive/`
+  - status: pending
+
+- [ ] **ft5**: state.md を更新する
+  - command: `# playbook.active を null に、last_archived を更新`
+  - status: pending
+
+- [ ] **ft6**: repository-map.yaml を更新する（オプション）
   - command: `bash .claude/hooks/generate-repository-map.sh`
   - status: pending
 
-- [ ] **ft2**: tmp/ 内の一時ファイルを削除する
+- [ ] **ft7**: tmp/ 内の一時ファイルを削除する（オプション）
   - command: `find tmp/ -type f ! -name 'README.md' -delete 2>/dev/null || true`
   - status: pending
-
-- [ ] **ft3**: 変更を全てコミットする
-  - command: `git add -A && git status`
-  - status: pending
 ```
+
+> **最小必須**: ft1（コミット）, ft2（マージ）, ft4（アーカイブ）, ft5（state更新）
 
 ---
 
@@ -1031,6 +1066,7 @@ status 更新:
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-21 | V15: final_tasks の順序を修正（M112）。マージ → アーカイブ → state更新の順序に変更。 |
 | 2025-12-17 | V14: final_tasks を V12 チェックボックス形式に統一。archive-playbook.sh と整合。 |
 | 2025-12-14 | V13: final_tasks セクション追加。M019 playbook自己完結システム対応。 |
 | 2025-12-14 | V12: validations セクション追加。M018 3検証システム対応。 |

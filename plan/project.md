@@ -1155,6 +1155,27 @@ success_criteria:
     - "test -f scripts/flow-test.sh && echo PASS || echo FAIL"
     - "bash scripts/flow-test.sh 2>&1 | grep -q 'All PASS' && echo 'All PASS (warning triggered)' || echo FAIL"
 
+- id: M112
+  name: "完了動線の順序仕組み化"
+  description: |
+    完了動線の順序が間違っていた問題を修正:
+    - 旧: アーカイブ → マージ（playbook=null でマージがブロック）
+    - 新: マージ → アーカイブ（playbook active 中にマージ）
+
+    final_tasks の標準パターンを更新し、次の playbook から
+    正しい順序で完了できるようにする。
+  status: in_progress
+  depends_on: [M107]
+  playbooks:
+    - playbook-m112-completion-flow-order.md
+  done_when:
+    - "[ ] final_tasks の標準順序が「マージ → ブランチ削除 → アーカイブ → state更新」になっている"
+    - "[ ] playbook-format.md の標準 final_tasks が更新されている"
+    - "[ ] 次の playbook から正しい順序で完了できる設計になっている"
+  test_commands:
+    - "grep -A 25 '### 標準 final_tasks' plan/template/playbook-format.md | grep -E 'ft1.*マージ|ft1.*merge' && echo PASS || echo FAIL"
+    - "grep -q '動線\|順序' plan/template/playbook-format.md && echo PASS || echo FAIL"
+
 ```
 
 ---

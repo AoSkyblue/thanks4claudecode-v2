@@ -248,10 +248,15 @@ fi
 
 cat << EOF
 
+  Pre-requisite (M112):
+    - Ensure branch is merged to main BEFORE archiving
+    - Command: git checkout main && git merge {branch} --no-edit
+
   Post-archive tasks:
     1. Update state.md playbook.active to null
     2. Update state.md playbook.last_archived to $ARCHIVE_PATH
-    3. Create new playbook if needed
+    3. Delete feature branch (optional): git branch -d {branch}
+    4. Create new playbook if needed
 
 EOF
 

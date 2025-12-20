@@ -18,8 +18,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: feat/layer-architecture
+active: plan/playbook-m112-completion-flow-order.md
+branch: fix/completion-flow-order
 last_archived: plan/archive/playbook-m111-scenario-test-100.md
 ```
 
@@ -28,13 +28,12 @@ last_archived: plan/archive/playbook-m111-scenario-test-100.md
 ## goal
 
 ```yaml
-milestone: M111
-phase: done
+milestone: M112
+phase: p1
 done_when:
-  - "[x] scenario-test.sh 未変更（git diff で確認）"
-  - "[x] subtask-guard.sh が STRICT=1 で警告を出す"
-  - "[x] scenario-test.sh 実行で 13/13 PASS（完遂率 100%）"
-  - "[x] 100% 警告が表示される（報酬詐欺監視機能）"
+  - "[ ] final_tasks の標準順序が「マージ → ブランチ削除 → アーカイブ → state更新」になっている"
+  - "[ ] playbook-format.md の標準 final_tasks が更新されている"
+  - "[ ] 次の playbook から正しい順序で完了できる設計になっている"
 next: null
 ```
 

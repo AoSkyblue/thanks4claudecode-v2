@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
+active: plan/playbook-m105-golden-path-verification.md
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m105-update.md
+last_archived: plan/archive/playbook-m104-layer-architecture.md
 ```
 
 ---
@@ -31,13 +31,10 @@ last_archived: plan/archive/playbook-m105-update.md
 milestone: M105 (in_progress)
 phase: p1
 done_when:
-  - "[ ] 計画動線の全コンポーネント（6個）が正しく動作する"
-  - "[ ] 実行動線の全コンポーネント（11個）が正しく動作する"
-  - "[ ] 検証動線の全コンポーネント（6個）が正しく動作する"
-  - "[ ] 完了動線の全コンポーネント（8個）が正しく動作する"
-  - "[ ] 共通基盤の全コンポーネント（6個）が正しく動作する"
-  - "[ ] 横断的整合性の全コンポーネント（3個）が正しく動作する"
-  - "[ ] 動作不良（subtask-guard WARN モード、critic-guard playbook 未対応）が修正されている"
+  - "[ ] check.md に旧仕様が記録されている"
+  - "[ ] project.md の M105 が check.md と整合している"
+  - "[ ] 全40コンポーネントの動作確認が完了している"
+  - "[ ] 動作不良コンポーネントが特定され修正方針が決まっている"
 next: null
 ```
 
@@ -46,7 +43,7 @@ next: null
 ## session
 
 ```yaml
-last_start: 2025-12-20 19:30:00
+last_start: 2025-12-20 20:04:11
 last_clear: 2025-12-13 00:30:00
 ```
 

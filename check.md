@@ -140,3 +140,48 @@
 ---
 
 *Generated: 2025-12-20 (黄金動線ベースで再整理)*
+
+---
+
+# 旧仕様（参考）
+
+> **M104 以前の線形アーキテクチャ**
+>
+> CLAUDE.md のステート名（INIT/CONSENT/LOOP/POST_LOOP）が主導していた時代の構造。
+
+```
+セッション開始
+    ↓
+[Hooks] session-start.sh → init-guard.sh
+    ↓
+[CLAUDE.md] INIT → [自認] → ルート分岐
+    ↓
+[Hooks] playbook-guard.sh → [SubAgents] pm → [Skills] plan-management
+    ↓
+[CLAUDE.md] CONSENT → [理解確認] → ユーザー承認
+    ↓
+[CLAUDE.md] LOOP → done_criteria → [SubAgents] critic → [Skills] lint-checker/test-runner
+    ↓
+[Hooks] create-pr-hook.sh → PR → merge-pr.sh
+    ↓
+[CLAUDE.md] POST_LOOP → 次タスク導出
+```
+
+### 旧 vs 現在の比較
+
+| 観点 | 旧（線形） | 現在（動線ループ） |
+|------|-----------|-------------------|
+| フロー構造 | INIT→CONSENT→LOOP→POST_LOOP | 計画→実行→検証→完了→計画... |
+| コンポーネント数 | ~12 | 40 |
+| ガード数 | 3 | 11（実行動線だけで9つ） |
+| 横断的検証 | なし | 3（coherence, depends, lint-check） |
+| 検証動線 | LOOP 内に埋め込み | 独立した動線（6コンポーネント） |
+| 設計思想 | ステート名主導 | 黄金動線主導 |
+
+### 既知の動作不良（M105 で検証予定）
+
+| コンポーネント | 問題 | 影響 |
+|----------------|------|------|
+| consent-guard | 特定単語トリガー、デッドロック発生 | AI 自立性の課題 |
+| subtask-guard | STRICT=0 でデフォルト WARN | validations なしで完了可能 |
+| critic-guard | playbook の phase 完了をチェックしない | critic なしで phase 完了可能 |

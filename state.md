@@ -18,9 +18,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m108-core-finalization.md
+active: null
 branch: feat/layer-architecture
-last_archived: plan/archive/playbook-m107-flow-test.md
+last_archived: plan/archive/playbook-m108-core-finalization.md
 ```
 
 ---

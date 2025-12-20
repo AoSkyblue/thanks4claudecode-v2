@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m120-role-resolver.md
-branch: feat/m120-role-resolver
-last_archived: plan/archive/playbook-m119-consent-guard-fix.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m120-role-resolver.md
 ```
 
 ---
@@ -54,7 +54,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

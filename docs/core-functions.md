@@ -21,34 +21,6 @@ Layer分類の基準:
 
 ---
 
-## state.md 構造
-
-> **Single Source of Truth**: 以下のセクションが必須
-
-```yaml
-必須セクション:
-  - ## focus: current（作業対象）, session（task/discussion）
-  - ## playbook: active, branch, last_archived
-  - ## goal: milestone, phase, done_when
-  - ## context: mode（normal/interrupt）, interrupt_reason, return_to
-  - ## verification: self_complete, user_verified
-  - ## states: flow（状態遷移）, forbidden（禁止遷移）
-  - ## rules: 編集ルール
-  - ## session: last_start, last_end, uncommitted_warning
-  - ## config: security, toolstack, roles
-
-報酬詐欺防止:
-  verification.self_complete: LLM の自己申告（critic PASS で true）
-  verification.user_verified: ユーザーの確認（明示的 OK で true）
-  → 両方 true でなければ phase 完了を認めない
-
-コンテキスト制御:
-  context.mode: normal → 通常作業続行
-  context.mode: interrupt → 現在の作業を中断して新要求を処理
-```
-
----
-
 ## 黄金動線
 
 ```

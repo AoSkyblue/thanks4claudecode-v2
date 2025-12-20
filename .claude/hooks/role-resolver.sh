@@ -60,8 +60,12 @@ esac
 # 有効な役割名かチェック
 # ============================================================
 case "$ROLE" in
-    orchestrator|worker|reviewer|human)
+    orchestrator|worker|reviewer|code_reviewer|playbook_reviewer|human)
         # 有効な役割名
+        # reviewer は code_reviewer のエイリアス（互換性のため）
+        if [[ "$ROLE" == "reviewer" ]]; then
+            ROLE="code_reviewer"
+        fi
         ;;
     *)
         # 不明な役割名はそのまま返す（executor-guard.sh で処理）
@@ -172,37 +176,48 @@ if [[ -z "$RESOLVED" ]]; then
         A)
             # Toolstack A: Claude Code only
             case "$ROLE" in
-                orchestrator) RESOLVED="claudecode" ;;
-                worker)       RESOLVED="claudecode" ;;
-                reviewer)     RESOLVED="claudecode" ;;
-                human)        RESOLVED="user" ;;
+                orchestrator)       RESOLVED="claudecode" ;;
+                worker)             RESOLVED="claudecode" ;;
+                code_reviewer)      RESOLVED="claudecode" ;;
+                playbook_reviewer)
+                    # playbook_reviewer は worker の逆（本来 codex だが A では claudecode にフォールバック）
+                    RESOLVED="claudecode"
+                    echo "[WARNING] Toolstack A: playbook_reviewer should be codex but falling back to claudecode" >&2
+                    ;;
+                human)              RESOLVED="user" ;;
             esac
             ;;
         B)
             # Toolstack B: Claude Code + Codex
             case "$ROLE" in
-                orchestrator) RESOLVED="claudecode" ;;
-                worker)       RESOLVED="codex" ;;
-                reviewer)     RESOLVED="claudecode" ;;
-                human)        RESOLVED="user" ;;
+                orchestrator)       RESOLVED="claudecode" ;;
+                worker)             RESOLVED="codex" ;;
+                code_reviewer)      RESOLVED="claudecode" ;;
+                playbook_reviewer)  RESOLVED="claudecode" ;;  # worker の逆
+                human)              RESOLVED="user" ;;
             esac
             ;;
         C)
             # Toolstack C: Claude Code + Codex + CodeRabbit
             case "$ROLE" in
-                orchestrator) RESOLVED="claudecode" ;;
-                worker)       RESOLVED="codex" ;;
-                reviewer)     RESOLVED="coderabbit" ;;
-                human)        RESOLVED="user" ;;
+                orchestrator)       RESOLVED="claudecode" ;;
+                worker)             RESOLVED="codex" ;;
+                code_reviewer)      RESOLVED="coderabbit" ;;
+                playbook_reviewer)  RESOLVED="claudecode" ;;  # worker の逆
+                human)              RESOLVED="user" ;;
             esac
             ;;
         *)
             # 未知の toolstack はデフォルト A として扱う
             case "$ROLE" in
-                orchestrator) RESOLVED="claudecode" ;;
-                worker)       RESOLVED="claudecode" ;;
-                reviewer)     RESOLVED="claudecode" ;;
-                human)        RESOLVED="user" ;;
+                orchestrator)       RESOLVED="claudecode" ;;
+                worker)             RESOLVED="claudecode" ;;
+                code_reviewer)      RESOLVED="claudecode" ;;
+                playbook_reviewer)
+                    RESOLVED="claudecode"
+                    echo "[WARNING] Unknown toolstack: playbook_reviewer falling back to claudecode" >&2
+                    ;;
+                human)              RESOLVED="user" ;;
             esac
             ;;
     esac

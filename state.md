@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m121-role-definition.md
+branch: feat/layer-architecture
 last_archived: plan/archive/playbook-m120-role-resolver.md
 ```
 
@@ -29,9 +29,12 @@ last_archived: plan/archive/playbook-m120-role-resolver.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_when: []
+milestone: M121
+phase: p_final
+done_when:
+  - docs/ai-orchestration.md に code_reviewer と playbook_reviewer が定義されている
+  - role-resolver.sh が code_reviewer と playbook_reviewer を解決できる
+  - plan/template/playbook-format.md に新役割が記載されている
 next: null
 ```
 

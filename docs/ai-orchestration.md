@@ -20,8 +20,16 @@ AI エージェントオーケストレーションは、playbook の `executor`
 |------|------|-------------|-------------|-------------|
 | orchestrator | 監督・調整・設計 | claudecode | claudecode | claudecode |
 | worker | 本格的なコード実装 | claudecode | codex | codex |
-| reviewer | コードレビュー | claudecode | claudecode | coderabbit |
+| code_reviewer | コードレビュー | claudecode | claudecode | coderabbit |
+| playbook_reviewer | playbook レビュー（worker の逆） | claudecode* | claudecode | claudecode |
 | human | 人間の介入 | user | user | user |
+
+> **注意**: `reviewer` は `code_reviewer` のエイリアスとして互換性のために残されています。
+> 新規作成時は `code_reviewer` または `playbook_reviewer` を明示的に使用してください。
+>
+> **playbook_reviewer の特殊性**: worker の逆を返します。つまり：
+> - Toolstack A: worker=claudecode のため、playbook_reviewer は「本来 codex であるべきところ claudecode にフォールバック」として警告を表示
+> - Toolstack B/C: worker=codex のため、playbook_reviewer=claudecode（対称性を維持）
 
 ---
 
@@ -196,5 +204,6 @@ toolstack に対してチェックします。
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-21 | code_reviewer / playbook_reviewer 役割追加（M121） |
 | 2025-12-18 | Codex MCP 統合追加（M078） |
 | 2025-12-17 | 初版作成（M073） |

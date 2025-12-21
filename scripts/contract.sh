@@ -350,10 +350,13 @@ EOF
     security=$(get_state_value "security" "strict")
 
     # 1. HARD_BLOCK ファイルへの書き込みチェック
+    # まず FD リダイレクト（2>&1 等）を除去してから判定（誤検出防止）
+    local cmd_for_hardblock
+    cmd_for_hardblock=$(normalize_command "$command")
     for blocked in "${HARD_BLOCK_FILES[@]}"; do
-        if [[ "$command" == *"$blocked"* ]]; then
-            # 書き込みパターンを含むか確認
-            if [[ "$command" =~ (sed\ -i|>|tee|rm\ ) ]]; then
+        if [[ "$cmd_for_hardblock" == *"$blocked"* ]]; then
+            # 書き込みパターンを含むか確認（> の後に & 以外の文字がある場合のみ）
+            if [[ "$cmd_for_hardblock" =~ (sed\ -i|>[^'&']|tee\ |rm\ ) ]]; then
                 cat >&2 <<EOF
 ========================================
   [HARD_BLOCK] Bash による絶対守護ファイルへの書き込み

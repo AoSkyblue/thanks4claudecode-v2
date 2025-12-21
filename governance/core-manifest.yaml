@@ -306,6 +306,67 @@ extension:
         role: executor 制御
 
 # ════════════════════════════════════════════════════════════════
+# TESTING（M129 追加）
+# ════════════════════════════════════════════════════════════════
+#
+# 動線と契約の実行時検証。Claude がこれらのテストを認識し、
+# session-start.sh で結果を確認できる。
+#
+testing:
+  description: |
+    動線と契約の実行時検証テスト。
+    test-results.log に JSON 形式で結果を記録し、
+    session-start.sh で直近の結果を表示する。
+
+  scripts:
+    - name: hook-runtime-test.sh
+      path: scripts/hook-runtime-test.sh
+      tests: 11
+      role: "Hook 発火テスト（JSON 入力で実際の Hook を呼び出し）"
+      covers:
+        - playbook-guard.sh
+        - pre-bash-check.sh
+        - check-protected-edit.sh
+        - JSON 解析
+
+    - name: flow-runtime-test.sh
+      path: scripts/flow-runtime-test.sh
+      tests: 25
+      role: "4 動線テスト（計画/実行/検証/完了）"
+      covers:
+        - 計画動線（state.md → playbook）
+        - 実行動線（Guard 発火）
+        - 検証動線（critic → crit）
+        - 完了動線（archive）
+        - 動線連携
+
+    - name: e2e-contract-test.sh
+      path: scripts/e2e-contract-test.sh
+      tests: 77
+      role: "契約 E2E テスト（contract.sh の全パターン）"
+      covers:
+        - fail-closed（STATE_FILE 欠損）
+        - HARD_BLOCK_COMMANDS（10 パターン）
+        - ADMIN_MAINTENANCE_PATTERNS（12 パターン）
+        - playbook=null/active シナリオ
+        - セキュリティホール検証
+
+    - name: context-test.sh
+      path: scripts/context-test.sh
+      tests: 15
+      role: "コンテキスト保持テスト（session-start/pre-compact）"
+      covers:
+        - session-start.sh 出力
+        - pre-compact.sh 出力
+        - snapshot.json 生成/検証
+
+  logs:
+    - name: test-results.log
+      path: .claude/logs/test-results.log
+      format: JSON（failures.log と同形式）
+      consumed_by: session-start.sh
+
+# ════════════════════════════════════════════════════════════════
 # 削除候補
 # ════════════════════════════════════════════════════════════════
 deletion_candidates:

@@ -156,6 +156,33 @@ EOF
     fi
 fi
 
+# === テスト結果サマリー: 直近のテスト結果を表示 ===
+TEST_RESULTS_LOG=".claude/logs/test-results.log"
+if [ -f "$TEST_RESULTS_LOG" ]; then
+    # 直近5件のテスト結果サマリーを表示
+    RECENT_TESTS=$(tail -10 "$TEST_RESULTS_LOG" 2>/dev/null | grep '"result":' | tail -5 | while read line; do
+        test_name=$(echo "$line" | sed 's/.*"test": *"\([^"]*\)".*/\1/')
+        result=$(echo "$line" | sed 's/.*"result": *"\([^"]*\)".*/\1/')
+        pass=$(echo "$line" | sed 's/.*"pass": *\([0-9]*\).*/\1/' 2>/dev/null || echo "?")
+        fail=$(echo "$line" | sed 's/.*"fail": *\([0-9]*\).*/\1/' 2>/dev/null || echo "?")
+        if [ "$result" = "PASS" ]; then
+            echo "  ✅ $test_name: $pass PASS"
+        else
+            echo "  ❌ $test_name: $fail FAIL"
+        fi
+    done)
+
+    if [ -n "$RECENT_TESTS" ]; then
+        cat <<EOF
+$SEP
+  🧪 直近のテスト結果
+$SEP
+$RECENT_TESTS
+
+EOF
+    fi
+fi
+
 # 未コミット変更警告（state-plan-git-branch 4つ組連動の担保）
 UNCOMMITTED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 if [ "$UNCOMMITTED" -gt 0 ]; then

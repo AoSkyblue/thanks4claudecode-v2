@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m150-deep-audit-planning-flow.md
+active: plan/playbook-m151-deep-audit-verification-flow.md
 branch: feat/m150-deep-audit-planning
-last_archived: plan/archive/playbook-m149a-critic-guard-fix.md
+last_archived: plan/archive/playbook-m150-deep-audit-planning-flow.md
 ```
 
 ---
@@ -29,15 +29,15 @@ last_archived: plan/archive/playbook-m149a-critic-guard-fix.md
 ## goal
 
 ```yaml
-milestone: M150
+milestone: M151
 phase: p1
 done_when:
-  - "計画動線7ファイル全てが Read + 理解されている"
+  - "検証動線5ファイル全てが Read + 理解されている"
   - "各ファイルに対して Codex レビューが完了している"
   - "各ファイルの処遇（Keep/Simplify/Delete）が決定している"
   - "動作確認テストが実施されている"
-  - "精査結果が docs/deep-audit-planning-flow.md に記録されている"
-next: M150 → M151 → M152 → M153 → M154 → M155
+  - "精査結果が docs/deep-audit-verification-flow.md に記録されている"
+next: M151 → M152 → M153 → M154 → M155
 ```
 
 ---

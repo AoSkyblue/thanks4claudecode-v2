@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m148-merge-pending-docs.md
-branch: feat/m148-merge-pending-docs
-last_archived: plan/archive/playbook-m143-manifest-flow-first.md
+active: plan/playbook-m149a-critic-guard-fix.md
+branch: feat/m149-self-aware-operation
+last_archived: plan/archive/playbook-m148-merge-pending-docs.md
 ```
 
 ---
@@ -29,16 +29,15 @@ last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ## goal
 
 ```yaml
-milestone: M148
+milestone: M149
 phase: p1
 done_when:
-  - "docs/flow-document-map.md が削除されている"
-  - "docs/ARCHITECTURE.md の固有コンテンツが移行されている"
-  - "docs/ARCHITECTURE.md が削除されている"
-  - "docs/hook-registry.md の処理方針が決定されている"
-  - "FREEZE_QUEUE が更新されている"
-  - "削除後も全テスト（flow-runtime-test）が PASS する"
-next: p1 完了後 p2 へ
+  - "critic-guard.sh が self_complete にフェーズ情報を検証する"
+  - "session-start.sh で self_complete がリセットされる"
+  - "prompt-guard.sh が playbook=null + タスク検出時に exit 2 でブロックする"
+  - "RUNBOOK.md に Self-Aware Operation セクションが追加されている"
+  - "全テスト（flow-runtime-test）が PASS する"
+next: M149-A → M149-B → M149-C
 ```
 
 ---
@@ -95,7 +94,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 22:14:05
+last_start: 2025-12-21 22:58:19
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: true
 ```

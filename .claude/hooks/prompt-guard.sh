@@ -171,14 +171,39 @@ PLAYBOOK="$SI_PLAYBOOK"
 
 # playbook が null または空の場合
 if [ -z "$PLAYBOOK" ] || [ "$PLAYBOOK" = "null" ]; then
-    WORK_PATTERNS="(作って|実装して|追加して|修正して|変更して|削除して|create|implement|add|fix|change|delete|update|edit|write)"
+    # M149-B: タスク検出パターン強化（日本語・英語両対応）
+    WORK_PATTERNS="(作って|実装して|追加して|修正して|変更して|削除して|直して|なおして|書いて|作成して|開発して|構築して|create|implement|add|fix|change|delete|update|edit|write|build|develop|make)"
+
+    # M149-B: 質問パターン（これらはブロックしない）
+    QUESTION_PATTERNS="(どうやって|何|なぜ|どこ|いつ|誰|ですか|でしょうか|教えて|説明して|確認して|読んで|調べて|how|what|why|where|when|who|can you explain|tell me)"
+
+    # discussion モードの確認
+    SI_SESSION=$(grep -A5 "## focus" "$STATE_FILE" 2>/dev/null | grep "session:" | head -1 | sed 's/.*session: *//' | sed 's/ *#.*//')
 
     if echo "$PROMPT" | grep -iE "$WORK_PATTERNS" > /dev/null 2>&1; then
-        WARNINGS="${WARNINGS}\\n\\n🚨 【pm 必須】playbook がありません。"
-        WARNINGS="${WARNINGS}\\n⛔ 返答を始めてはいけない。まず pm を呼び出してください。"
-        WARNINGS="${WARNINGS}\\n\\n実行すべきアクション:"
-        WARNINGS="${WARNINGS}\\n  Task(subagent_type='pm', prompt='playbook を作成')"
-        WARNINGS="${WARNINGS}\\n\\n理由: CLAUDE.md Core Contract により、playbook なしでの作業は禁止されています。"
+        # 質問パターンが含まれている場合は警告のみ
+        if echo "$PROMPT" | grep -iE "$QUESTION_PATTERNS" > /dev/null 2>&1; then
+            WARNINGS="${WARNINGS}\\n\\n⚠️ 【推奨】playbook 作成を検討してください（タスクを含む質問を検出）"
+        # discussion モードの場合は警告のみ
+        elif [ "$SI_SESSION" = "discussion" ]; then
+            WARNINGS="${WARNINGS}\\n\\n⚠️ 【推奨】discussion モードです。タスク実行には playbook が必要です。"
+        else
+            # M149-B: タスク検出時は exit 2 でブロック（構造的強制）
+            echo "" >&2
+            echo "========================================" >&2
+            echo "  [prompt-guard] BLOCKED: playbook 必須" >&2
+            echo "========================================" >&2
+            echo "  タスク要求を検出しましたが、playbook がありません。" >&2
+            echo "" >&2
+            echo "  【対処法】返答を始める前に pm を呼び出してください:" >&2
+            echo "    Task(subagent_type='pm', prompt='playbook を作成')" >&2
+            echo "" >&2
+            echo "  根拠: CLAUDE.md Core Contract" >&2
+            echo "    \"playbook_gate: state.md の playbook.active が null の場合、" >&2
+            echo "     Edit/Write をブロック\"" >&2
+            echo "========================================" >&2
+            exit 2
+        fi
     fi
 fi
 

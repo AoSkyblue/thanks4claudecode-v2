@@ -37,6 +37,14 @@ if [ -f "state.md" ]; then
         sed -i "s/last_start: .*/last_start: $TIMESTAMP/" state.md 2>/dev/null || true
     fi
 
+    # === self_complete リセット（M149: セッション跨ぎ問題の修正）===
+    # 前セッションの critic PASS（self_complete: true）は新セッションでは無効
+    if grep -qE "self_complete:[[:space:]]*true" state.md; then
+        sed -i '' "s/self_complete: true/self_complete: false/" state.md 2>/dev/null || \
+        sed -i "s/self_complete: true/self_complete: false/" state.md 2>/dev/null || true
+        SELF_COMPLETE_RESET=true
+    fi
+
     # 前回 last_end が null でないか確認（正常終了判定）
     LAST_END=$(grep "last_end:" state.md | head -1 | sed 's/.*last_end: *//' | sed 's/ *#.*//')
     if [ "$LAST_END" = "null" ] || [ -z "$LAST_END" ]; then
@@ -53,6 +61,18 @@ if [ -f "state.md" ]; then
             echo "  → 前回の作業状態を確認してください"
             echo ""
         fi
+    fi
+
+    # self_complete リセット警告
+    if [ "$SELF_COMPLETE_RESET" = "true" ]; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ⚠️ 前セッションの critic PASS をリセットしました"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  self_complete: true → false"
+        echo ""
+        echo "  → phase 完了前に /crit を再実行してください"
+        echo ""
     fi
 fi
 

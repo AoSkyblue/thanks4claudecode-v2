@@ -77,6 +77,48 @@ steps:
 
 ---
 
+## Self-Aware Operation（自覚的動作）
+
+LLMはガードに頼らず、自律的に正しい動線を選ぶべきです。
+ガードは「最後の砦」であり、最初から正しく動くことが期待されます。
+
+### 判断すべき4つの瞬間
+
+| 瞬間 | 正しい行動 |
+|------|------------|
+| セッション開始 | state.md → project.md → playbook を読む |
+| タスク検出 | playbook=null なら pm を呼ぶ（返答前に） |
+| phase完了 | critic を呼ぶ（done変更前に） |
+| done変更 | self_complete: true を確認（変更前に） |
+
+### 5つの自律行動原則
+
+1. **Read Before Act**: 編集前に必ず対象ファイルを読む
+2. **Plan Before Execute**: playbook なしで実装しない
+3. **Verify Before Complete**: critic なしで done にしない
+4. **State Before Branch**: state.md と branch の整合を確認
+5. **Guard as Fallback**: ガードに頼らず自分で判断する
+
+### ガードは最後の砦
+
+```yaml
+期待される動作:
+  LLM が自律的に正しい動線を選ぶ
+  → ガードは発火しない
+
+許容される動作:
+  LLM が間違った動線を選ぶ
+  → ガードがブロックする
+  → LLM が正しい動線に戻る
+
+問題のある動作:
+  LLM がガードに頼って動く
+  → 「ガードがブロックするまで進む」
+  → 非効率、自覚的ではない
+```
+
+---
+
 ## Commit Message Format
 
 ```
@@ -307,4 +349,4 @@ No approval required - this file is designed to evolve.
 
 ## Version
 
-Last updated: 2025-12-18 (Contract Consolidation update)
+Last updated: 2025-12-21 (M149: Self-Aware Operation section added)

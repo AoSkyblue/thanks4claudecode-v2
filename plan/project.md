@@ -1536,21 +1536,53 @@ success_criteria:
     MERGE予定の3ファイルを分析し、適切に処理する。
     - flow-document-map.md: 削除（essential-documents.md で完全カバー）
     - ARCHITECTURE.md: 移行後削除
-    - hook-registry.md: 処理方針決定
-  status: in_progress
+    - hook-registry.md: 処理方針決定（KEEP）
+  status: achieved
+  achieved_at: 2025-12-21
   depends_on: [M147]
   playbooks:
     - playbook-m148-merge-pending-docs.md
   done_when:
-    - "[ ] docs/flow-document-map.md が削除されている"
-    - "[ ] docs/ARCHITECTURE.md の固有コンテンツが移行されている"
-    - "[ ] docs/ARCHITECTURE.md が削除されている"
-    - "[ ] docs/hook-registry.md の処理方針が決定されている"
-    - "[ ] FREEZE_QUEUE が更新されている"
-    - "[ ] 削除後も全テスト（flow-runtime-test）が PASS する"
+    - "[x] docs/flow-document-map.md が削除されている"
+    - "[x] docs/ARCHITECTURE.md の固有コンテンツが移行されている"
+    - "[x] docs/ARCHITECTURE.md が削除されている"
+    - "[x] docs/hook-registry.md の処理方針が決定されている（KEEP）"
+    - "[x] FREEZE_QUEUE が更新されている"
+    - "[x] 削除後も全テスト（flow-runtime-test）が PASS する"
   test_commands:
     - "test ! -f docs/flow-document-map.md && echo PASS || echo FAIL"
     - "test ! -f docs/ARCHITECTURE.md && echo PASS || echo FAIL"
+    - "bash scripts/flow-runtime-test.sh 2>&1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
+
+# ============================================================
+# M149: 自覚的動作の強化（Self-Aware Operation）
+# ============================================================
+
+- id: M149
+  name: "自覚的動作の強化"
+  description: |
+    LLMがユーザープロンプトなしで自覚的に動線に乗れる状態を構築。
+    発見された3つの致命的欠陥を修正:
+    1. critic-guard.sh: self_complete がセッション跨ぎで残る
+    2. prompt-guard.sh: exit 0 で「推奨」止まり、強制ではない
+    3. RUNBOOK.md: 「判断すべき瞬間」が曖昧
+  status: in_progress
+  depends_on: [M148]
+  playbooks:
+    - playbook-m149a-critic-guard-fix.md
+    - playbook-m149b-prompt-guard-block.md
+    - playbook-m149c-self-aware-guidelines.md
+  done_when:
+    - "[ ] critic-guard.sh が self_complete にフェーズ情報を検証する"
+    - "[ ] session-start.sh で self_complete がリセットされる"
+    - "[ ] prompt-guard.sh が playbook=null + タスク検出時に exit 2 でブロックする"
+    - "[ ] タスク検出パターンが強化されている"
+    - "[ ] RUNBOOK.md に Self-Aware Operation セクションが追加されている"
+    - "[ ] 全テスト（flow-runtime-test）が PASS する"
+  test_commands:
+    - "grep -q 'phase\\|PHASE_ID' .claude/hooks/critic-guard.sh && echo PASS || echo FAIL"
+    - "grep -A20 'WORK_PATTERNS' .claude/hooks/prompt-guard.sh | grep -q 'exit 2' && echo PASS || echo FAIL"
+    - "grep -q 'Self-Aware' RUNBOOK.md && echo PASS || echo FAIL"
     - "bash scripts/flow-runtime-test.sh 2>&1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
 
 ```

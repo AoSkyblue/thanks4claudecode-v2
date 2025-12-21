@@ -1193,6 +1193,41 @@ success_criteria:
     - "test -f docs/essential-documents.md && grep -q '動線' docs/essential-documents.md && echo PASS || echo FAIL"
     - "grep -q 'user_prompt_original' plan/template/playbook-format.md && echo PASS || echo FAIL"
 
+- id: M123
+  name: "類似機能統合（重複排除と単一化）"
+  description: |
+    **ユーザープロンプト原文（2025-12-21）:**
+    > 整理された内容を元に、Claudeが自身の機能を把握する機能が複数あって正常に動作してないので
+    > どれか一つに統合して欲しい。まずテンプレートと整理された動線から、類似する機能がいくつあるか
+    > リストアップ。その中で実現可能性が高い順番に並び替えて、それぞれのメリットデメリットを
+    > ユーザーに提示。統合と削除を行う。
+    > 同様に整理された動線をすべてチェックし、類似する機能が他にもないかチェックする。
+
+    **背景:**
+    - M122 で動線単位の整理が完了
+    - しかし「Claudeが自身の機能を把握する機能」が複数存在し、正常動作していない
+    - 例：essential-documents.md, repository-map.yaml, core-manifest.yaml など似た役割が分散
+
+    **目的:**
+    1. 類似機能をリストアップし、実現可能性順に整理
+    2. 各選択肢のメリット・デメリットをユーザーに提示
+    3. 承認を得て統合を実装
+    4. 不要な機能を FREEZE_QUEUE に追加
+    5. 動線単位で他の類似機能がないかチェック
+  status: in_progress
+  depends_on: [M122]
+  playbooks:
+    - playbook-m123-similar-function-consolidation.md
+  done_when:
+    - "[ ] session-start.sh が essential-documents.md の layer_summary を出力する"
+    - "[ ] repository-map.yaml が FREEZE_QUEUE に追加されている"
+    - "[ ] state.md から COMPONENT_REGISTRY セクションが削除されている"
+    - "[ ] 動線テスト（セッション開始時に Claude が動線情報を認識）が PASS"
+  test_commands:
+    - "bash .claude/hooks/session-start.sh 2>&1 | grep -qE '計画動線|実行動線|検証動線|完了動線' && echo PASS || echo FAIL"
+    - "grep 'repository-map.yaml' state.md | grep -q 'freeze_date' && echo PASS || echo FAIL"
+    - "! grep -q '## COMPONENT_REGISTRY' state.md && echo PASS || echo FAIL"
+
 ```
 
 ---

@@ -1374,7 +1374,7 @@ success_criteria:
     1. 未登録ファイルは「登録」または「削除」
     2. core-manifest.yaml の数値を実態に合わせる
     3. 検証スクリプト（verify-manifest.sh）を作成
-  status: pending
+  status: achieved
   depends_on: [M140]
   playbooks: []
   done_when:

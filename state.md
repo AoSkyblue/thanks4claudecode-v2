@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m141-spec-sync.md
-branch: feat/m141-spec-sync
-last_archived: plan/archive/playbook-m140-missing-components.md
+active: plan/playbook-m142-hook-tests.md
+branch: feat/m142-hook-tests
+last_archived: plan/archive/playbook-m141-spec-sync.md
 ```
 
 ---
@@ -29,13 +29,12 @@ last_archived: plan/archive/playbook-m140-missing-components.md
 ## goal
 
 ```yaml
-milestone: M141
-phase: p_final
+milestone: M142
+phase: p1
 done_when:
-  - "depends-check.sh が settings.json に登録されているか、ファイルが削除されている"
-  - "role-resolver.sh が settings.json に登録されているか、ファイルが削除されている"
-  - "scripts/verify-manifest.sh が存在し、実行可能"
-  - "scripts/verify-manifest.sh が PASS（仕様=実態）"
+  - "hook-runtime-test.sh が全登録 Hook をカバーしている"
+  - "各 Hook の期待動作がコメントで明文化されている"
+  - "hook-runtime-test.sh が全テスト PASS"
 next: p1 完了後 p2 へ
 ```
 
@@ -58,7 +57,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

@@ -1529,6 +1529,30 @@ success_criteria:
     - "test ! -f docs/orchestration-contract.md && echo PASS || echo FAIL"
     - "bash scripts/flow-runtime-test.sh 2>&1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
 
+- id: M148
+  name: "MERGE予定ドキュメント統合"
+  description: |
+    M147 に続くコンテキスト収束の第3弾。
+    MERGE予定の3ファイルを分析し、適切に処理する。
+    - flow-document-map.md: 削除（essential-documents.md で完全カバー）
+    - ARCHITECTURE.md: 移行後削除
+    - hook-registry.md: 処理方針決定
+  status: in_progress
+  depends_on: [M147]
+  playbooks:
+    - playbook-m148-merge-pending-docs.md
+  done_when:
+    - "[ ] docs/flow-document-map.md が削除されている"
+    - "[ ] docs/ARCHITECTURE.md の固有コンテンツが移行されている"
+    - "[ ] docs/ARCHITECTURE.md が削除されている"
+    - "[ ] docs/hook-registry.md の処理方針が決定されている"
+    - "[ ] FREEZE_QUEUE が更新されている"
+    - "[ ] 削除後も全テスト（flow-runtime-test）が PASS する"
+  test_commands:
+    - "test ! -f docs/flow-document-map.md && echo PASS || echo FAIL"
+    - "test ! -f docs/ARCHITECTURE.md && echo PASS || echo FAIL"
+    - "bash scripts/flow-runtime-test.sh 2>&1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
+
 ```
 
 ---

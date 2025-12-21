@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m147-merge-complete-deletion.md
-branch: feat/m147-merge-complete-deletion
+active: plan/playbook-m148-merge-pending-docs.md
+branch: feat/m148-merge-pending-docs
 last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ```
 
@@ -29,15 +29,16 @@ last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ## goal
 
 ```yaml
-milestone: M147
-phase: p_final  # 全フェーズ完了
+milestone: M148
+phase: p1
 done_when:
-  - "6件のMERGE済ファイルが削除されている"  # ✓
-  - "統合先ファイルに内容が存在することが確認されている"  # ✓
-  - "削除対象への参照が他ファイルから除去/更新されている"  # ✓（履歴記録は除外）
-  - "FREEZE_QUEUE から DELETE_LOG へ移動されている"  # ✓
-  - "削除後も全テスト（flow-runtime-test）が PASS する"  # ✓ 33/33
-next: コミット後アーカイブ → M148 へ
+  - "docs/flow-document-map.md が削除されている"
+  - "docs/ARCHITECTURE.md の固有コンテンツが移行されている"
+  - "docs/ARCHITECTURE.md が削除されている"
+  - "docs/hook-registry.md の処理方針が決定されている"
+  - "FREEZE_QUEUE が更新されている"
+  - "削除後も全テスト（flow-runtime-test）が PASS する"
+next: p1 完了後 p2 へ
 ```
 
 ---
@@ -59,7 +60,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 
@@ -94,7 +95,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 21:07:05
+last_start: 2025-12-21 22:14:05
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: true
 ```
@@ -137,10 +138,8 @@ last_checked: 2025-12-20
 
 ```yaml
 queue:
-  # MERGE判定（未統合、統合後にキュー入り）
-  - { path: "docs/ARCHITECTURE.md", freeze_date: "2025-12-21", reason: "M122 MERGE → layer-architecture-design.md" }
-  - { path: "docs/flow-document-map.md", freeze_date: "2025-12-21", reason: "M122 MERGE → essential-documents.md" }
-  - { path: "docs/hook-registry.md", freeze_date: "2025-12-21", reason: "M122 MERGE → repository-map.yaml" }
+  # M148 KEEP（依存関係情報として保持）
+  - { path: "docs/hook-registry.md", freeze_date: "2025-12-21", reason: "KEEP - 呼び出し元・削除可否の固有情報あり、core-manifest.yaml で代替不可" }
   # M123 MERGE（機能把握の単一化）
   - { path: "docs/repository-map.yaml", freeze_date: "2025-12-21", reason: "M123 MERGE → essential-documents.md + core-manifest.yaml で代替" }
 freeze_period_days: 7
@@ -156,6 +155,9 @@ freeze_period_days: 7
 
 ```yaml
 log:
+  # M148 MERGE予定ドキュメント統合（2025-12-21）
+  - { path: "docs/flow-document-map.md", deleted_date: "2025-12-21", reason: "M148 DISCARD → essential-documents.md で完全カバー" }
+  - { path: "docs/ARCHITECTURE.md", deleted_date: "2025-12-21", reason: "M148 MIGRATE → layer-architecture-design.md に付録として移行" }
   # M147 MERGE済ドキュメント削除（2025-12-21）
   - { path: "docs/admin-contract.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → core-contract.md に統合" }
   - { path: "docs/archive-operation-rules.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → folder-management.md に統合" }

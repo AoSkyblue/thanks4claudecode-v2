@@ -263,8 +263,81 @@ M105（実装）
 
 ---
 
+## 付録: リポジトリ概要
+
+> **M148 で ARCHITECTURE.md から移行した情報**
+
+### A. エントリーポイント
+
+Claude Code がセッション開始時に読み込む順序:
+
+```
+1. CLAUDE.md          - 行動ルール（Frozen Constitution）
+2. state.md           - 現在の状態（focus, playbook, goal）
+3. plan/project.md    - プロジェクト計画（milestones）
+4. playbook (if any)  - 現在の作業計画
+5. docs/essential-documents.md - 動線単位の必須ドキュメント
+```
+
+### B. ディレクトリ構成
+
+```
+/
+├── CLAUDE.md              # LLM の行動ルール（不変）
+├── RUNBOOK.md             # 手順書（変更可能）
+├── AGENTS.md              # コーディングルール
+├── README.md              # プロジェクト説明
+├── state.md               # 現在状態（SSOT）
+│
+├── .claude/               # Claude Code 拡張システム
+│   ├── settings.json      # Hook 登録・権限設定
+│   ├── mcp.json           # MCP サーバー設定
+│   ├── hooks/             # Hook スクリプト
+│   ├── agents/            # SubAgent 定義
+│   ├── skills/            # Skill 定義
+│   ├── commands/          # スラッシュコマンド
+│   ├── schema/            # state.md スキーマ定義
+│   ├── logs/              # 実行ログ
+│   └── tests/             # done_criteria テスト
+│
+├── plan/                  # 計画管理
+│   ├── project.md         # プロジェクト計画
+│   ├── playbook-*.md      # 進行中 playbook
+│   ├── archive/           # 完了済み playbook
+│   └── template/          # playbook テンプレート
+│
+├── docs/                  # ドキュメント
+│   ├── essential-documents.md  # 動線単位の必須ドキュメント（自動生成）
+│   ├── extension-system.md
+│   ├── hook-responsibilities.md
+│   ├── folder-management.md
+│   └── ... (他ドキュメント)
+│
+├── governance/            # ガバナンス
+│   ├── core-manifest.yaml # コンポーネント正本
+│   └── context-manifest.yaml
+│
+├── setup/                 # セットアップ関連
+├── tmp/                   # テンポラリ（.gitignore）
+└── .archive/              # アーカイブ済みファイル
+```
+
+### C. コンポーネント統計
+
+| カテゴリ | 数 |
+|----------|-----|
+| Core Layer | 12 |
+| Quality Layer | 10 |
+| Extension Layer | 16 |
+| **合計** | **38** |
+
+> 詳細は `governance/core-manifest.yaml` を参照
+
+---
+
 ## 変更履歴
 
 | 日時 | 内容 |
 |------|------|
+| 2025-12-21 | M148: ARCHITECTURE.md から付録セクションを移行 |
 | 2025-12-20 | M104 成果物として作成。黄金動線ベースの Layer 設計。 |

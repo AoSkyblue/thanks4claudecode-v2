@@ -251,8 +251,6 @@ Phase/playbook 完了時に参照するドキュメント。
 
 ```yaml
 queue:
-  - docs/ARCHITECTURE.md
-  - docs/flow-document-map.md
   - docs/hook-registry.md
   - docs/repository-map.yaml
 ```

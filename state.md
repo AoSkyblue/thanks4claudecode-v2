@@ -30,7 +30,7 @@ last_archived: plan/archive/playbook-m140-missing-components.md
 
 ```yaml
 milestone: M141
-phase: p1
+phase: p_final
 done_when:
   - "depends-check.sh が settings.json に登録されているか、ファイルが削除されている"
   - "role-resolver.sh が settings.json に登録されているか、ファイルが削除されている"
@@ -58,7 +58,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: false     # LLM の自己申告（critic PASS で true）
+self_complete: true      # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

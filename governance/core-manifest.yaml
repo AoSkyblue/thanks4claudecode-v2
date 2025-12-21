@@ -195,6 +195,12 @@ quality:
         role: main ブランチ保護
         why_quality: "main での直接編集を防止"
 
+      - name: lint-check.sh
+        type: hook
+        trigger: PreToolUse:Bash
+        role: コミット前 Lint 実行
+        why_quality: "git commit 前に静的解析を実行"
+
       - name: lint-checker
         type: skill
         role: 静的解析

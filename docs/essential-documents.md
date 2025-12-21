@@ -14,10 +14,10 @@ generated_at: 2025-12-22
 organization: 動線単位（計画・実行・検証・完了・共通）
 
 layer_summary:
-  Core Layer: 12 コンポーネント（計画動線7 + 検証動線5）
-  Quality Layer: 10 コンポーネント（実行動線）
-  Extension Layer: 16 コンポーネント（完了7 + 共通6 + 横断3）
-  Total: 38 コンポーネント
+  計画動線: ユーザー要求 → pm → playbook → state.md
+  実行動線: playbook → Edit/Write → ガード発火
+  検証動線: /crit → critic → PASS/FAIL判定
+  完了動線: phase完了 → アーカイブ → 次タスク
 ```
 
 ---

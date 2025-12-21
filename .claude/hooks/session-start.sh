@@ -404,22 +404,22 @@ fi
 # === 動線サマリー（essential-documents.md の layer_summary）===
 ESSENTIAL_DOCS="docs/essential-documents.md"
 if [ -f "$ESSENTIAL_DOCS" ]; then
-    # layer_summary セクションを抽出して表示
-    CORE_LAYER=$(grep "Core Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
-    QUALITY_LAYER=$(grep "Quality Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
-    EXTENSION_LAYER=$(grep "Extension Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
-    TOTAL=$(grep "Total:" "$ESSENTIAL_DOCS" 2>/dev/null | head -1 | sed 's/.*: *//')
+    # layer_summary セクションを抽出して表示（動線単位）
+    PLANNING=$(grep "計画動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*計画動線: *//')
+    EXECUTION=$(grep "実行動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*実行動線: *//')
+    VERIFICATION=$(grep "検証動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*検証動線: *//')
+    COMPLETION=$(grep "完了動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*完了動線: *//')
 
     # 空文字列チェック: layer_summary が正しく取得できた場合のみ表示
-    if [ -n "$CORE_LAYER" ] && [ -n "$QUALITY_LAYER" ] && [ -n "$EXTENSION_LAYER" ] && [ -n "$TOTAL" ]; then
+    if [ -n "$PLANNING" ] && [ -n "$EXECUTION" ] && [ -n "$VERIFICATION" ] && [ -n "$COMPLETION" ]; then
         cat <<EOF
 $SEP
   🔄 動線サマリー（Layer Architecture）
 $SEP
-  Core Layer: $CORE_LAYER
-  Quality Layer: $QUALITY_LAYER
-  Extension Layer: $EXTENSION_LAYER
-  Total: $TOTAL
+  計画動線: $PLANNING
+  実行動線: $EXECUTION
+  検証動線: $VERIFICATION
+  完了動線: $COMPLETION
 
   参照: docs/essential-documents.md（動線単位で整理）
 

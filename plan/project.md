@@ -1716,15 +1716,16 @@ success_criteria:
     - 実行動線: playbook に基づく Edit/Write → ガードされた変更
     - 検証動線: /crit → done_criteria の PASS/FAIL 判定
     - 完了動線: phase 完了 → アーカイブ + 次タスク導出
-  status: in_progress
+  status: achieved
+  achieved_at: 2025-12-22
   depends_on: [M155]
   playbooks:
     - playbook-m156-pipeline-completeness-audit.md
   done_when:
-    - "[ ] 4動線すべてがE2Eで PASS（16/16 PASS）"
-    - "[ ] 不要なファイル/フォルダがゼロ（deletion_candidates が全て処理済み）"
-    - "[ ] 全ファイルが「なぜ存在するか」を1文で説明できる（core-manifest.yaml で網羅）"
-    - "[ ] project.md が実態と完全同期（M142-M155 の achieved_at 設定、M156 追加）"
+    - "[x] 4動線すべてがE2Eで PASS（16/16 PASS）"
+    - "[x] 不要なファイル/フォルダがゼロ（deletion_candidates が全て処理済み）"
+    - "[x] 全ファイルが「なぜ存在するか」を1文で説明できる（core-manifest.yaml で網羅）"
+    - "[x] project.md が実態と完全同期（M142-M155 の achieved_at 設定、M156 追加）"
   test_commands:
     - "bash scripts/test-planning-flow-e2e.sh 2>&1 | tail -1 | grep -q 'ALL TESTS PASS' && echo PASS || echo FAIL"
     - "bash scripts/test-execution-flow-e2e.sh 2>&1 | tail -1 | grep -q 'ALL TESTS PASS' && echo PASS || echo FAIL"

@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m157-post-m156-completion.md
+branch: main
 last_archived: plan/archive/playbook-m156-pipeline-completeness-audit.md
 ```
 
@@ -29,13 +29,12 @@ last_archived: plan/archive/playbook-m156-pipeline-completeness-audit.md
 ## goal
 
 ```yaml
-milestone: M156
-phase: p_final
+milestone: M157
+phase: p0
 done_when:
-  - "4動線すべてがE2Eで PASS（flow-runtime-test.sh が 25/25 PASS）"
-  - "不要なファイル/フォルダがゼロ（deletion_candidates が全て処理済み）"
-  - "全ファイルが「なぜ存在するか」を1文で説明できる（core-manifest.yaml で網羅）"
-  - "project.md が実態と完全同期（M142-M155 の achieved_at 設定、M156 追加）"
+  - "project.md の M156 status を achieved に更新"
+  - "state.md が M157 playbook を参照している"
+  - "flow-runtime-test.sh が PASS（25/25）"
 next: p1
 ```
 

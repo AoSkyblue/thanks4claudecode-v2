@@ -17,7 +17,7 @@
 #   4. POST_LOOP 行動 0.5 で mv 実行
 #
 # M082: Hook 契約準拠（必ず理由を出力、パース失敗時は INTERNAL ERROR）
-# 参照: docs/archive-operation-rules.md
+# 参照: docs/folder-management.md（アーカイブ操作ルール統合済み）
 
 # -e を使わない（エラーでも処理を続けて理由を出力するため）
 set -uo pipefail

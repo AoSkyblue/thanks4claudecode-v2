@@ -1509,6 +1509,26 @@ success_criteria:
     - "grep -q 'codex exec' .claude/agents/reviewer.md && echo PASS || echo FAIL"
     - "grep -qE 'config\\.roles\\.reviewer|roles\\.reviewer' .claude/agents/reviewer.md && echo PASS || echo FAIL"
 
+- id: M147
+  name: "MERGE済ドキュメント削除"
+  description: |
+    M146 コンテキスト収束に続く第2弾。
+    M122 で統合完了した6ファイルを削除する。
+    統合先に内容が存在することを確認後、安全に削除。
+  status: in_progress
+  depends_on: [M146]
+  playbooks:
+    - playbook-m147-merge-complete-deletion.md
+  done_when:
+    - "[ ] 6件のMERGE済ファイルが削除されている"
+    - "[ ] 統合先ファイルに内容が存在することが確認されている"
+    - "[ ] FREEZE_QUEUE から DELETE_LOG へ移動されている"
+    - "[ ] 削除後も全テスト（flow-runtime-test）が PASS する"
+  test_commands:
+    - "test ! -f docs/admin-contract.md && echo PASS || echo FAIL"
+    - "test ! -f docs/orchestration-contract.md && echo PASS || echo FAIL"
+    - "bash scripts/flow-runtime-test.sh 2>&1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
+
 ```
 
 ---

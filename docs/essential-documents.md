@@ -251,19 +251,6 @@ Phase/playbook 完了時に参照するドキュメント。
 
 ```yaml
 queue:
-  - docs/current-definitions.md
-  - docs/deprecated-references.md
-  - docs/document-catalog.md
-  - docs/flow-test-report.md
-  - docs/golden-path-verification-report.md
-  - docs/m106-critic-guard-patch.md
-  - docs/scenario-test-report.md
-  - docs/admin-contract.md
-  - docs/archive-operation-rules.md
-  - docs/artifact-management-rules.md
-  - docs/completion-criteria.md
-  - docs/orchestration-contract.md
-  - docs/toolstack-patterns.md
   - docs/ARCHITECTURE.md
   - docs/flow-document-map.md
   - docs/hook-registry.md

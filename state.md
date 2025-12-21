@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m146-context-consolidation.md
-branch: feat/m146-context-consolidation
+active: plan/playbook-m147-merge-complete-deletion.md
+branch: feat/m147-merge-complete-deletion
 last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ```
 
@@ -29,14 +29,15 @@ last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ## goal
 
 ```yaml
-milestone: M146
+milestone: M147
 phase: p_final  # 全フェーズ完了
 done_when:
-  - "plan/ の重複ファイル（M127, M142）が削除されている"  # ✓
-  - "docs/ の DISCARD 判定ファイル（7件）が削除されている"  # ✓
-  - "prompt-guard.sh のパスバグが修正されている"  # ✓
+  - "6件のMERGE済ファイルが削除されている"  # ✓
+  - "統合先ファイルに内容が存在することが確認されている"  # ✓
+  - "削除対象への参照が他ファイルから除去/更新されている"  # ✓（履歴記録は除外）
+  - "FREEZE_QUEUE から DELETE_LOG へ移動されている"  # ✓
   - "削除後も全テスト（flow-runtime-test）が PASS する"  # ✓ 33/33
-next: コミット後アーカイブ → M147 へ
+next: コミット後アーカイブ → M148 へ
 ```
 
 ---
@@ -136,13 +137,6 @@ last_checked: 2025-12-20
 
 ```yaml
 queue:
-  # MERGE済判定（M122精査）
-  - { path: "docs/admin-contract.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → core-contract.md" }
-  - { path: "docs/archive-operation-rules.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → folder-management.md" }
-  - { path: "docs/artifact-management-rules.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → folder-management.md" }
-  - { path: "docs/completion-criteria.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → verification-criteria.md" }
-  - { path: "docs/orchestration-contract.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → ai-orchestration.md" }
-  - { path: "docs/toolstack-patterns.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → ai-orchestration.md" }
   # MERGE判定（未統合、統合後にキュー入り）
   - { path: "docs/ARCHITECTURE.md", freeze_date: "2025-12-21", reason: "M122 MERGE → layer-architecture-design.md" }
   - { path: "docs/flow-document-map.md", freeze_date: "2025-12-21", reason: "M122 MERGE → essential-documents.md" }
@@ -162,6 +156,13 @@ freeze_period_days: 7
 
 ```yaml
 log:
+  # M147 MERGE済ドキュメント削除（2025-12-21）
+  - { path: "docs/admin-contract.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → core-contract.md に統合" }
+  - { path: "docs/archive-operation-rules.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → folder-management.md に統合" }
+  - { path: "docs/artifact-management-rules.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → folder-management.md に統合" }
+  - { path: "docs/completion-criteria.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → verification-criteria.md に統合" }
+  - { path: "docs/orchestration-contract.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → ai-orchestration.md に統合" }
+  - { path: "docs/toolstack-patterns.md", deleted_date: "2025-12-21", reason: "M147 MERGE済 → ai-orchestration.md に統合" }
   # M146 コンテキスト収束（2025-12-21）
   - { path: "plan/playbook-m127-playbook-reviewer-automation.md", deleted_date: "2025-12-21", reason: "M146 - archive/ に正本あり（重複削除）" }
   - { path: "plan/playbook-m142-hook-tests.md", deleted_date: "2025-12-21", reason: "M146 - archive/ に正本あり（重複削除）" }

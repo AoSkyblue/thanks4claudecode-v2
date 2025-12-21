@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m142-hook-tests.md
-branch: feat/m142-hook-tests
-last_archived: plan/archive/playbook-m141-spec-sync.md
+active: plan/playbook-m146-context-consolidation.md
+branch: feat/m146-context-consolidation
+last_archived: plan/archive/playbook-m143-manifest-flow-first.md
 ```
 
 ---
@@ -29,13 +29,14 @@ last_archived: plan/archive/playbook-m141-spec-sync.md
 ## goal
 
 ```yaml
-milestone: M142
-phase: p_final
+milestone: M146
+phase: p_final  # 全フェーズ完了
 done_when:
-  - "flow-runtime-test.sh が 4 動線で関連 Hook をテストしている"
-  - "e2e-contract-test.sh が契約シナリオで Guard 動作を検証している"
-  - "全動線テストが PASS（flow: 25+、e2e: 77+）"
-next: p_final 完了後 M143 へ
+  - "plan/ の重複ファイル（M127, M142）が削除されている"  # ✓
+  - "docs/ の DISCARD 判定ファイル（7件）が削除されている"  # ✓
+  - "prompt-guard.sh のパスバグが修正されている"  # ✓
+  - "削除後も全テスト（flow-runtime-test）が PASS する"  # ✓ 33/33
+next: コミット後アーカイブ → M147 へ
 ```
 
 ---
@@ -57,7 +58,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: false     # LLM の自己申告（critic PASS で true）
+self_complete: true      # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 
@@ -92,7 +93,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 18:24:56
+last_start: 2025-12-21 21:07:05
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: true
 ```
@@ -135,14 +136,6 @@ last_checked: 2025-12-20
 
 ```yaml
 queue:
-  # DISCARD判定（M122精査）
-  - { path: "docs/current-definitions.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - 一時的な整理用、役割終了" }
-  - { path: "docs/deprecated-references.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - 一時的な整理用、役割終了" }
-  - { path: "docs/document-catalog.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - essential-documents.md で代替" }
-  - { path: "docs/flow-test-report.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - M107完了報告、役割終了" }
-  - { path: "docs/golden-path-verification-report.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - M105完了報告、役割終了" }
-  - { path: "docs/m106-critic-guard-patch.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - M106パッチ、適用済み" }
-  - { path: "docs/scenario-test-report.md", freeze_date: "2025-12-21", reason: "M122 DISCARD - M110完了報告、役割終了" }
   # MERGE済判定（M122精査）
   - { path: "docs/admin-contract.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → core-contract.md" }
   - { path: "docs/archive-operation-rules.md", freeze_date: "2025-12-21", reason: "M122 MERGE済 → folder-management.md" }
@@ -168,7 +161,17 @@ freeze_period_days: 7
 ## DELETE_LOG
 
 ```yaml
-log: []
+log:
+  # M146 コンテキスト収束（2025-12-21）
+  - { path: "plan/playbook-m127-playbook-reviewer-automation.md", deleted_date: "2025-12-21", reason: "M146 - archive/ に正本あり（重複削除）" }
+  - { path: "plan/playbook-m142-hook-tests.md", deleted_date: "2025-12-21", reason: "M146 - archive/ に正本あり（重複削除）" }
+  - { path: "docs/current-definitions.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - 一時的な整理用、役割終了" }
+  - { path: "docs/deprecated-references.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - 一時的な整理用、役割終了" }
+  - { path: "docs/document-catalog.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - essential-documents.md で代替" }
+  - { path: "docs/flow-test-report.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - M107完了報告、役割終了" }
+  - { path: "docs/golden-path-verification-report.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - M105完了報告、役割終了" }
+  - { path: "docs/m106-critic-guard-patch.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - M106パッチ、適用済み" }
+  - { path: "docs/scenario-test-report.md", deleted_date: "2025-12-21", reason: "M146 DISCARD - M110完了報告、役割終了" }
 # 注: 2025-12-21 に誤って削除された15ファイルは git checkout で復元済み
 ```
 

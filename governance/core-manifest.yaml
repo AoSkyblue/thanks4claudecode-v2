@@ -51,7 +51,7 @@ core:
     ないとシステムが破綻する。凍結対象。
 
   # ────────────────────────────────────────────────────────────────
-  # 計画動線（6コンポーネント）
+  # 計画動線（7コンポーネント）
   # ────────────────────────────────────────────────────────────────
   # フロー: ユーザープロンプト → prompt-guard → /task-start → pm → state → playbook完成
   #
@@ -91,6 +91,11 @@ core:
         role: playbook 直接作成（旧互換）
         why_core: "/task-start へのエイリアス、互換性維持"
 
+      - name: reviewer.md
+        type: subagent
+        role: playbook レビュー
+        why_core: "pm 作成後の playbook 品質検証"
+
   # ────────────────────────────────────────────────────────────────
   # 検証動線（5コンポーネント）
   # ────────────────────────────────────────────────────────────────
@@ -113,17 +118,17 @@ core:
 
       - name: critic-guard.sh
         type: hook
-        trigger: PostToolUse
+        trigger: PreToolUse:Edit,Write
         role: critic PASS 必須
         why_core: "phase 完了時に critic を強制"
 
-      - name: test
-        type: skill
+      - name: test.md
+        type: command
         role: test_command 実行
         why_core: "done_criteria の test_command を実行"
 
-      - name: lint
-        type: skill
+      - name: lint.md
+        type: command
         role: state/playbook 整合性チェック
         why_core: "構造的整合性を検証"
 
@@ -151,7 +156,7 @@ quality:
     components:
       - name: init-guard.sh
         type: hook
-        trigger: PreToolUse
+        trigger: PreToolUse:*
         role: 必須ファイル Read 強制
         why_quality: "state.md/playbook の Read を強制"
 
@@ -163,19 +168,19 @@ quality:
 
       - name: subtask-guard.sh
         type: hook
-        trigger: PreToolUse:Edit
+        trigger: PreToolUse:Edit,Write
         role: 3観点検証（technical/consistency/completeness）
         why_quality: "subtask 完了時の検証を強制"
 
       - name: scope-guard.sh
         type: hook
-        trigger: PreToolUse:Edit
+        trigger: PreToolUse:Edit,Write
         role: done_criteria 変更検出
         why_quality: "スコープクリープを防止"
 
       - name: check-protected-edit.sh
         type: hook
-        trigger: PreToolUse:Edit
+        trigger: PreToolUse:Edit,Write
         role: HARD_BLOCK ファイル保護
         why_quality: "CLAUDE.md 等の編集を防止"
 
@@ -191,7 +196,7 @@ quality:
 
       - name: check-main-branch.sh
         type: hook
-        trigger: PreToolUse:Edit,Write
+        trigger: PreToolUse:*
         role: main ブランチ保護
         why_quality: "main での直接編集を防止"
 
@@ -242,8 +247,8 @@ extension:
       # create-pr-hook.sh は削除（M140）
       # 理由: 毎回の Edit で PR 作成は過剰。手動または archive-playbook.sh で行う。
 
-      - name: post-loop
-        type: skill
+      - name: post-loop.md
+        type: command
         role: 完了後処理
 
       - name: context-management
@@ -258,8 +263,12 @@ extension:
         type: command
         role: state.md ロールバック
 
+      - name: focus.md
+        type: command
+        role: focus 切り替え
+
   # ────────────────────────────────────────────────────────────────
-  # 共通基盤（5コンポーネント）
+  # 共通基盤（6コンポーネント）
   # ────────────────────────────────────────────────────────────────
   common:
     description: "セッションライフサイクル管理"
@@ -278,15 +287,22 @@ extension:
 
       - name: pre-compact.sh
         type: hook
+        trigger: PreCompact
         role: コンパクト前処理
 
       - name: stop-summary.sh
         type: hook
+        trigger: Stop
         role: 中断時サマリー
 
       - name: log-subagent.sh
         type: hook
+        trigger: PostToolUse:Task
         role: SubAgent ログ
+
+      - name: compact.md
+        type: command
+        role: コンテキスト管理・要約
 
   # ────────────────────────────────────────────────────────────────
   # 横断的整合性（3コンポーネント）
@@ -397,18 +413,18 @@ deletion_candidates:
 # ════════════════════════════════════════════════════════════════
 #
 # Core Layer:
-#   計画動線: 6 components (prompt-guard, task-start, pm, state, plan-management, playbook-init)
+#   計画動線: 7 components (prompt-guard, task-start, pm, state, plan-management, playbook-init, reviewer)
 #   検証動線: 5 components (crit, critic, critic-guard, test, lint)
-#   合計: 11 components
+#   合計: 12 components
 #
 # Quality Layer:
 #   実行動線: 10 components
 #
 # Extension Layer:
-#   完了動線: 7 components
-#   共通基盤: 5 components
+#   完了動線: 7 components (archive-playbook, cleanup-hook, post-loop, context-management, rollback, state-rollback, focus)
+#   共通基盤: 6 components (session-start, session-end, pre-compact, stop-summary, log-subagent, compact)
 #   横断的: 3 components
-#   合計: 15 components
+#   合計: 16 components
 #
-# 総計: 36 components (動線ベースで再分類)
+# 総計: 38 components (動線ベースで再分類)
 #

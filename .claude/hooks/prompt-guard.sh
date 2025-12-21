@@ -147,7 +147,7 @@ mv "$INTENT_FILE.tmp" "$INTENT_FILE"
 # ==============================================================================
 # MISSION 整合性チェック（報酬詐欺防止）- 警告を収集
 # ==============================================================================
-MISSION_FILE="plan/mission.md"
+MISSION_FILE="plan/design/mission.md"
 if [ -f "$MISSION_FILE" ]; then
     # 報酬詐欺パターンの検出
     FRAUD_PATTERNS="(完了しました|終わりました|できました|done|finished|completed)"

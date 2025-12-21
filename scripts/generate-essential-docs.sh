@@ -60,7 +60,7 @@ extract_freeze_queue() {
 # メイン生成関数
 generate() {
     local today=$(date +%Y-%m-%d)
-    local planning=6 verification=5 execution=10 completion=7 common=5 cross=3
+    local planning=7 verification=5 execution=10 completion=7 common=6 cross=3
     local core_total=$((planning + verification))
     local quality_total=$execution
     local extension_total=$((completion + common + cross))

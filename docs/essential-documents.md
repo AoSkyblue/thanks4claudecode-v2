@@ -14,10 +14,10 @@ generated_at: 2025-12-21
 organization: 動線単位（計画・実行・検証・完了・共通）
 
 layer_summary:
-  Core Layer: 11 コンポーネント（計画動線6 + 検証動線5）
+  Core Layer: 12 コンポーネント（計画動線7 + 検証動線5）
   Quality Layer: 10 コンポーネント（実行動線）
-  Extension Layer: 15 コンポーネント（完了7 + 共通5 + 横断3）
-  Total: 36 コンポーネント
+  Extension Layer: 16 コンポーネント（完了7 + 共通6 + 横断3）
+  Total: 38 コンポーネント
 ```
 
 ---
@@ -36,7 +36,7 @@ layer_summary:
 | `CLAUDE.md` | LLM 行動規範（凍結憲法） | 迷った時 |
 | `RUNBOOK.md` | 手順、ツール、例 | 操作手順確認時 |
 
-### Core コンポーネント（計画動線 6）
+### Core コンポーネント（計画動線 7）
 
 | コンポーネント | 種別 | 役割 |
 |---------------|------|------|
@@ -46,6 +46,7 @@ layer_summary:
 | `state` | Skill | state.md 管理 |
 | `plan-management` | Skill | playbook 運用ガイド |
 | `playbook-init.md` | Command | playbook 直接作成（旧互換） |
+| `reviewer.md` | Subagent | playbook レビュー |
 
 ### 参考テンプレート
 
@@ -88,15 +89,17 @@ layer_summary:
 | `test-runner` | Skill | テスト実行 |
 | `archive-playbook.sh` | Hook | playbook アーカイブ |
 | `cleanup-hook.sh` | Hook | tmp/ クリーンアップ |
-| `post-loop` | Skill | 完了後処理 |
+| `post-loop.md` | Command | 完了後処理 |
 | `context-management` | Skill | コンテキスト管理 |
 | `rollback.md` | Command | Git ロールバック |
 | `state-rollback.md` | Command | state.md ロールバック |
+| `focus.md` | Command | focus 切り替え |
 | `session-start.sh` | Hook | セッション初期化 |
 | `session-end.sh` | Hook | セッション終了処理 |
 | `pre-compact.sh` | Hook | コンパクト前処理 |
 | `stop-summary.sh` | Hook | 中断時サマリー |
 | `log-subagent.sh` | Hook | SubAgent ログ |
+| `compact.md` | Command | コンテキスト管理・要約 |
 | `check-coherence.sh` | Hook | focus/playbook/branch 整合性 |
 | `depends-check.sh` | Hook | playbook 間依存関係 |
 | `executor-guard.sh` | Hook | executor 制御 |
@@ -121,8 +124,8 @@ done_criteria 検証で参照するドキュメント。
 | `crit.md` | Command | 検証起点コマンド |
 | `critic.md` | Subagent | done_criteria 検証 |
 | `critic-guard.sh` | Hook | critic PASS 必須 |
-| `test` | Skill | test_command 実行 |
-| `lint` | Skill | state/playbook 整合性チェック |
+| `test.md` | Command | test_command 実行 |
+| `lint.md` | Command | state/playbook 整合性チェック |
 | `init-guard.sh` | Hook | 必須ファイル Read 強制 |
 | `playbook-guard.sh` | Hook | playbook 存在チェック |
 | `subtask-guard.sh` | Hook | 3観点検証（technical/consistency/completeness） |
@@ -135,15 +138,17 @@ done_criteria 検証で参照するドキュメント。
 | `test-runner` | Skill | テスト実行 |
 | `archive-playbook.sh` | Hook | playbook アーカイブ |
 | `cleanup-hook.sh` | Hook | tmp/ クリーンアップ |
-| `post-loop` | Skill | 完了後処理 |
+| `post-loop.md` | Command | 完了後処理 |
 | `context-management` | Skill | コンテキスト管理 |
 | `rollback.md` | Command | Git ロールバック |
 | `state-rollback.md` | Command | state.md ロールバック |
+| `focus.md` | Command | focus 切り替え |
 | `session-start.sh` | Hook | セッション初期化 |
 | `session-end.sh` | Hook | セッション終了処理 |
 | `pre-compact.sh` | Hook | コンパクト前処理 |
 | `stop-summary.sh` | Hook | 中断時サマリー |
 | `log-subagent.sh` | Hook | SubAgent ログ |
+| `compact.md` | Command | コンテキスト管理・要約 |
 | `check-coherence.sh` | Hook | focus/playbook/branch 整合性 |
 | `depends-check.sh` | Hook | playbook 間依存関係 |
 | `executor-guard.sh` | Hook | executor 制御 |
@@ -175,10 +180,11 @@ Phase/playbook 完了時に参照するドキュメント。
 |---------------|------|------|
 | `archive-playbook.sh` | Hook | playbook アーカイブ |
 | `cleanup-hook.sh` | Hook | tmp/ クリーンアップ |
-| `post-loop` | Skill | 完了後処理 |
+| `post-loop.md` | Command | 完了後処理 |
 | `context-management` | Skill | コンテキスト管理 |
 | `rollback.md` | Command | Git ロールバック |
 | `state-rollback.md` | Command | state.md ロールバック |
+| `focus.md` | Command | focus 切り替え |
 
 ---
 
@@ -199,11 +205,11 @@ Phase/playbook 完了時に参照するドキュメント。
 
 | ファイル | 役割 |
 |----------|------|
-| `governance/core-manifest.yaml` | 動線ベース Layer アーキテクチャ定義（36コンポーネント正本） |
+| `governance/core-manifest.yaml` | 動線ベース Layer アーキテクチャ定義（38コンポーネント正本） |
 | `governance/context-manifest.yaml` | コンテキスト階層定義（Core/Flow/Extended） |
 | `governance/PROMPT_CHANGELOG.md` | CLAUDE.md 変更履歴 |
 
-### Extension コンポーネント（共通 5 + 横断 3）
+### Extension コンポーネント（共通 6 + 横断 3）
 
 | コンポーネント | 種別 | 役割 |
 |---------------|------|------|
@@ -212,6 +218,7 @@ Phase/playbook 完了時に参照するドキュメント。
 | `pre-compact.sh` | Hook | コンパクト前処理 |
 | `stop-summary.sh` | Hook | 中断時サマリー |
 | `log-subagent.sh` | Hook | SubAgent ログ |
+| `compact.md` | Command | コンテキスト管理・要約 |
 | `check-coherence.sh` | Hook | focus/playbook/branch 整合性 |
 | `depends-check.sh` | Hook | playbook 間依存関係 |
 | `executor-guard.sh` | Hook | executor 制御 |

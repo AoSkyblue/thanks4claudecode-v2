@@ -144,25 +144,40 @@ skills: lint-checker, deploy-checker
 
 ## Playbook レビュー（動的 Reviewer 選択）
 
-> **原則**: 作業者と異なる AI がレビューする（分離原則）
+> **原則**: config.roles.reviewer に基づいて reviewer を決定（M127 対応）
+
+### Reviewer 決定ロジック（優先順位）
+
+```yaml
+# 1. state.md の config.roles.reviewer を確認（優先）
+config.roles.reviewer:
+  claudecode: Claude がレビュー実行
+  codex: codex exec --full-auto を Bash で実行
+
+# 2. config.roles.reviewer が未設定の場合のフォールバック
+#    → meta.roles.worker の逆を使用（分離原則）
+fallback:
+  worker == codex → reviewer = claudecode
+  worker == claudecode → reviewer = codex
+```
 
 ### 実行フロー
 
 ```yaml
-1_playbook_check:
-  action: Read 現在の playbook → meta.roles.worker を確認
-  file: state.md の playbook.active を取得 → そのファイルを Read
-  path: meta.roles.worker
+1_config_check:
+  action: Read state.md → config.roles.reviewer を確認
+  path: config.roles.reviewer
+  fallback: meta.roles.worker の逆を使用
 
 2_branch:
-  # worker=codex（コーディングタスク）→ Claude がレビュー
-  worker_is_codex:
-    reason: "Codex がコーディング中 → 異なる AI（Claude）がレビュー"
+  # config.roles.reviewer=claudecode → Claude がレビュー
+  reviewer_is_claudecode:
+    reason: "config または分離原則により Claude がレビュー"
     action: 自身（Claude）がレビュー実行（従来の行動）
 
-  # worker=claudecode（非コーディング/設計タスク）→ Codex がレビュー
-  worker_is_claudecode:
-    reason: "Claude が設計/ドキュメント中 → 異なる AI（Codex）がレビュー"
+  # config.roles.reviewer=codex → Codex がレビュー
+  reviewer_is_codex:
+    reason: "config または分離原則により Codex がレビュー"
     action: codex exec --full-auto を Bash で実行
 
 3_parse_result:
@@ -180,13 +195,21 @@ skills: lint-checker, deploy-checker
 ### 分岐ロジック詳細
 
 ```yaml
-if playbook.meta.roles.worker == codex:
-  # コーディングタスク → Claude（自分）がレビュー
-  reviewer: claudecode
+# Step 1: config.roles.reviewer を取得
+reviewer = state.md の config.roles.reviewer
+
+# Step 2: 未設定の場合はフォールバック
+if reviewer == null:
+  worker = playbook.meta.roles.worker
+  reviewer = (worker == codex) ? claudecode : codex
+
+# Step 3: reviewer に応じて実行
+if reviewer == claudecode:
+  # Claude（自分）がレビュー
   method: 従来のレビュー手順を実行
 
-else if playbook.meta.roles.worker == claudecode:
-  # 非コーディングタスク → Codex がレビュー
+else if reviewer == codex:
+  # Codex がレビュー
   reviewer: codex
   method: codex exec --full-auto を Bash 実行
 ```
@@ -216,9 +239,11 @@ playbook-review-criteria.md を参照した上で、以下のプロンプトを�
 
 ## レビュー観点
 1. done_when が検証可能か（具体的、測定可能、達成可能）
-2. test_command が適切か（exit code で成功/失敗判定可能）
-3. Phase の依存関係が正しいか
-4. validations の 3 観点（technical, consistency, completeness）が妥当か
+2. done_when に曖昧な表現がないか（「正しく動作」等の禁止パターン）
+3. done_when と test_command が 1:1 で対応しているか
+4. test_command が適切か（exit code で成功/失敗判定可能）
+5. Phase の依存関係が正しいか
+6. validations の 3 観点（technical, consistency, completeness）が妥当か
 
 ## 出力フォーマット
 問題があれば ISSUES: セクションに列挙。

@@ -185,11 +185,9 @@ quality:
         role: 危険コマンドブロック
         why_quality: "rm -rf 等をブロック"
 
-      - name: consent-guard.sh
-        type: hook
-        trigger: PreToolUse
-        role: 危険操作同意取得
-        why_quality: "破壊的操作前にユーザー確認"
+      # consent-guard.sh は削除（M140）
+      # 理由: Hook はユーザー入力を待てない。pre-bash-check.sh がブロック担当。
+      # 「同意取得」は Claude の対話（AskUserQuestion）で行う。
 
       - name: check-main-branch.sh
         type: hook
@@ -235,9 +233,8 @@ extension:
         type: hook
         role: tmp/ クリーンアップ
 
-      - name: create-pr-hook.sh
-        type: hook
-        role: PR 作成
+      # create-pr-hook.sh は削除（M140）
+      # 理由: 毎回の Edit で PR 作成は過剰。手動または archive-playbook.sh で行う。
 
       - name: post-loop
         type: skill

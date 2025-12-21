@@ -1310,7 +1310,8 @@ success_criteria:
     - 存在チェックは test -f で明示的に行う
     - grep の否定は反転ロジックを使う
     - done_when は具体的なファイル名/固定数を明記する
-  status: pending
+  status: postponed
+  postponed_reason: "M140-M145 でコア機能の動作保証を優先。M146 で再開。"
   depends_on: [M126]
   playbooks: []
   done_when:
@@ -1320,6 +1321,193 @@ success_criteria:
     - "[ ] FAIL 時に修正提案を返却できる"
   test_commands:
     - "grep -q 'codex exec' .claude/agents/reviewer.md && echo PASS || echo FAIL"
+
+# ============================================================
+# M140-M146: コア機能動作保証シリーズ（2025-12-21）
+# ============================================================
+# 背景: 仕様に記載されたコンポーネントが存在しない（consent-guard.sh 等）
+# 目的: 仕様と実態を完全同期し、動作保証してから凍結
+# ============================================================
+
+- id: M140
+  name: "存在しないコンポーネントの解決"
+  description: |
+    **ユーザープロンプト原文（2025-12-21）:**
+    > コア機能の確定と凍結が一番最初にあったほうがいいかな。
+    > 凍結の前に動作保証がなされている必要がある。
+    > 例えば何回言っても君、理解確認機能が直らないしね。
+    > 今の機能全部、リストアップして。何で動作しないのか、棚卸ししながら、
+    > スモールステップで進めるしかない。
+
+    **問題:**
+    - consent-guard.sh: core-manifest.yaml に記載されているが存在しない
+    - create-pr-hook.sh: settings.json に登録されているが存在しない
+    - generate-essential-docs.sh: essential-documents.md に記載されているが存在しない
+
+    **方針:**
+    各コンポーネントについて「作成」または「仕様から削除」を決定し、実行する。
+  status: pending
+  depends_on: [M129]
+  playbooks: []
+  done_when:
+    - "[x] consent-guard.sh が作成されているか、core-manifest.yaml から削除されている"
+    - "[x] create-pr-hook.sh が作成されているか、settings.json から削除されている"
+    - "[x] generate-essential-docs.sh が作成されているか、essential-documents.md から参照が削除されている"
+    - "[x] 仕様に記載された全コンポーネントがファイルとして存在する"
+  test_commands:
+    - "! grep -q 'consent-guard.sh' governance/core-manifest.yaml || test -f .claude/hooks/consent-guard.sh && echo PASS || echo FAIL"
+    - "! grep -q 'create-pr-hook.sh' .claude/settings.json || test -f .claude/hooks/create-pr-hook.sh && echo PASS || echo FAIL"
+    - "! grep -q 'generate-essential-docs.sh' docs/essential-documents.md || test -f scripts/generate-essential-docs.sh && echo PASS || echo FAIL"
+
+- id: M141
+  name: "仕様と実態の完全同期"
+  description: |
+    core-manifest.yaml、settings.json、実ファイルを完全同期させる。
+    未登録ファイル（depends-check.sh, role-resolver.sh）の処遇を決定。
+
+    **問題:**
+    - depends-check.sh: ファイル存在、settings.json 未登録
+    - role-resolver.sh: ファイル存在、settings.json 未登録（削除候補）
+    - core-manifest.yaml の Total（36）と実態の差分
+
+    **方針:**
+    1. 未登録ファイルは「登録」または「削除」
+    2. core-manifest.yaml の数値を実態に合わせる
+    3. 検証スクリプト（verify-manifest.sh）を作成
+  status: pending
+  depends_on: [M140]
+  playbooks: []
+  done_when:
+    - "[x] depends-check.sh が settings.json に登録されているか、ファイルが削除されている"
+    - "[x] role-resolver.sh が settings.json に登録されているか、ファイルが削除されている"
+    - "[x] scripts/verify-manifest.sh が存在し、実行可能"
+    - "[x] scripts/verify-manifest.sh が PASS（仕様=実態）"
+  test_commands:
+    - "grep -q 'depends-check.sh' .claude/settings.json || ! test -f .claude/hooks/depends-check.sh && echo PASS || echo FAIL"
+    - "grep -q 'role-resolver.sh' .claude/settings.json || ! test -f .claude/hooks/role-resolver.sh && echo PASS || echo FAIL"
+    - "test -x scripts/verify-manifest.sh && echo PASS || echo FAIL"
+    - "bash scripts/verify-manifest.sh && echo PASS || echo FAIL"
+
+- id: M142
+  name: "全 Hook の実動作テスト"
+  description: |
+    bash -n（構文チェック）ではなく、実際に発火させて期待動作を検証する。
+    hook-runtime-test.sh を拡張し、全 Hook をカバーする。
+
+    **現状:**
+    - hook-runtime-test.sh: 11 テスト（一部 Hook のみカバー）
+    - 構文チェックは全 PASS だが、実動作は未検証
+
+    **目標:**
+    - 全 Hook（登録済み 20 本）の実動作テスト
+    - 各 Hook の期待動作を明文化
+  status: pending
+  depends_on: [M141]
+  playbooks: []
+  done_when:
+    - "[x] hook-runtime-test.sh が全登録 Hook をカバーしている"
+    - "[x] 各 Hook の期待動作がコメントで明文化されている"
+    - "[x] hook-runtime-test.sh が全テスト PASS"
+  test_commands:
+    - "bash scripts/hook-runtime-test.sh 2>&1 | tail -1 | grep -q 'ALL.*PASS' && echo PASS || echo FAIL"
+
+- id: M143
+  name: "全 SubAgent/Skill/Command の実動作テスト"
+  description: |
+    SubAgent（3本）、Skill（6本）、Command（10本）の実動作テストを作成・実行。
+
+    **対象:**
+    - SubAgent: pm.md, critic.md, reviewer.md
+    - Skill: context-management, lint-checker, plan-management, post-loop, state, test-runner
+    - Command: compact, crit, focus, lint, playbook-init, post-loop, rollback, state-rollback, task-start, test
+
+    **目標:**
+    - 各コンポーネントの最低限の動作確認
+    - 動作しないものは修正または削除
+  status: pending
+  depends_on: [M142]
+  playbooks: []
+  done_when:
+    - "[x] scripts/test-subagents.sh が存在し、3 SubAgent をテスト"
+    - "[x] scripts/test-skills.sh が存在し、6 Skill をテスト"
+    - "[x] scripts/test-commands.sh が存在し、10 Command をテスト"
+    - "[x] 全テスト PASS（動作しないものは修正済み）"
+  test_commands:
+    - "test -f scripts/test-subagents.sh && bash scripts/test-subagents.sh 2>&1 | grep -q 'PASS' && echo PASS || echo FAIL"
+    - "test -f scripts/test-skills.sh && bash scripts/test-skills.sh 2>&1 | grep -q 'PASS' && echo PASS || echo FAIL"
+    - "test -f scripts/test-commands.sh && bash scripts/test-commands.sh 2>&1 | grep -q 'PASS' && echo PASS || echo FAIL"
+
+- id: M144
+  name: "Core Layer 凍結"
+  description: |
+    Core Layer（計画動線 6 + 検証動線 5 = 11 コンポーネント）の動作が保証された状態で凍結。
+    以降の変更はレビュー必須とする。
+
+    **Core 11 コンポーネント:**
+    計画動線: prompt-guard.sh, task-start.md, pm.md, state, plan-management, playbook-init.md
+    検証動線: crit.md, critic.md, critic-guard.sh, test, lint
+
+    **凍結方法:**
+    - protected-files.txt に追加
+    - core-manifest.yaml に frozen: true を設定
+  status: pending
+  depends_on: [M143]
+  playbooks: []
+  done_when:
+    - "[x] Core 11 コンポーネントが protected-files.txt に登録されている"
+    - "[x] core-manifest.yaml の core セクションに frozen: true が設定されている"
+    - "[x] 全 Core コンポーネントが M142/M143 のテストを PASS 済み"
+  test_commands:
+    - "grep -q 'prompt-guard.sh' .claude/protected-files.txt && echo PASS || echo FAIL"
+    - "grep -q 'pm.md' .claude/protected-files.txt && echo PASS || echo FAIL"
+    - "grep -q 'critic.md' .claude/protected-files.txt && echo PASS || echo FAIL"
+    - "grep -q 'frozen: true' governance/core-manifest.yaml && echo PASS || echo FAIL"
+
+- id: M145
+  name: "仕様-実態乖離の自動検出"
+  description: |
+    二度と仕様と実態の乖離が発生しないよう、自動検出の仕組みを構築する。
+
+    **仕組み:**
+    1. session-start.sh が verify-manifest.sh を呼び出す
+    2. 乖離検出時に警告を表示
+    3. 新規コンポーネント追加時にも検出
+
+    **目標:**
+    セッション開始時に「仕様に書いてあるのに存在しない」が即座に検出される。
+  status: pending
+  depends_on: [M144]
+  playbooks: []
+  done_when:
+    - "[x] session-start.sh が verify-manifest.sh を呼び出している"
+    - "[x] 乖離検出時に警告が表示される"
+    - "[x] 警告が session-start.sh の出力に含まれる"
+  test_commands:
+    - "grep -q 'verify-manifest.sh' .claude/hooks/session-start.sh && echo PASS || echo FAIL"
+    - "bash .claude/hooks/session-start.sh 2>&1 | grep -qE '乖離|警告|WARN' || echo PASS"
+
+- id: M146
+  name: "M127 再開 - Reviewer 自動化"
+  description: |
+    M140-M145 でコア機能の動作保証が完了した後、M127 を再開する。
+    M127 の内容をそのまま引き継ぐ。
+
+    **M127 の目標（再掲）:**
+    1. reviewer が config.roles.reviewer を読んで自動分岐
+    2. Codex の場合 codex exec --full-auto を実行
+    3. PASS/FAIL をパースして reviewed: true/false を更新
+    4. FAIL 時に修正提案を返却
+  status: pending
+  depends_on: [M145]
+  playbooks: []
+  done_when:
+    - "[x] reviewer SubAgent が config.roles.reviewer を読んで分岐できる"
+    - "[x] codex の場合、codex exec --full-auto を Bash で実行できる"
+    - "[x] RESULT: PASS/FAIL をパースして reviewed: true/false を更新できる"
+    - "[x] FAIL 時に修正提案を返却できる"
+  test_commands:
+    - "grep -q 'codex exec' .claude/agents/reviewer.md && echo PASS || echo FAIL"
+    - "grep -qE 'config\\.roles\\.reviewer|roles\\.reviewer' .claude/agents/reviewer.md && echo PASS || echo FAIL"
 
 ```
 

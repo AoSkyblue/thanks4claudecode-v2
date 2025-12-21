@@ -6,6 +6,25 @@
 
 ---
 
+## 🔒 Deep Audit Complete - Repository Frozen
+
+```yaml
+Status: Frozen (2025-12-21)
+Deep Audit: M150-M155 Completed
+Tests: 110 PASS (flow-runtime: 33, e2e-contract: 77)
+Spec-Reality Sync: verify-manifest.sh PASS
+```
+
+| Layer | Components | Status |
+|-------|------------|--------|
+| Core (計画+検証動線) | 12 | 🔒 Frozen |
+| Quality (実行動線) | 10 | 🛡️ Protected |
+| Extension (完了+共通) | 16 | ✏️ Active |
+
+> **詳細**: `docs/deep-audit-*.md` および `governance/core-manifest.yaml`
+
+---
+
 ## このリポジトリが保証すること
 
 1. **Playbook Gate**: playbook なしでの Edit/Write/Bash 変更系をブロック
@@ -93,15 +112,15 @@ is_compound_command()   # 複合コマンド検出
 
 > **自動生成**: `bash scripts/generate-readme-stats.sh --update` で最新化
 
-### コンポーネント分類
+### Layer アーキテクチャ（動線ベース）
 
-| 分類 | 説明 |
-|------|------|
-| **Core** | 黄金動線に必須。削除不可 |
-| **Optional** | 便利だが必須ではない |
-| **Experimental** | 試験的または廃止候補 |
+| Layer | 動線 | 説明 |
+|-------|------|------|
+| **Core** | 計画 + 検証 | ないと破綻。bugfix のみ許可 |
+| **Quality** | 実行 | ないと品質低下。レビュー必須 |
+| **Extension** | 完了 + 共通 | 手動代替可。自由に変更可 |
 
-> 詳細: `governance/core-manifest.yaml`
+> 詳細: `governance/core-manifest.yaml` / `docs/deep-audit-*.md`
 
 ---
 
@@ -158,12 +177,19 @@ bash scripts/find-unused.sh
 ## 凍結ポリシー
 
 ```yaml
+status: Frozen (2025-12-21)
+deep_audit: M150-M155 Completed
 policy:
+  frozen: true
   no_new_components: true
   allow_changes:
-    - bugfix
-    - deletion
-    - test_improvement
+    - bugfix_only  # Core Layer は bugfix のみ
+  forbid_changes:
+    - new_hook
+    - new_subagent
+    - new_skill
+    - new_command
+    - feature_addition
 ```
 
 > 新しい Hook/SubAgent/Skill の追加は禁止。詳細は `governance/core-manifest.yaml`

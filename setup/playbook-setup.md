@@ -217,7 +217,7 @@ LLM の行動（選択後）:
   4. C の場合、CodeRabbit GitHub App のインストールを案内
 
 参照ドキュメント:
-  - docs/toolstack-patterns.md: 詳細な説明と設定ガイド
+  - docs/ai-orchestration.md: 詳細な説明と設定ガイド（Toolstack パターン含む）
   - plan/template/mcp-templates/: .mcp.json テンプレート
 ```
 
@@ -1005,7 +1005,7 @@ C: Claude Code + Codex + CodeRabbit
    ```
 
 **参照ドキュメント:**
-- docs/toolstack-patterns.md: 3 パターンの詳細
+- docs/ai-orchestration.md: 3 パターンの詳細（Toolstack Patterns 統合済み）
 - plan/template/mcp-templates/: .mcp.json テンプレート
 
 ---

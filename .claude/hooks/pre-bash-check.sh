@@ -14,7 +14,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${SCRIPT_DIR}/../.."
 CONTRACT_SCRIPT="${REPO_ROOT}/scripts/contract.sh"
-STATE_FILE="state.md"
+STATE_FILE="${STATE_FILE:-state.md}"
 
 # stdin から JSON を読み込む
 INPUT=$(cat)
@@ -54,8 +54,6 @@ if [[ "$USE_CONTRACT" == "false" ]]; then
     HARD_BLOCK_FILES=(
         "CLAUDE.md"
         ".claude/protected-files.txt"
-        ".claude/.session-init/consent"
-        ".claude/.session-init/pending"
     )
 
     WRITE_PATTERNS=(

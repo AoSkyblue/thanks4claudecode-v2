@@ -1,0 +1,144 @@
+# context-manifest.yaml
+#
+# コンテキスト階層の定義（Single Source of Truth）
+#
+# 設計思想:
+#   ドキュメントも仕様もコンテキストとして同一。
+#   Core / Flow / Extended の階層でコンテキストの参照を構造化する。
+#
+# 使用方法:
+#   - session-start.sh が起動時に読み込み、動線別コアドキュメントを出力
+#   - pm.md / critic.md が動線開始時に必須ドキュメントを Read
+#
+# Created: 2025-12-21 (M118)
+
+schema_version: v1
+
+# ==============================================================================
+# Core Context（常に参照）
+# ==============================================================================
+# LLM がセッション開始時に必ず読むべきファイル。
+# CLAUDE.md は hooks 経由で自動注入されるため、明示的 Read は不要。
+# state.md と project.md は session-start.sh で Read 指示される。
+
+core_context:
+  always_read:
+    - path: state.md
+      role: 現在地（Single Source of Truth）
+      injection: session-start.sh が出力
+    - path: plan/project.md
+      role: プロジェクト目標
+      injection: session-start.sh が出力
+  auto_injected:
+    - path: CLAUDE.md
+      role: 憲法（frozen constitution）
+      injection: Claude Code が自動読み込み
+
+# ==============================================================================
+# Flow Context（動線別）
+# ==============================================================================
+# 各動線の開始時に必ず参照すべきドキュメント。
+# SubAgent が動線を実行する際にこれらを Read する。
+
+flow_context:
+  # ──────────────────────────────────────────────────────────────────────────
+  # 計画動線: 要求 → [理解確認] → pm → playbook → state.md
+  # ──────────────────────────────────────────────────────────────────────────
+  planning:
+    trigger: pm SubAgent 呼び出し時
+    required_reads:
+      - path: docs/ai-orchestration.md
+        role: 役割ベース executor の設計
+        when: playbook 作成時
+      - path: docs/playbook-schema-v2.md
+        role: Playbook のフォーマット仕様
+        when: playbook 作成時
+      - path: docs/criterion-validation-rules.md
+        role: done_criteria の記述ルール
+        when: done_criteria 設計時
+      - path: plan/template/playbook-format.md
+        role: Playbook テンプレート
+        when: playbook 作成時
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 実行動線: playbook → Edit → Guard発火
+  # ──────────────────────────────────────────────────────────────────────────
+  execution:
+    trigger: Edit/Write/Bash 実行時
+    required_reads:
+      - path: docs/hook-exit-code-contract.md
+        role: Hook の exit code 契約
+        when: Hook エラー発生時
+      - path: docs/hook-responsibilities.md
+        role: 各 Hook の責任定義
+        when: Guard 発火時
+      - path: docs/core-contract.md
+        role: 核心契約（admin 含む）
+        when: Guard 発火時
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 検証動線: /crit → critic → PASS/FAIL
+  # ──────────────────────────────────────────────────────────────────────────
+  verification:
+    trigger: critic SubAgent 呼び出し時
+    required_reads:
+      - path: docs/verification-criteria.md
+        role: PASS/FAIL 判定基準
+        when: 検証実行時
+      - path: docs/criterion-validation-rules.md
+        role: Criterion の検証ルール
+        when: 検証設計時
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 完了動線: phase完了 → マージ → アーカイブ → state更新
+  # ──────────────────────────────────────────────────────────────────────────
+  completion:
+    trigger: 全 Phase 完了時
+    required_reads:
+      - path: docs/folder-management.md
+        role: フォルダ管理・アーカイブルール
+        when: playbook 完了時
+      - path: docs/freeze-then-delete.md
+        role: 安全な削除プロセス
+        when: ファイル削除時
+      - path: docs/git-operations.md
+        role: Git 操作リファレンス
+        when: マージ・ブランチ削除時
+
+# ==============================================================================
+# Extended Context（必要に応じて参照）
+# ==============================================================================
+# 動線とは独立して、必要に応じて参照するドキュメント。
+# これらは session-start.sh で一覧表示されない。
+
+extended_context:
+  architecture:
+    - path: docs/ARCHITECTURE.md
+      role: アーキテクチャ全体像
+    - path: docs/layer-architecture-design.md
+      role: Layer アーキテクチャ設計
+    - path: docs/core-functions.md
+      role: コア機能定義
+  reference:
+    - path: docs/extension-system.md
+      role: Claude Code 拡張システム
+    - path: docs/session-management.md
+      role: セッション管理
+    - path: docs/repository-map.yaml
+      role: ファイルマッピング
+
+# ==============================================================================
+# Injection Rules（注入ルール）
+# ==============================================================================
+# どのタイミングでどのコンテキストを注入するかのルール。
+
+injection_rules:
+  session_start:
+    - core_context.always_read（Read 指示として出力）
+    - flow_context の早見表を出力
+  pm_call:
+    - flow_context.planning.required_reads を Read
+  critic_call:
+    - flow_context.verification.required_reads を Read
+  phase_complete:
+    - flow_context.completion.required_reads を参照指示

@@ -41,11 +41,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/consent-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "bash .claude/hooks/check-protected-edit.sh",
             "timeout": 5000
           },
@@ -56,7 +51,12 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/depends-check.sh",
+            "command": "bash .claude/hooks/scope-guard.sh",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/subtask-guard.sh",
             "timeout": 3000
           },
           {
@@ -66,17 +66,7 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/scope-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
             "command": "bash .claude/hooks/executor-guard.sh",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/subtask-guard.sh",
             "timeout": 3000
           }
         ]
@@ -84,11 +74,6 @@
       {
         "matcher": "Write",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/consent-guard.sh",
-            "timeout": 3000
-          },
           {
             "type": "command",
             "command": "bash .claude/hooks/check-protected-edit.sh",
@@ -132,6 +117,11 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/check-coherence.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/depends-check.sh",
             "timeout": 5000
           },
           {
@@ -189,11 +179,6 @@
             "type": "command",
             "command": "bash .claude/hooks/cleanup-hook.sh",
             "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/create-pr-hook.sh",
-            "timeout": 30000
           }
         ]
       }

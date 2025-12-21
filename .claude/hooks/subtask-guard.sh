@@ -27,12 +27,15 @@ set -uo pipefail
 HOOK_NAME="subtask-guard"
 
 # ==============================================================================
-# M085: 厳格モード（STRICT=1 で BLOCK、デフォルトは WARN）
+# M085: 厳格モード（M106: デフォルトを STRICT=1 に変更）
 # ==============================================================================
-# STRICT=1: validations 不足時に BLOCK（exit 2）
-# STRICT 未設定 or 0: validations 不足時に WARN のみ（exit 0）
+# STRICT=1: validations 不足時に BLOCK（exit 2）- デフォルト
+# STRICT=0: validations 不足時に WARN のみ（exit 0）
 # ==============================================================================
-STRICT_MODE="${STRICT:-0}"
+# M106: 報酬詐欺防止のため、デフォルトを BLOCK に変更
+# 旧: STRICT_MODE="${STRICT:-0}" (デフォルト WARN)
+# 新: STRICT_MODE="${STRICT:-1}" (デフォルト BLOCK)
+STRICT_MODE="${STRICT:-1}"
 
 # 入力 JSON を読み取り（失敗時は INTERNAL ERROR）
 INPUT=$(cat) || {
@@ -68,10 +71,16 @@ if [[ "$FILE_PATH" != *"playbook-"* ]]; then
     exit 0
 fi
 
-# playbook ファイルが存在しない場合は SKIP
+# playbook ファイルが存在しない場合
 if [[ ! -f "$FILE_PATH" ]]; then
-    echo "[SKIP] $HOOK_NAME: playbook file not found (file=$FILE_PATH)" >&2
-    exit 0
+    if [[ "$STRICT_MODE" == "1" ]]; then
+        # STRICT=1: 存在しないファイルへの編集は警告
+        echo "[WARN] $HOOK_NAME: playbook file not found in STRICT mode (file=$FILE_PATH)" >&2
+        exit 0
+    else
+        echo "[SKIP] $HOOK_NAME: playbook file not found (file=$FILE_PATH)" >&2
+        exit 0
+    fi
 fi
 
 # old_string / new_string を取得

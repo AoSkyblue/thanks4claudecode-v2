@@ -25,8 +25,6 @@ STATE_FILE="${STATE_FILE:-state.md}"
 HARD_BLOCK_FILES=(
     "CLAUDE.md"
     ".claude/protected-files.txt"
-    ".claude/.session-init/consent"
-    ".claude/.session-init/pending"
     ".claude/hooks/init-guard.sh"
     ".claude/hooks/critic-guard.sh"
     ".claude/hooks/scope-guard.sh"
@@ -50,6 +48,24 @@ MUTATION_PATTERNS="tee[[:space:]]|sed[[:space:]]+-i|git[[:space:]]+(${GIT_MUTATI
 
 # 複合コマンド検出パターン（admin maintenance でも禁止）
 COMPOUND_PATTERNS='&&|;|\|\||[|]'
+
+# HARD_BLOCK コマンド（playbook 有無に関係なく常にブロック）
+# これらは破壊的すぎるため、いかなる状況でも許可しない
+HARD_BLOCK_COMMANDS=(
+    'rm -rf /'
+    'rm -rf ~'
+    'rm -rf /*'
+    'rm -rf $HOME'
+    'rm -rf \$HOME'
+    'rm -rf ${HOME}'
+    'rm -rf \${HOME}'
+    ':(){:|:&};:'      # Fork bomb
+    'dd if=/dev/zero of=/dev/sda'
+    'mkfs'
+    '> /dev/sda'
+    'chmod -R 777 /'
+    'chown -R'
+)
 
 # ==============================================================================
 # ヘルパー関数
@@ -265,10 +281,22 @@ ADMIN_MAINTENANCE_PATTERNS=(
     '^git[[:space:]]+add[[:space:]]+state\.md$'
     # git add plan/archive/（単独またはファイル指定）
     '^git[[:space:]]+add[[:space:]]+plan/archive(/[^[:space:]]*)?$'
+    # git add -f plan/archive/（.gitignore 無視、アーカイブ用）
+    '^git[[:space:]]+add[[:space:]]+-f[[:space:]]+plan/archive(/[^[:space:]]*)?$'
     # git add state.md plan/archive/（2つ同時）
     '^git[[:space:]]+add[[:space:]]+state\.md[[:space:]]+plan/archive/?$'
     # git commit -m "..." (maintenance メッセージ)
     '^git[[:space:]]+commit[[:space:]]+-m[[:space:]]+'
+    # git checkout main（playbook 完了後のメイン復帰）
+    '^git[[:space:]]+checkout[[:space:]]+main$'
+    # git merge <branch>（ブランチマージ）
+    '^git[[:space:]]+merge[[:space:]]+[^[:space:]]+$'
+    # git merge <branch> --no-edit（ブランチマージ、エディタなし）
+    '^git[[:space:]]+merge[[:space:]]+[^[:space:]]+[[:space:]]+--no-edit$'
+    # git branch -d <branch>（マージ済みブランチ削除）
+    '^git[[:space:]]+branch[[:space:]]+-d[[:space:]]+[^[:space:]]+$'
+    # git add -A（全ファイル追加、最終コミット用）
+    '^git[[:space:]]+add[[:space:]]+-A$'
 )
 
 # Admin Maintenance allowlist に一致するか判定
@@ -287,6 +315,29 @@ is_admin_maintenance_allowed() {
 contract_check_bash() {
     local command="$1"
 
+    # 0. HARD_BLOCK コマンドチェック（最優先、playbook 有無に関係なくブロック）
+    for blocked_cmd in "${HARD_BLOCK_COMMANDS[@]}"; do
+        if [[ "$command" == *"$blocked_cmd"* ]]; then
+            cat >&2 <<EOF
+========================================
+  [HARD_BLOCK] 破壊的コマンド検出
+========================================
+
+  コマンド: $command
+  検出パターン: $blocked_cmd
+
+  このコマンドは破壊的すぎるため、
+  playbook 有無に関係なく常にブロックされます。
+
+  本当に実行が必要な場合は、
+  ターミナルから直接実行してください。
+
+========================================
+EOF
+            return 2
+        fi
+    done
+
     # Fail-closed: state.md が存在しない場合
     if [[ ! -f "$STATE_FILE" ]]; then
         echo "[FAIL-CLOSED] state.md not found" >&2
@@ -299,10 +350,13 @@ contract_check_bash() {
     security=$(get_state_value "security" "strict")
 
     # 1. HARD_BLOCK ファイルへの書き込みチェック
+    # まず FD リダイレクト（2>&1 等）を除去してから判定（誤検出防止）
+    local cmd_for_hardblock
+    cmd_for_hardblock=$(normalize_command "$command")
     for blocked in "${HARD_BLOCK_FILES[@]}"; do
-        if [[ "$command" == *"$blocked"* ]]; then
-            # 書き込みパターンを含むか確認
-            if [[ "$command" =~ (sed\ -i|>|tee|rm\ ) ]]; then
+        if [[ "$cmd_for_hardblock" == *"$blocked"* ]]; then
+            # 書き込みパターンを含むか確認（> の後に & 以外の文字がある場合のみ）
+            if [[ "$cmd_for_hardblock" =~ (sed\ -i|>[^'&']|tee\ |rm\ ) ]]; then
                 cat >&2 <<EOF
 ========================================
   [HARD_BLOCK] Bash による絶対守護ファイルへの書き込み

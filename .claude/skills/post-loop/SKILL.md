@@ -39,7 +39,7 @@ playbook の全 Phase が done
      ```
    - state.md の active_playbooks.{layer} を null に更新
    - 注意: アーカイブ前に git add/commit を完了すること
-   - 参照: docs/archive-operation-rules.md
+   - 参照: docs/folder-management.md（アーカイブ操作ルール統合済み）
 
 1. GitHub PR 作成（★自動化済み）:
    - Hook: create-pr-hook.sh（PostToolUse:Edit で自動発火、settings.json 登録済み）

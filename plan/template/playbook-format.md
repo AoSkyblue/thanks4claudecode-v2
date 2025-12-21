@@ -19,6 +19,10 @@ derives_from: {milestone ID or null}  # [SHOULD] 例: M084
 reviewed: false  # [MUST] reviewer SubAgent による検証済みフラグ (default: false)
 roles:  # [MAY] 役割の override（state.md のデフォルトを上書き）
   worker: claudecode  # この playbook では worker = claudecode
+
+user_prompt_original: |  # [SHOULD] ユーザーの元の指示を記録（M122 追加）
+  {ユーザーのプロンプト原文をここに記載}
+  {複数行の場合は YAML の | 記法を使用}
 ```
 
 > **branch フィールド**: playbook とブランチは 1:1 で紐づく。
@@ -413,12 +417,39 @@ executor の種類:
     config:
       instruction: "具体的な操作手順"
 
+役割ベース executor（抽象名 → 解決）:
+  orchestrator:
+    説明: 監督・調整・設計
+    解決先: 常に claudecode
+
+  worker:
+    説明: 本格的なコード実装
+    解決先: Toolstack A=claudecode, B/C=codex
+
+  code_reviewer:
+    説明: コードレビュー（PR レビュー、セキュリティチェック）
+    解決先: Toolstack A/B=claudecode, C=coderabbit
+    注意: "reviewer" は code_reviewer のエイリアス
+
+  playbook_reviewer:
+    説明: playbook レビュー（計画の検証、worker の逆）
+    解決先: Toolstack A=claudecode*（警告付き）, B/C=claudecode
+    注意: |
+      worker がコード実装なら、playbook_reviewer は計画レビュー。
+      「作成者 ≠ 検証者」の原則を維持するため、worker の逆を返す。
+      Toolstack A では codex がないため claudecode にフォールバック（警告表示）。
+
+  human:
+    説明: 人間の介入
+    解決先: 常に user
+
 キーワード判定:
-  - "レビュー" "品質チェック" → coderabbit
+  - "レビュー" "品質チェック" → coderabbit または code_reviewer
+  - "playbook レビュー" "計画検証" → playbook_reviewer
   - "登録" "サインアップ" "契約" → user
   - "API キー" "シークレット" → user
   - "選んでください" → user
-  - 本格的なコード実装 → codex
+  - 本格的なコード実装 → codex または worker
   - それ以外 → claudecode
 
 Phase 記述例:

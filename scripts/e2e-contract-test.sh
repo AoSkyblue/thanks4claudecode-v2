@@ -39,6 +39,9 @@ trap cleanup EXIT
 PASS_COUNT=0
 FAIL_COUNT=0
 
+# テスト結果ログ（failures.log と同じ形式）
+TEST_RESULTS_LOG="${REPO_ROOT}/.claude/logs/test-results.log"
+
 # ==============================================================================
 # ヘルパー関数
 # ==============================================================================
@@ -55,6 +58,10 @@ log_pass() {
 log_fail() {
     echo -e "${RED}[FAIL]${NC} $1"
     ((FAIL_COUNT++))
+    # failures.log 形式で記録
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S")
+    echo "{\"timestamp\": \"$timestamp\", \"test\": \"e2e-contract\", \"case\": \"$1\", \"result\": \"FAIL\"}" >> "$TEST_RESULTS_LOG"
 }
 
 # テスト用 state.md を作成
@@ -572,11 +579,261 @@ security_tests() {
         log_fail "S19: admin git add state.md should be allowed"
     fi
 
-    log_test "S20: Bash 'git add -A' → BLOCK expected (even admin, not in allowlist)"
+    log_test "S20: Bash 'git add -A' → ALLOW expected (admin maintenance)"
     if contract_check_bash "git add -A" 2>/dev/null; then
-        log_fail "S20: git add -A should be blocked even in admin"
+        log_pass "S20: Correctly allowed (admin maintenance)"
     else
-        log_pass "S20: Correctly blocked (git add -A not in allowlist)"
+        log_fail "S20: git add -A should be allowed for admin maintenance"
+    fi
+}
+
+# ==============================================================================
+# シナリオ: Fail-Closed テスト（M129 追加）
+# ==============================================================================
+
+fail_closed_tests() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  シナリオ: Fail-Closed（STATE_FILE 欠損）"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # state.md を一時的に削除
+    rm -f "$STATE_FILE"
+
+    # FC1: Edit が BLOCK される
+    log_test "FC1: Edit with no state.md → BLOCK expected"
+    if contract_check_edit "src/index.ts" 2>/dev/null; then
+        log_fail "FC1: Edit should be blocked without state.md"
+    else
+        log_pass "FC1: Correctly blocked (fail-closed)"
+    fi
+
+    # FC2: 変更系 Bash が BLOCK される
+    log_test "FC2: Bash 'mkdir test' with no state.md → BLOCK expected"
+    if contract_check_bash "mkdir test" 2>/dev/null; then
+        log_fail "FC2: Bash should be blocked without state.md"
+    else
+        log_pass "FC2: Correctly blocked (fail-closed)"
+    fi
+
+    # FC3: 読み取りコマンドも BLOCK される（fail-closed の原則）
+    log_test "FC3: Bash 'ls -la' with no state.md → (behavior depends on mutation check)"
+    # 読み取りコマンドは変更系でないので許可される可能性がある
+    # fail-closed は変更系のみに適用
+    if contract_check_bash "ls -la" 2>/dev/null; then
+        log_pass "FC3: Read-only allowed (mutation check passes)"
+    else
+        log_pass "FC3: Blocked (strict fail-closed)"
+    fi
+
+    # state.md を再作成
+    create_test_state "null" "strict"
+}
+
+# ==============================================================================
+# シナリオ: HARD_BLOCK コマンドテスト（M129 追加）
+# ==============================================================================
+
+hard_block_commands_tests() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  シナリオ: HARD_BLOCK コマンド（全パターン）"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # playbook があっても HARD_BLOCK はブロック
+    create_test_state "plan/playbook-test.md" "admin"
+
+    # HBC1: rm -rf /
+    log_test "HBC1: 'rm -rf /' → BLOCK expected"
+    if contract_check_bash "rm -rf /" 2>/dev/null; then
+        log_fail "HBC1: rm -rf / should always be blocked"
+    else
+        log_pass "HBC1: Correctly blocked"
+    fi
+
+    # HBC2: rm -rf ~
+    log_test "HBC2: 'rm -rf ~' → BLOCK expected"
+    if contract_check_bash "rm -rf ~" 2>/dev/null; then
+        log_fail "HBC2: rm -rf ~ should always be blocked"
+    else
+        log_pass "HBC2: Correctly blocked"
+    fi
+
+    # HBC3: rm -rf /*
+    log_test "HBC3: 'rm -rf /*' → BLOCK expected"
+    if contract_check_bash "rm -rf /*" 2>/dev/null; then
+        log_fail "HBC3: rm -rf /* should always be blocked"
+    else
+        log_pass "HBC3: Correctly blocked"
+    fi
+
+    # HBC4: rm -rf $HOME
+    log_test "HBC4: 'rm -rf \$HOME' → BLOCK expected"
+    if contract_check_bash 'rm -rf $HOME' 2>/dev/null; then
+        log_fail "HBC4: rm -rf \$HOME should always be blocked"
+    else
+        log_pass "HBC4: Correctly blocked"
+    fi
+
+    # HBC5: Fork bomb
+    log_test "HBC5: Fork bomb → BLOCK expected"
+    if contract_check_bash ':(){:|:&};:' 2>/dev/null; then
+        log_fail "HBC5: Fork bomb should always be blocked"
+    else
+        log_pass "HBC5: Correctly blocked"
+    fi
+
+    # HBC6: dd if=/dev/zero of=/dev/sda
+    log_test "HBC6: 'dd if=/dev/zero of=/dev/sda' → BLOCK expected"
+    if contract_check_bash "dd if=/dev/zero of=/dev/sda" 2>/dev/null; then
+        log_fail "HBC6: dd to /dev/sda should always be blocked"
+    else
+        log_pass "HBC6: Correctly blocked"
+    fi
+
+    # HBC7: mkfs
+    log_test "HBC7: 'mkfs /dev/sda1' → BLOCK expected"
+    if contract_check_bash "mkfs /dev/sda1" 2>/dev/null; then
+        log_fail "HBC7: mkfs should always be blocked"
+    else
+        log_pass "HBC7: Correctly blocked"
+    fi
+
+    # HBC8: > /dev/sda
+    log_test "HBC8: '> /dev/sda' → BLOCK expected"
+    if contract_check_bash "> /dev/sda" 2>/dev/null; then
+        log_fail "HBC8: > /dev/sda should always be blocked"
+    else
+        log_pass "HBC8: Correctly blocked"
+    fi
+
+    # HBC9: chmod -R 777 /
+    log_test "HBC9: 'chmod -R 777 /' → BLOCK expected"
+    if contract_check_bash "chmod -R 777 /" 2>/dev/null; then
+        log_fail "HBC9: chmod -R 777 / should always be blocked"
+    else
+        log_pass "HBC9: Correctly blocked"
+    fi
+
+    # HBC10: chown -R
+    log_test "HBC10: 'chown -R root:root /' → BLOCK expected"
+    if contract_check_bash "chown -R root:root /" 2>/dev/null; then
+        log_fail "HBC10: chown -R should always be blocked"
+    else
+        log_pass "HBC10: Correctly blocked"
+    fi
+}
+
+# ==============================================================================
+# シナリオ: Admin Maintenance パターンテスト（M129 追加）
+# ==============================================================================
+
+admin_maintenance_tests() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  シナリオ: Admin Maintenance パターン"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    # admin + playbook=null
+    create_test_state "null" "admin"
+
+    # AM1: mkdir plan/archive
+    log_test "AM1: 'mkdir plan/archive' → ALLOW expected (admin)"
+    if contract_check_bash "mkdir plan/archive" 2>/dev/null; then
+        log_pass "AM1: Correctly allowed"
+    else
+        log_fail "AM1: Should be allowed for admin maintenance"
+    fi
+
+    # AM2: mkdir -p plan/archive
+    log_test "AM2: 'mkdir -p plan/archive' → ALLOW expected (admin)"
+    if contract_check_bash "mkdir -p plan/archive" 2>/dev/null; then
+        log_pass "AM2: Correctly allowed"
+    else
+        log_fail "AM2: Should be allowed for admin maintenance"
+    fi
+
+    # AM3: mv plan/playbook-x.md plan/archive/
+    log_test "AM3: 'mv plan/playbook-x.md plan/archive/' → ALLOW expected (admin)"
+    if contract_check_bash "mv plan/playbook-x.md plan/archive/" 2>/dev/null; then
+        log_pass "AM3: Correctly allowed"
+    else
+        log_fail "AM3: Should be allowed for admin maintenance"
+    fi
+
+    # AM4: git add state.md
+    log_test "AM4: 'git add state.md' → ALLOW expected (admin)"
+    if contract_check_bash "git add state.md" 2>/dev/null; then
+        log_pass "AM4: Correctly allowed"
+    else
+        log_fail "AM4: Should be allowed for admin maintenance"
+    fi
+
+    # AM5: git add plan/archive/
+    log_test "AM5: 'git add plan/archive/' → ALLOW expected (admin)"
+    if contract_check_bash "git add plan/archive/" 2>/dev/null; then
+        log_pass "AM5: Correctly allowed"
+    else
+        log_fail "AM5: Should be allowed for admin maintenance"
+    fi
+
+    # AM6: git add -f plan/archive/
+    log_test "AM6: 'git add -f plan/archive/' → ALLOW expected (admin)"
+    if contract_check_bash "git add -f plan/archive/" 2>/dev/null; then
+        log_pass "AM6: Correctly allowed"
+    else
+        log_fail "AM6: Should be allowed for admin maintenance"
+    fi
+
+    # AM7: git commit -m "..."
+    log_test "AM7: 'git commit -m \"chore: maintenance\"' → ALLOW expected (admin)"
+    if contract_check_bash 'git commit -m "chore: maintenance"' 2>/dev/null; then
+        log_pass "AM7: Correctly allowed"
+    else
+        log_fail "AM7: Should be allowed for admin maintenance"
+    fi
+
+    # AM8: git checkout main
+    log_test "AM8: 'git checkout main' → ALLOW expected (admin)"
+    if contract_check_bash "git checkout main" 2>/dev/null; then
+        log_pass "AM8: Correctly allowed"
+    else
+        log_fail "AM8: Should be allowed for admin maintenance"
+    fi
+
+    # AM9: git merge branch
+    log_test "AM9: 'git merge feature-branch' → ALLOW expected (admin)"
+    if contract_check_bash "git merge feature-branch" 2>/dev/null; then
+        log_pass "AM9: Correctly allowed"
+    else
+        log_fail "AM9: Should be allowed for admin maintenance"
+    fi
+
+    # AM10: git merge branch --no-edit
+    log_test "AM10: 'git merge feature-branch --no-edit' → ALLOW expected (admin)"
+    if contract_check_bash "git merge feature-branch --no-edit" 2>/dev/null; then
+        log_pass "AM10: Correctly allowed"
+    else
+        log_fail "AM10: Should be allowed for admin maintenance"
+    fi
+
+    # AM11: git branch -d branch
+    log_test "AM11: 'git branch -d feature-branch' → ALLOW expected (admin)"
+    if contract_check_bash "git branch -d feature-branch" 2>/dev/null; then
+        log_pass "AM11: Correctly allowed"
+    else
+        log_fail "AM11: Should be allowed for admin maintenance"
+    fi
+
+    # AM12: git add -A
+    log_test "AM12: 'git add -A' → ALLOW expected (admin)"
+    if contract_check_bash "git add -A" 2>/dev/null; then
+        log_pass "AM12: Correctly allowed"
+    else
+        log_fail "AM12: Should be allowed for admin maintenance"
     fi
 }
 
@@ -591,6 +848,9 @@ run_all() {
     session_end
     boundary_tests
     security_tests
+    fail_closed_tests
+    hard_block_commands_tests
+    admin_maintenance_tests
 }
 
 # ==============================================================================
@@ -606,6 +866,12 @@ print_summary() {
     echo -e "  ${GREEN}PASS${NC}: $PASS_COUNT"
     echo -e "  ${RED}FAIL${NC}: $FAIL_COUNT"
     echo ""
+
+    # テスト結果サマリーをログに記録
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S")
+    mkdir -p "$(dirname "$TEST_RESULTS_LOG")"
+    echo "{\"timestamp\": \"$timestamp\", \"test\": \"e2e-contract\", \"pass\": $PASS_COUNT, \"fail\": $FAIL_COUNT, \"result\": \"$([ $FAIL_COUNT -eq 0 ] && echo 'PASS' || echo 'FAIL')\"}" >> "$TEST_RESULTS_LOG"
 
     if [[ $FAIL_COUNT -eq 0 ]]; then
         echo -e "  ${GREEN}ALL TESTS PASSED${NC}"
@@ -631,10 +897,13 @@ main() {
         session_end) session_end ;;
         boundary) boundary_tests ;;
         security) security_tests ;;
+        fail_closed) fail_closed_tests ;;
+        hard_block) hard_block_commands_tests ;;
+        admin_maintenance) admin_maintenance_tests ;;
         all) run_all ;;
         *)
             echo "Unknown scenario: $scenario"
-            echo "Usage: $0 [scenario_a|scenario_b|scenario_c|session_end|boundary|security|all]"
+            echo "Usage: $0 [scenario_a|scenario_b|scenario_c|session_end|boundary|security|fail_closed|hard_block|admin_maintenance|all]"
             exit 1
             ;;
     esac

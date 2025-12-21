@@ -37,6 +37,14 @@ if [ -f "state.md" ]; then
         sed -i "s/last_start: .*/last_start: $TIMESTAMP/" state.md 2>/dev/null || true
     fi
 
+    # === self_complete リセット（M149: セッション跨ぎ問題の修正）===
+    # 前セッションの critic PASS（self_complete: true）は新セッションでは無効
+    if grep -qE "self_complete:[[:space:]]*true" state.md; then
+        sed -i '' "s/self_complete: true/self_complete: false/" state.md 2>/dev/null || \
+        sed -i "s/self_complete: true/self_complete: false/" state.md 2>/dev/null || true
+        SELF_COMPLETE_RESET=true
+    fi
+
     # 前回 last_end が null でないか確認（正常終了判定）
     LAST_END=$(grep "last_end:" state.md | head -1 | sed 's/.*last_end: *//' | sed 's/ *#.*//')
     if [ "$LAST_END" = "null" ] || [ -z "$LAST_END" ]; then
@@ -54,6 +62,29 @@ if [ -f "state.md" ]; then
             echo ""
         fi
     fi
+
+    # self_complete リセット警告
+    if [ "$SELF_COMPLETE_RESET" = "true" ]; then
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ⚠️ 前セッションの critic PASS をリセットしました"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  self_complete: true → false"
+        echo ""
+        echo "  → phase 完了前に /crit を再実行してください"
+        echo ""
+    fi
+fi
+
+# === essential-documents.md 自動更新チェック ===
+# core-manifest.yaml が essential-documents.md より新しい場合に再生成
+MANIFEST="governance/core-manifest.yaml"
+ESSENTIAL="docs/essential-documents.md"
+GENERATOR="scripts/generate-essential-docs.sh"
+if [ -f "$MANIFEST" ] && [ -f "$GENERATOR" ]; then
+    if [ ! -f "$ESSENTIAL" ] || [ "$MANIFEST" -nt "$ESSENTIAL" ]; then
+        bash "$GENERATOR" >/dev/null 2>&1 || true
+    fi
 fi
 
 # === 共通変数 ===
@@ -62,11 +93,10 @@ WS="$(pwd)"
 
 # === 初期化ペンディングフラグの設定 ===
 # init-guard.sh が必須ファイル Read 完了まで他ツールをブロックするために使用
-# consent-guard.sh が [理解確認] 完了まで Edit/Write をブロックするために使用
 INIT_DIR=".claude/.session-init"
 mkdir -p "$INIT_DIR"
 # user-intent.md は保持（compact 後の復元に必要）、セッション管理ファイルのみリセット
-rm -f "$INIT_DIR/pending" "$INIT_DIR/consent" "$INIT_DIR/required_playbook" 2>/dev/null || true
+rm -f "$INIT_DIR/pending" "$INIT_DIR/required_playbook" 2>/dev/null || true
 touch "$INIT_DIR/pending"
 
 # === state.md から情報抽出 ===
@@ -83,12 +113,6 @@ PLAYBOOK=$(awk '/## playbook/,/^---/' state.md | grep "^active:" | head -1 | sed
 
 # init-guard.sh 用に playbook パスを記録
 echo "$PLAYBOOK" > "$INIT_DIR/required_playbook"
-
-# consent ファイルは playbook が存在しない場合のみ作成
-# playbook 存在 = 計画済み = 合意済み → consent 不要
-if [ "$PLAYBOOK" = "null" ] || [ ! -f "$PLAYBOOK" ]; then
-    touch "$INIT_DIR/consent"  # [理解確認] 完了で削除
-fi
 
 # roadmap 取得（workspace 用）
 ROADMAP=$(grep -A10 "## plan_hierarchy" state.md 2>/dev/null | grep "roadmap:" | sed 's/.*: *//' | sed 's/ *#.*//')
@@ -147,6 +171,33 @@ $REPEATED_FAILURES
 
 同じ失敗を繰り返さないよう注意してください。
 詳細: $FAILURE_LOG
+
+EOF
+    fi
+fi
+
+# === テスト結果サマリー: 直近のテスト結果を表示 ===
+TEST_RESULTS_LOG=".claude/logs/test-results.log"
+if [ -f "$TEST_RESULTS_LOG" ]; then
+    # 直近5件のテスト結果サマリーを表示
+    RECENT_TESTS=$(tail -10 "$TEST_RESULTS_LOG" 2>/dev/null | grep '"result":' | tail -5 | while read line; do
+        test_name=$(echo "$line" | sed 's/.*"test": *"\([^"]*\)".*/\1/')
+        result=$(echo "$line" | sed 's/.*"result": *"\([^"]*\)".*/\1/')
+        pass=$(echo "$line" | sed 's/.*"pass": *\([0-9]*\).*/\1/' 2>/dev/null || echo "?")
+        fail=$(echo "$line" | sed 's/.*"fail": *\([0-9]*\).*/\1/' 2>/dev/null || echo "?")
+        if [ "$result" = "PASS" ]; then
+            echo "  ✅ $test_name: $pass PASS"
+        else
+            echo "  ❌ $test_name: $fail FAIL"
+        fi
+    done)
+
+    if [ -n "$RECENT_TESTS" ]; then
+        cat <<EOF
+$SEP
+  🧪 直近のテスト結果
+$SEP
+$RECENT_TESTS
 
 EOF
     fi
@@ -321,39 +372,62 @@ $SEP
 EOF
 fi
 
-# === 機能サマリー（repository-map.yaml）===
-REPO_MAP="docs/repository-map.yaml"
-if [ -f "$REPO_MAP" ]; then
-    HOOKS_COUNT=$(grep "^  hooks:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
-    AGENTS_COUNT=$(grep "^  agents:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
-    SKILLS_COUNT=$(grep "^  skills:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
+# === Next milestone 候補の表示（project.md から抽出）===
+PROJECT_FILE="plan/project.md"
+if [ -f "$PROJECT_FILE" ]; then
+    # status: not_started または in_progress のマイルストーンを抽出
+    PENDING_MS=$(awk '
+        /^- id: M[0-9]+/ { id=$3; name=""; status="" }
+        /^  name:/ { gsub(/^  name: *"?|"?$/, ""); name=$0 }
+        /^  status: (not_started|in_progress)/ {
+            status=$2
+            if (id != "" && name != "") {
+                print "  - " id ": " name " [" status "]"
+            }
+        }
+    ' "$PROJECT_FILE" 2>/dev/null | head -5)
 
-    # 実際のファイル数を取得して比較
-    HOOKS_ACTUAL=$(find .claude/hooks -maxdepth 1 -name "*.sh" -type f 2>/dev/null | wc -l | tr -d ' ')
-    AGENTS_ACTUAL=$(find .claude/agents -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
-    SKILLS_ACTUAL=$(find .claude/skills -maxdepth 1 -type d ! -path ".claude/skills" 2>/dev/null | wc -l | tr -d ' ')
-
-    # 変更検出
-    CATALOG_STATUS="OK"
-    if [ "$HOOKS_ACTUAL" -ne "$HOOKS_COUNT" ] || [ "$AGENTS_ACTUAL" -ne "$AGENTS_COUNT" ] || [ "$SKILLS_ACTUAL" -ne "$SKILLS_COUNT" ]; then
-        CATALOG_STATUS="OUTDATED"
-    fi
-
-    cat <<EOF
+    if [ -n "$PENDING_MS" ]; then
+        cat <<EOF
 $SEP
-  📦 Feature Catalog Summary
+  📋 Next milestone 候補（project.md）
 $SEP
-  $HOOKS_COUNT Hooks | $AGENTS_COUNT SubAgents | $SKILLS_COUNT Skills
+$PENDING_MS
+
+  → pm を呼び出して playbook を作成してください
+  → 詳細は plan/project.md を Read
+
 EOF
-
-    if [ "$CATALOG_STATUS" = "OUTDATED" ]; then
-        echo -e "  ⚠️ WARNING: 機能カタログが最新ではありません（変更検出）"
-        echo "  → bash .claude/hooks/generate-repository-map.sh で更新"
     fi
-    echo ""
 fi
 
-# === CORE（最小限の行動ルール）===
+# === 動線サマリー（essential-documents.md の layer_summary）===
+ESSENTIAL_DOCS="docs/essential-documents.md"
+if [ -f "$ESSENTIAL_DOCS" ]; then
+    # layer_summary セクションを抽出して表示（動線単位）
+    PLANNING=$(grep "計画動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*計画動線: *//')
+    EXECUTION=$(grep "実行動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*実行動線: *//')
+    VERIFICATION=$(grep "検証動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*検証動線: *//')
+    COMPLETION=$(grep "完了動線:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*完了動線: *//')
+
+    # 空文字列チェック: layer_summary が正しく取得できた場合のみ表示
+    if [ -n "$PLANNING" ] && [ -n "$EXECUTION" ] && [ -n "$VERIFICATION" ] && [ -n "$COMPLETION" ]; then
+        cat <<EOF
+$SEP
+  🔄 動線サマリー（Layer Architecture）
+$SEP
+  計画動線: $PLANNING
+  実行動線: $EXECUTION
+  検証動線: $VERIFICATION
+  完了動線: $COMPLETION
+
+  参照: docs/essential-documents.md（動線単位で整理）
+
+EOF
+    fi
+fi
+
+# === CORE（動線単位の認識 - 最重要）===
 cat <<EOF
 $SEP
   🧠 CORE
@@ -363,6 +437,20 @@ $SEP
   validation: critic → PASS で phase 完了
   plan: Edit/Write → playbook必須
   git: 1 playbook = 1 branch
+
+$SEP
+  🔄 動線単位で考える（CRITICAL）
+$SEP
+  全コンポーネントは「動線単位」で扱う:
+    計画動線: 要求 → pm → playbook → state.md
+    実行動線: playbook → Edit → Guard発火
+    検証動線: /crit → critic → PASS/FAIL
+    完了動線: phase完了 → アーカイブ → 次タスク
+
+  Layer（動線ベース）:
+    Core: 計画動線 + 検証動線（ないと破綻）
+    Quality: 実行動線（品質低下）
+    Extension: 完了動線 + 共通（手動代替可）
 
 EOF
 

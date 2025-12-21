@@ -142,9 +142,165 @@ skills: lint-checker, deploy-checker
 /review plan/playbook-*.md
 ```
 
+## Playbook レビュー（動的 Reviewer 選択）
+
+> **原則**: config.roles.reviewer に基づいて reviewer を決定（M127 対応）
+
+### Reviewer 決定ロジック（優先順位）
+
+```yaml
+# 1. state.md の config.roles.reviewer を確認（優先）
+config.roles.reviewer:
+  claudecode: Claude がレビュー実行
+  codex: codex exec --full-auto を Bash で実行
+
+# 2. config.roles.reviewer が未設定の場合のフォールバック
+#    → meta.roles.worker の逆を使用（分離原則）
+fallback:
+  worker == codex → reviewer = claudecode
+  worker == claudecode → reviewer = codex
+```
+
+### 実行フロー
+
+```yaml
+1_config_check:
+  action: Read state.md → config.roles.reviewer を確認
+  path: config.roles.reviewer
+  fallback: meta.roles.worker の逆を使用
+
+2_branch:
+  # config.roles.reviewer=claudecode → Claude がレビュー
+  reviewer_is_claudecode:
+    reason: "config または分離原則により Claude がレビュー"
+    action: 自身（Claude）がレビュー実行（従来の行動）
+
+  # config.roles.reviewer=codex → Codex がレビュー
+  reviewer_is_codex:
+    reason: "config または分離原則により Codex がレビュー"
+    action: codex exec --full-auto を Bash で実行
+
+3_parse_result:
+  pattern: grep -E "^RESULT:" output | tail -1
+  PASS: reviewed: true に更新
+  FAIL: 修正提案を返却
+
+4_update_playbook:
+  tool: Edit
+  target: playbook の meta.reviewed フィールド
+  PASS: reviewed: true
+  FAIL: reviewed: false のまま
+```
+
+### 分岐ロジック詳細
+
+```yaml
+# Step 1: config.roles.reviewer を取得
+reviewer = state.md の config.roles.reviewer
+
+# Step 2: 未設定の場合はフォールバック
+if reviewer == null:
+  worker = playbook.meta.roles.worker
+  reviewer = (worker == codex) ? claudecode : codex
+
+# Step 3: reviewer に応じて実行
+if reviewer == claudecode:
+  # Claude（自分）がレビュー
+  method: 従来のレビュー手順を実行
+
+else if reviewer == codex:
+  # Codex がレビュー
+  reviewer: codex
+  method: codex exec --full-auto を Bash 実行
+```
+
+### Codex 実行手順（worker=claudecode の場合 → Codex レビュー）
+
+```bash
+# 1. playbook パスを取得
+playbook_path=$(grep 'active:' state.md | awk '{print $2}')
+
+# 2. codex exec --full-auto を実行（タイムアウト 180秒）
+codex exec --full-auto "${playbook_path} をレビューしてください。
+done_when が検証可能か、test_command が適切か評価し、
+最後に RESULT: PASS または RESULT: FAIL を必ず出力してください。" \
+  2>&1 | tee /tmp/codex-review.txt
+
+# 3. RESULT をパース
+result=$(grep -E "^RESULT:" /tmp/codex-review.txt | tail -1)
+```
+
+### プロンプトテンプレート
+
+playbook-review-criteria.md を参照した上で、以下のプロンプトを使用:
+
+```
+{playbook_path} をレビューしてください。
+
+## レビュー観点
+1. done_when が検証可能か（具体的、測定可能、達成可能）
+2. done_when に曖昧な表現がないか（「正しく動作」等の禁止パターン）
+3. done_when と test_command が 1:1 で対応しているか
+4. test_command が適切か（exit code で成功/失敗判定可能）
+5. Phase の依存関係が正しいか
+6. validations の 3 観点（technical, consistency, completeness）が妥当か
+
+## 出力フォーマット
+問題があれば ISSUES: セクションに列挙。
+改善案があれば SUGGESTIONS: セクションに列挙。
+最後に必ず RESULT: PASS または RESULT: FAIL を出力。
+```
+
+### RESULT: PASS/FAIL のパースと処理
+
+```yaml
+PASS:
+  action:
+    - Edit で playbook の reviewed: false → reviewed: true に更新
+    - pm に PASS を返却
+  message: "Codex レビュー PASS - playbook 確定"
+
+FAIL:
+  action:
+    - 修正提案を issues フォーマットで返却
+    - playbook の reviewed: false のまま
+    - pm に FAIL と issues を返却
+  message: "Codex レビュー FAIL - 修正が必要"
+  retry: 最大 3回までリトライ可能
+```
+
+### FAIL 時の修正提案フォーマット
+
+```yaml
+issues:
+  - severity: major|minor
+    location: "{file}:{line}"
+    description: "問題の説明"
+    suggestion: "具体的な修正案"
+
+max_retries: 3
+escalation: 3回 FAIL で人間エスカレーション
+escalation_message: |
+  Codex レビューが 3回 FAIL しました。
+  人間の判断が必要です。
+  issues を確認してください。
+```
+
+### Claude レビュー手順（worker=codex の場合 → Claude がレビュー）
+
+1. playbook-review-criteria.md を Read
+2. 対象 playbook を Read
+3. 各 phase の done_criteria, test_command を検証
+4. 出力フォーマットに従ってレビュー結果を作成
+5. Approved/Needs Changes/Rejected を判定
+6. Approved なら reviewed: true に更新
+
+---
+
 ## 参照ファイル
 
 - `.claude/frameworks/playbook-review-criteria.md` - playbook レビュー基準（必須参照）
 - AGENTS.md - コーディング規約
-- state.md - 現在のコンテキスト
+- state.md - 現在のコンテキスト（playbook.active を参照）
+- playbook - meta.roles.worker で reviewer 分岐を決定
 - pm.md - 役割定義

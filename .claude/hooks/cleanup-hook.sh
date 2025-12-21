@@ -80,14 +80,6 @@ find tmp -type f ! -name "README.md" -delete 2>/dev/null || true
 # 空のサブディレクトリを削除
 find tmp -type d -empty -delete 2>/dev/null || true
 
-# リポジトリマップを自動更新
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MAP_SCRIPT="$SCRIPT_DIR/generate-repository-map.sh"
-MAP_RESULT=""
-if [ -x "$MAP_SCRIPT" ]; then
-    MAP_RESULT=$(bash "$MAP_SCRIPT" 2>&1 || true)
-fi
-
 # project.md から進捗を取得
 TOTAL_MILESTONES=$(grep -c "^- id: M" plan/project.md 2>/dev/null || echo "0")
 ACHIEVED_MILESTONES=$(grep -c "status: achieved" plan/project.md 2>/dev/null || echo "0")
@@ -101,11 +93,8 @@ cat << EOF
 
   📊 Project 進捗: $ACHIEVED_MILESTONES / $TOTAL_MILESTONES milestones
 
-  [1] テンポラリファイル クリーンアップ
-      削除ファイル数: $TMP_FILES
-
-  [2] リポジトリマップ 自動更新
-      出力: docs/repository-map.yaml
+  クリーンアップ完了:
+    - 削除テンポラリファイル数: $TMP_FILES
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ⚠️ /clear を実行してください

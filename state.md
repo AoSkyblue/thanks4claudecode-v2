@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m123-minor-fixes.md
-branch: feat/m123-similar-function-consolidation
-last_archived: plan/archive/playbook-m122-auto-update-essential-docs.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m123-minor-fixes.md
 ```
 
 ---
@@ -29,13 +29,10 @@ last_archived: plan/archive/playbook-m122-auto-update-essential-docs.md
 ## goal
 
 ```yaml
-milestone: M123
-phase: p1
-done_when:
-  - session-start.sh が essential-documents.md 不存在時でもエラーにならない
-  - session-start.sh が layer_summary 空文字列時に適切な表示をする
-  - FREEZE_QUEUE エントリが形式統一されている（M123 MERGE）
-next: p2
+milestone: null
+phase: null
+done_when: []
+next: null
 ```
 
 ---
@@ -57,7 +54,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

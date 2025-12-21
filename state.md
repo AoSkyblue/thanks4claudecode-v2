@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m123-minor-fixes.md
+branch: feat/m123-similar-function-consolidation
 last_archived: plan/archive/playbook-m122-auto-update-essential-docs.md
 ```
 
@@ -29,10 +29,13 @@ last_archived: plan/archive/playbook-m122-auto-update-essential-docs.md
 ## goal
 
 ```yaml
-milestone: null
-phase: null
-done_when: []
-next: null
+milestone: M123
+phase: p1
+done_when:
+  - session-start.sh が essential-documents.md 不存在時でもエラーにならない
+  - session-start.sh が layer_summary 空文字列時に適切な表示をする
+  - FREEZE_QUEUE エントリが形式統一されている（M123 MERGE）
+next: p2
 ```
 
 ---
@@ -54,7 +57,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: false     # LLM の自己申告（critic PASS で true）
+self_complete: true      # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 
@@ -89,7 +92,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 11:58:46
+last_start: 2025-12-21 12:48:18
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: false
 ```
@@ -100,28 +103,13 @@ uncommitted_warning: false
 
 ```yaml
 security: admin
-toolstack: A  # A: Claude Code only | B: +Codex | C: +Codex+CodeRabbit
+toolstack: B  # A: Claude Code only | B: +Codex | C: +Codex+CodeRabbit
 roles:
   orchestrator: claudecode  # 監督・調整・設計（常に claudecode）
-  worker: claudecode        # 実装担当（A: claudecode, B/C: codex）
-  reviewer: claudecode      # レビュー担当（A/B: claudecode, C: coderabbit）
+  worker: codex             # 実装担当（A: claudecode, B/C: codex）
+  reviewer: codex           # レビュー担当（M123: codex 指定）
   human: user               # 人間の介入（常に user）
 ```
-
----
-
-## COMPONENT_REGISTRY
-
-```yaml
-hooks: 22
-agents: 3
-skills: 7
-commands: 8
-last_verified: 2025-12-20
-```
-
-> **Single Source of Truth**: コンポーネント数の正規値。
-> 正本は governance/core-manifest.yaml。
 
 ---
 
@@ -166,6 +154,8 @@ queue:
   - { path: "docs/ARCHITECTURE.md", freeze_date: "2025-12-21", reason: "M122 MERGE → layer-architecture-design.md" }
   - { path: "docs/flow-document-map.md", freeze_date: "2025-12-21", reason: "M122 MERGE → essential-documents.md" }
   - { path: "docs/hook-registry.md", freeze_date: "2025-12-21", reason: "M122 MERGE → repository-map.yaml" }
+  # M123 MERGE（機能把握の単一化）
+  - { path: "docs/repository-map.yaml", freeze_date: "2025-12-21", reason: "M123 MERGE → essential-documents.md + core-manifest.yaml で代替" }
 freeze_period_days: 7
 ```
 
@@ -194,5 +184,6 @@ log: []
 |----------|------|
 | CLAUDE.md | LLM の振る舞いルール |
 | plan/project.md | プロジェクト計画 |
-| docs/repository-map.yaml | 全ファイルマッピング（自動生成） |
+| docs/essential-documents.md | 動線単位の必須ドキュメント（自動生成） |
+| governance/core-manifest.yaml | コンポーネント正本（手動） |
 | docs/folder-management.md | フォルダ管理ルール |

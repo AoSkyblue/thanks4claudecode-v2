@@ -354,52 +354,30 @@ EOF
     fi
 fi
 
-# === 機能サマリー（repository-map.yaml）===
-REPO_MAP="docs/repository-map.yaml"
-if [ -f "$REPO_MAP" ]; then
-    HOOKS_COUNT=$(grep "^  hooks:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
-    AGENTS_COUNT=$(grep "^  agents:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
-    SKILLS_COUNT=$(grep "^  skills:" "$REPO_MAP" 2>/dev/null | sed 's/.*: //' | tr -d ' ' || echo "0")
-
-    # 実際のファイル数を取得して比較
-    HOOKS_ACTUAL=$(find .claude/hooks -maxdepth 1 -name "*.sh" -type f 2>/dev/null | wc -l | tr -d ' ')
-    AGENTS_ACTUAL=$(find .claude/agents -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
-    SKILLS_ACTUAL=$(find .claude/skills -maxdepth 1 -type d ! -path ".claude/skills" 2>/dev/null | wc -l | tr -d ' ')
-
-    # 変更検出
-    CATALOG_STATUS="OK"
-    if [ "$HOOKS_ACTUAL" -ne "$HOOKS_COUNT" ] || [ "$AGENTS_ACTUAL" -ne "$AGENTS_COUNT" ] || [ "$SKILLS_ACTUAL" -ne "$SKILLS_COUNT" ]; then
-        CATALOG_STATUS="OUTDATED"
-    fi
-
-    cat <<EOF
-$SEP
-  📦 Feature Catalog Summary
-$SEP
-  $HOOKS_COUNT Hooks | $AGENTS_COUNT SubAgents | $SKILLS_COUNT Skills
-EOF
-
-    if [ "$CATALOG_STATUS" = "OUTDATED" ]; then
-        echo -e "  ⚠️ WARNING: 機能カタログが最新ではありません（変更検出）"
-        echo "  → bash .claude/hooks/generate-repository-map.sh で更新"
-    fi
-    echo ""
-fi
-
-# === Essential Docs（必須ドキュメント数）===
+# === 動線サマリー（essential-documents.md の layer_summary）===
 ESSENTIAL_DOCS="docs/essential-documents.md"
 if [ -f "$ESSENTIAL_DOCS" ]; then
-    # total_essential_documents: から数値を抽出
-    ESSENTIAL_COUNT=$(grep "total_essential_documents:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//' | tr -d ' ')
-    [ -z "$ESSENTIAL_COUNT" ] && ESSENTIAL_COUNT="?"
+    # layer_summary セクションを抽出して表示
+    CORE_LAYER=$(grep "Core Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
+    QUALITY_LAYER=$(grep "Quality Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
+    EXTENSION_LAYER=$(grep "Extension Layer:" "$ESSENTIAL_DOCS" 2>/dev/null | sed 's/.*: *//')
+    TOTAL=$(grep "Total:" "$ESSENTIAL_DOCS" 2>/dev/null | head -1 | sed 's/.*: *//')
 
-    cat <<EOF
+    # 空文字列チェック: layer_summary が正しく取得できた場合のみ表示
+    if [ -n "$CORE_LAYER" ] && [ -n "$QUALITY_LAYER" ] && [ -n "$EXTENSION_LAYER" ] && [ -n "$TOTAL" ]; then
+        cat <<EOF
 $SEP
-  📚 Essential docs: $ESSENTIAL_COUNT files
+  🔄 動線サマリー（Layer Architecture）
 $SEP
+  Core Layer: $CORE_LAYER
+  Quality Layer: $QUALITY_LAYER
+  Extension Layer: $EXTENSION_LAYER
+  Total: $TOTAL
+
   参照: docs/essential-documents.md（動線単位で整理）
 
 EOF
+    fi
 fi
 
 # === CORE（動線単位の認識 - 最重要）===

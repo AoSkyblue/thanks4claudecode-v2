@@ -41,11 +41,8 @@ echo
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo "=== cleanup-hook.sh 検証 ==="
 
-result=$(grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && echo FAIL || echo PASS)
-check "削除済みスクリプト参照がない" "$result"
-
-result=$(grep -q 'repository-map\.yaml' .claude/hooks/cleanup-hook.sh && echo FAIL || echo PASS)
-check "FREEZE_QUEUE ファイル参照がない" "$result"
+result=$(grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh|repository-map\.yaml' .claude/hooks/cleanup-hook.sh && echo FAIL || echo PASS)
+check "削除済みスクリプト/ファイル参照がない" "$result"
 
 echo
 

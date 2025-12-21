@@ -32,9 +32,9 @@ last_archived: plan/archive/playbook-m123-minor-fixes.md
 milestone: M126
 phase: p1
 done_when:
-  - "cleanup-hook.sh から削除済みスクリプトへの参照が除去されている"
+  - "cleanup-hook.sh から削除済みスクリプト/ファイル（generate-repository-map.sh, check-spec-sync.sh, repository-map.yaml）への参照が除去されている"
   - "全 Hook が存在するファイルのみを参照している"
-  - "全 Skill に対応する Command が存在する（lint→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md）"
+  - "固定 6 Skill に対応する Command が存在する: lint-checker→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md"
   - "scripts/flow-integrity-test.sh が PASS する"
 next: p1.1 cleanup-hook.sh から削除済みスクリプト参照を除去
 ```

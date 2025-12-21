@@ -62,9 +62,9 @@ user_prompt_original: |
 ```yaml
 summary: 動線コンテキストの内部参照を完全に整合させ、Skills を Commands として正規化する
 done_when:
-  - "cleanup-hook.sh から削除済みスクリプトへの参照が除去されている"
+  - "cleanup-hook.sh から削除済みスクリプト/ファイル（generate-repository-map.sh, check-spec-sync.sh, repository-map.yaml）への参照が除去されている"
   - "全 Hook が存在するファイルのみを参照している"
-  - "全 Skill に対応する Command が存在する（lint→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md）"
+  - "固定 6 Skill に対応する Command が存在する: lint-checker→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md"
   - "scripts/flow-integrity-test.sh が PASS する"
 ```
 
@@ -78,9 +78,9 @@ done_when:
 
 #### subtasks
 
-- [ ] **p1.1**: cleanup-hook.sh から削除済みスクリプト参照が除去されている
+- [ ] **p1.1**: cleanup-hook.sh から削除済みスクリプト/ファイル参照が除去されている
   - executor: claudecode
-  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
+  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh|repository-map\.yaml' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
   - validations:
     - technical: "Hook が bash -n で構文エラーなし"
     - consistency: "参照先ファイルが全て存在する"
@@ -181,9 +181,9 @@ done_when:
 
 #### subtasks
 
-- [ ] **p_final.1**: cleanup-hook.sh から削除済みスクリプトへの参照が除去されている
+- [ ] **p_final.1**: cleanup-hook.sh から削除済みスクリプト/ファイル参照が除去されている
   - executor: claudecode
-  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
+  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh|repository-map\.yaml' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
   - validations:
     - technical: "grep コマンドが正常動作"
     - consistency: "Hook ファイルの内容が修正済み"

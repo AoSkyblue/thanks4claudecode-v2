@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m127-playbook-reviewer-automation.md
-branch: feat/m127-playbook-reviewer-automation
-last_archived: plan/archive/playbook-m126-flow-context-completeness.md
+active: plan/playbook-m129-runtime-verification-system.md
+branch: feat/m129-runtime-verification
+last_archived: plan/archive/playbook-m128-e2e-audit.md
 ```
 
 ---
@@ -29,14 +29,15 @@ last_archived: plan/archive/playbook-m126-flow-context-completeness.md
 ## goal
 
 ```yaml
-milestone: M127
-phase: p1
+milestone: M129
+phase: p1 (評価フェーズ)
 done_when:
-  - "reviewer SubAgent が playbook.meta.roles.worker を読んで分岐できる（worker=codex → Claude、worker=claudecode → Codex）"
-  - "codex レビューの場合、codex exec --full-auto を Bash で実行できる"
-  - "RESULT: PASS/FAIL をパースして reviewed: true/false を更新できる"
-  - "FAIL 時に修正提案を返却できる"
-next: p1 を実行
+  - "[ ] 「実際の Hook 発火」を検証するテスト（hook-runtime-test.sh）が全 PASS"
+  - "[ ] 「4 動線」の実行時検証テスト（flow-runtime-test.sh）が全 PASS"
+  - "[ ] fail-closed/HARD_BLOCK/admin maintenance テストが e2e-contract-test.sh に追加され全 PASS"
+  - "[ ] コンテキスト保持機構（session-start, pre-compact）の動作検証テストが全 PASS"
+  - "[ ] ユーザー承認を得た設計に基づいて実装が完了"
+next: p1.1-p1.5 の分析を実行
 ```
 
 ---
@@ -58,7 +59,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

@@ -19,8 +19,8 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
+active: plan/playbook-m159-gh-pr-patterns.md
+branch: feat/m158-completion-flow-push-fix
 last_archived: plan/archive/playbook-m158-completion-flow-push-fix.md
 ```
 
@@ -29,12 +29,13 @@ last_archived: plan/archive/playbook-m158-completion-flow-push-fix.md
 ## goal
 
 ```yaml
-milestone: M158
+milestone: M159
 phase: p0
 done_when:
-  - "scripts/contract.sh に git push パターンが追加されている"
-  - "playbook=null + admin モードで git push が実行可能"
-  - "main ブランチが origin と同期済み"
+  - "scripts/contract.sh に gh pr create/merge パターンが追加されている"
+  - "変更がコミット・プッシュされている"
+  - "PR が作成・マージされている"
+  - "main ブランチが最新状態"
 next: p1
 ```
 

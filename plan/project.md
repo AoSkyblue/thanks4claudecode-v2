@@ -1346,7 +1346,7 @@ success_criteria:
 
     **方針:**
     各コンポーネントについて「作成」または「仕様から削除」を決定し、実行する。
-  status: pending
+  status: achieved
   depends_on: [M129]
   playbooks: []
   done_when:

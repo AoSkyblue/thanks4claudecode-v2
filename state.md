@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m140-missing-components.md
-branch: feat/m140-missing-components
-last_archived: plan/archive/playbook-m129-runtime-verification-system.md
+active: plan/playbook-m141-spec-sync.md
+branch: feat/m141-spec-sync
+last_archived: plan/archive/playbook-m140-missing-components.md
 ```
 
 ---
@@ -29,13 +29,13 @@ last_archived: plan/archive/playbook-m129-runtime-verification-system.md
 ## goal
 
 ```yaml
-milestone: M140
+milestone: M141
 phase: p1
 done_when:
-  - "consent-guard.sh が作成されているか、core-manifest.yaml から削除されている"
-  - "create-pr-hook.sh が作成されているか、settings.json から削除されている"
-  - "generate-essential-docs.sh が作成されているか、essential-documents.md から参照が削除されている"
-  - "仕様に記載された全コンポーネントがファイルとして存在する"
+  - "depends-check.sh が settings.json に登録されているか、ファイルが削除されている"
+  - "role-resolver.sh が settings.json に登録されているか、ファイルが削除されている"
+  - "scripts/verify-manifest.sh が存在し、実行可能"
+  - "scripts/verify-manifest.sh が PASS（仕様=実態）"
 next: p1 完了後 p2 へ
 ```
 
@@ -58,7 +58,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: true      # LLM の自己申告（critic PASS で true）
+self_complete: false     # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 
@@ -93,7 +93,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 17:44:24
+last_start: 2025-12-21 18:08:39
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: true
 ```

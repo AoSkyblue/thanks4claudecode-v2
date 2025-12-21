@@ -80,7 +80,7 @@ done_when:
 
 - [ ] **p1.1**: cleanup-hook.sh から削除済みスクリプト参照が除去されている
   - executor: claudecode
-  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && echo FAIL || echo PASS; }`
+  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
   - validations:
     - technical: "Hook が bash -n で構文エラーなし"
     - consistency: "参照先ファイルが全て存在する"
@@ -88,7 +88,7 @@ done_when:
 
 - [ ] **p1.2**: 全 Hook が存在しないファイルを参照していない
   - executor: claudecode
-  - test_command: `bash scripts/check-hook-references.sh && echo PASS || echo FAIL`
+  - test_command: `bash scripts/check-hook-references.sh && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "参照チェックスクリプトが正常終了"
     - consistency: "全 Hook で参照先が存在"
@@ -109,7 +109,7 @@ done_when:
 
 - [ ] **p2.1**: /compact コマンドが存在する（context-management Skill 対応）
   - executor: claudecode
-  - test_command: `test -f .claude/commands/compact.md && echo PASS || echo FAIL`
+  - test_command: `test -f .claude/commands/compact.md && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "コマンドファイルが正しい Markdown 形式"
     - consistency: "context-management Skill と整合"
@@ -117,7 +117,7 @@ done_when:
 
 - [ ] **p2.2**: /post-loop コマンドが存在する（post-loop Skill 対応）
   - executor: claudecode
-  - test_command: `test -f .claude/commands/post-loop.md && echo PASS || echo FAIL`
+  - test_command: `test -f .claude/commands/post-loop.md && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "コマンドファイルが正しい Markdown 形式"
     - consistency: "post-loop Skill と整合"
@@ -146,7 +146,7 @@ done_when:
 
 - [ ] **p3.1**: scripts/flow-integrity-test.sh が存在する
   - executor: claudecode
-  - test_command: `test -f scripts/flow-integrity-test.sh && test -x scripts/flow-integrity-test.sh && echo PASS || echo FAIL`
+  - test_command: `test -f scripts/flow-integrity-test.sh && test -x scripts/flow-integrity-test.sh && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "スクリプトが実行可能"
     - consistency: "テスト項目が goal.done_when と対応"
@@ -154,7 +154,7 @@ done_when:
 
 - [ ] **p3.2**: flow-integrity-test.sh が PASS を返す
   - executor: claudecode
-  - test_command: `bash scripts/flow-integrity-test.sh; [ $? -eq 0 ] && echo PASS || echo FAIL`
+  - test_command: `bash scripts/flow-integrity-test.sh && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "テストが正常実行"
     - consistency: "全項目が PASS"
@@ -162,7 +162,7 @@ done_when:
 
 - [ ] **p3.3**: essential-documents.md の実行動線セクションが更新されている（/compact, /post-loop 両方記載）
   - executor: claudecode
-  - test_command: `grep -q '/compact' docs/essential-documents.md && grep -q '/post-loop' docs/essential-documents.md && echo PASS || echo FAIL`
+  - test_command: `grep -q '/compact' docs/essential-documents.md && grep -q '/post-loop' docs/essential-documents.md && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "ファイルが正しい形式"
     - consistency: "新 Command が反映"
@@ -183,7 +183,7 @@ done_when:
 
 - [ ] **p_final.1**: cleanup-hook.sh から削除済みスクリプトへの参照が除去されている
   - executor: claudecode
-  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && echo FAIL || echo PASS; }`
+  - test_command: `test -f .claude/hooks/cleanup-hook.sh && { grep -qE 'generate-repository-map\.sh|check-spec-sync\.sh' .claude/hooks/cleanup-hook.sh && { echo FAIL; exit 1; } || echo PASS; }`
   - validations:
     - technical: "grep コマンドが正常動作"
     - consistency: "Hook ファイルの内容が修正済み"
@@ -191,7 +191,7 @@ done_when:
 
 - [ ] **p_final.2**: 全 Hook が存在するファイルのみを参照している
   - executor: claudecode
-  - test_command: `bash scripts/check-hook-references.sh && echo PASS || echo FAIL`
+  - test_command: `bash scripts/check-hook-references.sh && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "チェックスクリプトが正常動作"
     - consistency: "全 Hook が検証対象"
@@ -207,7 +207,7 @@ done_when:
 
 - [ ] **p_final.4**: scripts/flow-integrity-test.sh が PASS する
   - executor: claudecode
-  - test_command: `bash scripts/flow-integrity-test.sh; [ $? -eq 0 ] && echo PASS || echo FAIL`
+  - test_command: `bash scripts/flow-integrity-test.sh && echo PASS || { echo FAIL; exit 1; }`
   - validations:
     - technical: "テスト実行が正常"
     - consistency: "全テストケースが PASS"

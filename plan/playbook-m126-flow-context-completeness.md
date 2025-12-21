@@ -64,7 +64,7 @@ summary: 動線コンテキストの内部参照を完全に整合させ、Skill
 done_when:
   - "cleanup-hook.sh から削除済みスクリプトへの参照が除去されている"
   - "全 Hook が存在するファイルのみを参照している"
-  - "全 Skill に対応する Command が存在する（6 Skills → 6 Commands）"
+  - "全 Skill に対応する Command が存在する（lint→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md）"
   - "scripts/flow-integrity-test.sh が PASS する"
 ```
 
@@ -123,9 +123,9 @@ done_when:
     - consistency: "post-loop Skill と整合"
     - completeness: "完了後処理が呼び出せる"
 
-- [ ] **p2.3**: 全 Skill に対応する Command が存在する（6 Skills → 6+ Commands）
+- [ ] **p2.3**: 全 Skill に対応する Command が存在する（6 Skills → 6 Commands）
   - executor: claudecode
-  - test_command: `[ $(ls -1 .claude/commands/*.md | wc -l) -ge 10 ] && echo PASS || echo FAIL`
+  - test_command: `for cmd in lint focus post-loop compact test task-start; do test -f ".claude/commands/${cmd}.md" || { echo "FAIL: ${cmd}.md missing"; exit 1; }; done && echo PASS`
   - validations:
     - technical: "全コマンドファイルが存在"
     - consistency: "Skill と Command が 1:1 対応"
@@ -197,9 +197,9 @@ done_when:
     - consistency: "全 Hook が検証対象"
     - completeness: "0 件の不正参照"
 
-- [ ] **p_final.3**: 全 Skill に対応する Command が存在する（6 Skills → 6 Commands）
+- [ ] **p_final.3**: 全 Skill に対応する Command が存在する（lint→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md）
   - executor: claudecode
-  - test_command: `for skill in lint-checker state post-loop context-management test-runner plan-management; do test -f .claude/commands/${skill}.md 2>/dev/null || test -f .claude/commands/$(echo $skill | sed 's/-.*//').md 2>/dev/null || test -f .claude/commands/compact.md 2>/dev/null; done && echo PASS || echo FAIL`
+  - test_command: `for cmd in lint focus post-loop compact test task-start; do test -f ".claude/commands/${cmd}.md" || { echo "FAIL: ${cmd}.md missing"; exit 1; }; done && echo PASS`
   - validations:
     - technical: "ファイル存在チェックが正常"
     - consistency: "全 Skill がカバー"

@@ -85,13 +85,18 @@ done
 echo
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Test 4: Commands 数チェック
+# Test 4: 必須 Commands 存在チェック
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo "=== Commands 数チェック ==="
+echo "=== 必須 Commands 存在チェック ==="
 
-cmd_count=$(ls -1 .claude/commands/*.md 2>/dev/null | wc -l | tr -d ' ')
-result=$([[ $cmd_count -ge 10 ]] && echo PASS || echo FAIL)
-check "Commands 数 >= 10 (現在: $cmd_count)" "$result"
+REQUIRED_CMDS="lint focus post-loop compact test task-start"
+for cmd in $REQUIRED_CMDS; do
+  if [[ -f ".claude/commands/${cmd}.md" ]]; then
+    check "Required: /${cmd}" "PASS"
+  else
+    check "Required: /${cmd}" "FAIL"
+  fi
+done
 
 echo
 

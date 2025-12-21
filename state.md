@@ -34,7 +34,7 @@ phase: p1
 done_when:
   - "cleanup-hook.sh から削除済みスクリプトへの参照が除去されている"
   - "全 Hook が存在するファイルのみを参照している"
-  - "全 Skill に対応する Command が存在する（6 Skills → 6 Commands）"
+  - "全 Skill に対応する Command が存在する（lint→lint.md, state→focus.md, post-loop→post-loop.md, context-management→compact.md, test-runner→test.md, plan-management→task-start.md）"
   - "scripts/flow-integrity-test.sh が PASS する"
 next: p1.1 cleanup-hook.sh から削除済みスクリプト参照を除去
 ```
@@ -93,7 +93,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2025-12-21 14:00:00
+last_start: 2025-12-21 14:26:47
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: false
 ```

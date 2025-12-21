@@ -153,7 +153,7 @@ done_when:
     - consistency: "Codex レビュー指摘と一致"
     - completeness: "全 Hook の発火テスト状況が分析されている"
 
-**status**: pending
+**status**: done
 **max_iterations**: 5
 
 ---

@@ -30,7 +30,7 @@ last_archived: plan/archive/playbook-m155-final-freeze.md
 
 ```yaml
 milestone: M156
-phase: p6
+phase: p_final
 done_when:
   - "4動線すべてがE2Eで PASS（flow-runtime-test.sh が 25/25 PASS）"
   - "不要なファイル/フォルダがゼロ（deletion_candidates が全て処理済み）"
@@ -58,7 +58,7 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: false     # LLM の自己申告（critic PASS で true）
+self_complete: true      # LLM の自己申告（critic PASS で true）
 user_verified: false     # ユーザーの確認（明示的 OK で true）
 ```
 

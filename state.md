@@ -89,9 +89,9 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2026-01-12 18:19:56
+last_start: 2026-01-12 18:31:11
 last_clear: 2025-12-13 00:30:00
-uncommitted_warning: true
+uncommitted_warning: false
 deep_audit_completed: 2025-12-21
 ```
 

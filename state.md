@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: plan/playbook-m160-desktop-notification.md
-branch: feat/m160-desktop-notification
-last_archived: plan/archive/playbook-m159-gh-pr-patterns.md
+active: null
+branch: null
+last_archived: plan/archive/playbook-m160-desktop-notification.md
 ```
 
 ---
@@ -29,13 +29,10 @@ last_archived: plan/archive/playbook-m159-gh-pr-patterns.md
 ## goal
 
 ```yaml
-milestone: M160
-phase: p1
-done_when:
-  - "~/.claude/notify.sh が存在し、実行可能である"
-  - "notify.sh を実行すると macOS デスクトップ通知が表示される"
-  - "settings.json の Stop フックで notify.sh が呼び出される設定になっている"
-next: p2
+milestone: null
+phase: null
+done_when: []
+next: null
 ```
 
 ---
@@ -57,8 +54,8 @@ return_to: null
 ## verification
 
 ```yaml
-self_complete: false      # LLM の自己申告（critic PASS で true）
-user_verified: false     # ユーザーの確認（明示的 OK で true）
+self_complete: false
+user_verified: false
 ```
 
 > **報酬詐欺防止**: self_complete と user_verified の両方が true になるまで done にしない。

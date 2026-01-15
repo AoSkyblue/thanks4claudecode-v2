@@ -9,7 +9,8 @@
 ```yaml
 project: thanks4claudecode
 created: 2025-12-10
-status: active
+status: completed
+completed_at: 2026-01-15
 ```
 
 ---

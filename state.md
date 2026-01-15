@@ -19,9 +19,9 @@ project: plan/project.md
 ## playbook
 
 ```yaml
-active: null
-branch: null
-last_archived: plan/archive/playbook-m161-settings-json-cleanup.md
+active: plan/archive/playbook-project-completion.md
+branch: main
+last_archived: plan/archive/playbook-project-completion.md
 ```
 
 ---
@@ -29,13 +29,10 @@ last_archived: plan/archive/playbook-m161-settings-json-cleanup.md
 ## goal
 
 ```yaml
-milestone: M161
-phase: p1
-done_when:
-  - settings.json が有効な JSON として解析できる
-  - PreToolUse[0] 内の誤った Stop/Notification ブロックが削除されている
-  - hooks.Stop に notify.sh 呼び出しが追加されている
-next: p_final
+milestone: null
+phase: null
+done_when: []
+next: null
 ```
 
 ---
@@ -92,7 +89,7 @@ forbidden:
 ## session
 
 ```yaml
-last_start: 2026-01-15 13:15:07
+last_start: 2026-01-15 23:45:00
 last_clear: 2025-12-13 00:30:00
 uncommitted_warning: false
 deep_audit_completed: 2025-12-21
